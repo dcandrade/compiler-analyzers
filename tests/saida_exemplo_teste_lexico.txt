@@ -1,0 +1,28 @@
+01 IDE exemplo
+01 IDE teste
+01 DEL ; 
+03 PRE float
+03 IDE f
+03 REL = 
+03 NRO 3.0
+03 DEL ;
+05 PRE string
+05 IDE msg
+05 REL =
+07 PRE if
+07 DEL (
+07 IDE f
+07 REL >=
+07 NRO -10
+07 DEL )
+07 LOG &&
+07 DEL (
+07 IDE f
+07 REL <
+07 DEL )
+08 PRE write
+08 DEL (
+
+06 CMF "teste
+09 CMF "mensagem );
+14 CoMF /* exa869 mi processadores de linguagem de programacao

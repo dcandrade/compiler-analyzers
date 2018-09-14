@@ -1,0 +1,13 @@
+exemplo teste;
+
+float f = 3.0;
+
+string msg = "teste
+
+if ( f >= -10) && (f < ) 
+	write("mensagem );
+	
+// exemplo de teste do lexico
+
+/* exa869 mi processadores de 
+linguagem de programacao
