@@ -52,8 +52,18 @@ public class LexicalAnalyzer {
             }
 
             if (tokenType.isPresent()) { // is reserved word, number, operator or delimiter
-                Token tkn = new Token(tokenType.get(), token, this.currentLineNumber);
-                this.tokens.add(tkn);
+                String conjugate = token + peek;
+                Optional<String> conjugateType = this.lexemeClassifier.checkForPrimitiveTypes(conjugate);
+
+                if(conjugateType.isPresent()){ // gets &&, <= etc
+                    Token tkn = new Token(conjugateType.get(), conjugate, this.currentLineNumber);
+                    this.tokens.add(tkn);
+                    peek = "";
+                    peekType = Optional.empty();
+                }else {
+                    Token tkn = new Token(tokenType.get(), token, this.currentLineNumber);
+                    this.tokens.add(tkn);
+                }
             }
 
             //TODO: other checks
