@@ -69,7 +69,6 @@ public class LexicalAnalyzer {
             //TODO: other checks
 
         }
-
     }
 
     public List<Token> getTokens() {
