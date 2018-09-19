@@ -16,6 +16,8 @@ public class LexemeClassifier {
     public final static String LINE_COMMENT = "LCO";
     public final static String BLOCK_COMMENT = "BCO";
     public final static String STRING = "CDC";
+    public final static String SPACE = "ESP";
+
 
     private final static String[] PRIMITIVE_TYPES = {RESERVED_WORD, NUMBER, ARITHMETICAL_OPERATOR, LOGICAL_OPERATOR,
             RELATIONAL_OPERATOR, DELIMITER};
@@ -23,7 +25,7 @@ public class LexemeClassifier {
 
     private String SYMBOL_REGEX;
     private String STRING_REGEX;
-    private static final String SPACE_REGEX = "[ \t]";
+    private static final String SPACE_REGEX = "[ \t\n]";
     private static final String DIGIT_REGEX = "[0-9]";
     private static final String LETTER_REGEX = "[a-z]|[A-Z]";
     private static final String ARITHMETICAL_OPERATOR_REGEX = "\\+|-|\\*|/|\\+\\+|--";
@@ -44,18 +46,18 @@ public class LexemeClassifier {
         this.populateClassificationMap();
     }
 
-    public String classify(String token) throws TokenClassificationException {
+    public Optional<String> classify(String token) {
 
         for (Map.Entry<String, String> entry : this.categories2Regex.entrySet()) {
             String category = entry.getKey();
             String regex = entry.getValue();
 
             if (Pattern.matches(regex, token)) {
-                return category;
+                return Optional.of(category);
             }
         }
 
-        throw new TokenClassificationException();
+        return Optional.empty();
     }
 
     public Optional<String> checkForPrimitiveTypes(String token) {
@@ -75,8 +77,8 @@ public class LexemeClassifier {
     }
 
     private void populateClassificationMap() {
+
         this.categories2Regex.put(LexemeClassifier.RESERVED_WORD, LexemeClassifier.RESERVERD_WORD_REGEX);
-        this.categories2Regex.put(LexemeClassifier.IDENTIFIER, LexemeClassifier.IDENTIFIER_REGEX);
         this.categories2Regex.put(LexemeClassifier.NUMBER, LexemeClassifier.NUMBER_REGEX);
         this.categories2Regex.put(LexemeClassifier.DELIMITER, LexemeClassifier.DELIMITER_REGEX);
         this.categories2Regex.put(LexemeClassifier.RELATIONAL_OPERATOR, LexemeClassifier.RELATIONAL_OPERATOR_REGEX);
@@ -84,6 +86,7 @@ public class LexemeClassifier {
         this.categories2Regex.put(LexemeClassifier.ARITHMETICAL_OPERATOR, LexemeClassifier.ARITHMETICAL_OPERATOR_REGEX);
         this.categories2Regex.put(LexemeClassifier.BLOCK_COMMENT, LexemeClassifier.BLOCK_COMMENT_REGEX);
         this.categories2Regex.put(LexemeClassifier.LINE_COMMENT, LexemeClassifier.LINE_COMMENT_REGEX);
+        this.categories2Regex.put(LexemeClassifier.SPACE, LexemeClassifier.SPACE_REGEX);
     }
 
     private void generatePendingRegexes() {
@@ -102,6 +105,22 @@ public class LexemeClassifier {
         symbolRegexBuilder.deleteCharAt(symbolRegexBuilder.length() - 1); //deleting last |
 
         return symbolRegexBuilder.toString();
+    }
+
+    private static String getDelimiters() {
+        return LexemeClassifier.DELIMITER_REGEX.replace("|", "");
+    }
+
+    private static String getOperators() {
+        String logical = LexemeClassifier.LOGICAL_OPERATOR_REGEX.replace("|", "");
+        String arithmetical = LexemeClassifier.ARITHMETICAL_OPERATOR_REGEX.replace("|", "");
+        String relational = LexemeClassifier.RELATIONAL_OPERATOR_REGEX.replace("|", "");
+
+        return logical + arithmetical + relational;
+    }
+
+    public static String getAllCompilerDemiliters() {
+        return LexemeClassifier.getDelimiters() + LexemeClassifier.getOperators() + " \t\n";
     }
 
     public static void main(String[] args) {

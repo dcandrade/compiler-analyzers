@@ -1,5 +1,6 @@
 package analyzers.lexical;
 
+import exceptions.TokenClassificationException;
 import model.LexemeClassifier;
 import model.Token;
 
@@ -28,39 +29,47 @@ public class LexicalAnalyzer {
     public void processLine(String line) {
         this.currentLineNumber++;
         line = line.replaceAll("//.*", ""); // Erase line comments
-        Scanner scanner = new Scanner(line);
-        scanner.useDelimiter("[ \t\n]");
 
-        if (!scanner.hasNext()) { // empty line
+        String delimiters = LexemeClassifier.getAllCompilerDemiliters();
+        StringTokenizer tokenizer = new StringTokenizer(line, delimiters, true);
+
+        if (!tokenizer.hasMoreTokens()) { // empty line
             return;
         }
 
         String token = "";
-        String peek = scanner.next();
-        Optional<String> tokenType, peekType = this.lexemeClassifier.checkForPrimitiveTypes(peek);
+        String peek = tokenizer.nextToken();
+        Optional<String> tokenType, peekType = this.lexemeClassifier.classify(peek);
 
-        while (!token.isEmpty() || scanner.hasNext()) {
+        while (!token.isEmpty() || tokenizer.hasMoreTokens()) {
             token = peek;
             tokenType = peekType;
 
-            if (scanner.hasNext()) {
-                peek = scanner.next();
+            if (tokenizer.hasMoreTokens()) {
+                peek = tokenizer.nextToken();
                 peekType = this.lexemeClassifier.checkForPrimitiveTypes(peek);
             } else {
                 peek = "";
                 peekType = Optional.empty();
             }
 
+            //TODO: check empty string on lexeme classifier
+            if (token.isEmpty() || lexemeClassifier.checkTokenType(token, LexemeClassifier.SPACE)) {
+                continue;
+            }
+            //System.out.println(token);
+
+
             if (tokenType.isPresent()) { // is reserved word, number, operator or delimiter
                 String conjugate = token + peek;
                 Optional<String> conjugateType = this.lexemeClassifier.checkForPrimitiveTypes(conjugate);
 
-                if(conjugateType.isPresent()){ // gets &&, <= etc
+                if (conjugateType.isPresent()) { // gets &&, <= etc
                     Token tkn = new Token(conjugateType.get(), conjugate, this.currentLineNumber);
                     this.tokens.add(tkn);
                     peek = "";
                     peekType = Optional.empty();
-                }else {
+                } else {
                     Token tkn = new Token(tokenType.get(), token, this.currentLineNumber);
                     this.tokens.add(tkn);
                 }
