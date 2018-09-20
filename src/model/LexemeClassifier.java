@@ -23,11 +23,11 @@ public class LexemeClassifier {
             RELATIONAL_OPERATOR, DELIMITER};
 
 
-    private String SYMBOL_REGEX;
-    private String STRING_REGEX;
+    private static String SYMBOL_REGEX;
+    private static String STRING_REGEX;
     private static final String SPACE_REGEX = "[ \t\n]";
     private static final String DIGIT_REGEX = "[0-9]";
-    private static final String LETTER_REGEX = "[a-z]|[A-Z]";
+    private static final String LETTER_REGEX = "([a-z]|[A-Z])";
     private static final String ARITHMETICAL_OPERATOR_REGEX = "\\+|-|\\*|/|\\+\\+|--";
     private static final String RELATIONAL_OPERATOR_REGEX = "!=|==|\\<|\\<=|\\>|\\>=|=";
     private static final String RESERVERD_WORD_REGEX = "class|const|variables|method|return|main|if|then|else|while|read|write|void|int|float|bool|string|true|false|extends";
@@ -77,8 +77,8 @@ public class LexemeClassifier {
     }
 
     private void populateClassificationMap() {
-
         this.categories2Regex.put(LexemeClassifier.RESERVED_WORD, LexemeClassifier.RESERVERD_WORD_REGEX);
+        this.categories2Regex.put(LexemeClassifier.IDENTIFIER, LexemeClassifier.IDENTIFIER_REGEX);
         this.categories2Regex.put(LexemeClassifier.NUMBER, LexemeClassifier.NUMBER_REGEX);
         this.categories2Regex.put(LexemeClassifier.DELIMITER, LexemeClassifier.DELIMITER_REGEX);
         this.categories2Regex.put(LexemeClassifier.RELATIONAL_OPERATOR, LexemeClassifier.RELATIONAL_OPERATOR_REGEX);
@@ -86,20 +86,27 @@ public class LexemeClassifier {
         this.categories2Regex.put(LexemeClassifier.ARITHMETICAL_OPERATOR, LexemeClassifier.ARITHMETICAL_OPERATOR_REGEX);
         this.categories2Regex.put(LexemeClassifier.BLOCK_COMMENT, LexemeClassifier.BLOCK_COMMENT_REGEX);
         this.categories2Regex.put(LexemeClassifier.LINE_COMMENT, LexemeClassifier.LINE_COMMENT_REGEX);
-        this.categories2Regex.put(LexemeClassifier.SPACE, LexemeClassifier.SPACE_REGEX);
     }
 
     private void generatePendingRegexes() {
-        this.SYMBOL_REGEX = this.generateSymbolRegex();
-        this.STRING_REGEX = "\"(" + LETTER_REGEX + "\\|" + DIGIT_REGEX + "\\|" + SYMBOL_REGEX + ")*\"";
+        LexemeClassifier.SYMBOL_REGEX = this.generateSymbolRegex();
+        LexemeClassifier.STRING_REGEX = "\"(" + LETTER_REGEX + "|" + DIGIT_REGEX + "|" + SYMBOL_REGEX + ")*\"";
     }
 
     private String generateSymbolRegex() {
+        String specialChars = "[]()*-+?|{}";
+
         StringBuilder symbolRegexBuilder = new StringBuilder();
         for (int ascii_index = 32; ascii_index <= 126; ascii_index++) {
             if (ascii_index != 34) {
-                symbolRegexBuilder.append((char) ascii_index);
-                symbolRegexBuilder.append("|");
+                char ch = (char) ascii_index;
+                if (specialChars.indexOf(ch) != -1) {
+                    symbolRegexBuilder.append("\\").append(ch);
+                    symbolRegexBuilder.append("|");
+                } else {
+                    symbolRegexBuilder.append(ch);
+                    symbolRegexBuilder.append("|");
+                }
             }
         }
         symbolRegexBuilder.deleteCharAt(symbolRegexBuilder.length() - 1); //deleting last |
@@ -125,8 +132,8 @@ public class LexemeClassifier {
 
     public static void main(String[] args) {
         LexemeClassifier classifier = new LexemeClassifier();
-        System.out.println(LexemeClassifier.NUMBER_REGEX);
-        System.out.println(Pattern.matches(LexemeClassifier.NUMBER_REGEX, "a12.344444"));
+        System.out.println(LexemeClassifier.STRING_REGEX);
+        System.out.println(Pattern.matches(LexemeClassifier.STRING_REGEX, "\"a_123\""));
     }
 
 }
