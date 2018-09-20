@@ -1,4 +1,4 @@
-package model;
+package model.token;
 
 public class Token {
     private final String name;
@@ -25,6 +25,6 @@ public class Token {
 
     @Override
     public String toString() {
-        return String.format("%d %s %s", this.getLine(), this.getName(), this.getValue());
+        return String.format("%2d %s %s", this.getLine(), this.getName(), this.getValue());
     }
 }

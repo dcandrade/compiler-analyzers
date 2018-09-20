@@ -1,12 +1,10 @@
 package main;
 
 import analyzers.lexical.LexicalAnalyzer;
-import model.Token;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
 
 public class Compiler {
     public static void main(String[] args) throws IOException {
@@ -16,7 +14,8 @@ public class Compiler {
         Files.lines(Paths.get(path))
                 .forEach(analyzer::processLine);
 
-        List<Token> tokens = analyzer.getTokens();
-        tokens.forEach(System.out::println);
+        analyzer.getTokens().forEach(System.out::println);
+        System.out.println("\n\n");
+        analyzer.getErrors().forEach(System.out::println);
     }
 }
