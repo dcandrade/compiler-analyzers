@@ -80,10 +80,11 @@ public class LexemeClassifier {
         this.categories2Regex.put(LexemeClassifier.RESERVED_WORD, LexemeClassifier.RESERVERD_WORD_REGEX);
         this.categories2Regex.put(LexemeClassifier.IDENTIFIER, LexemeClassifier.IDENTIFIER_REGEX);
         this.categories2Regex.put(LexemeClassifier.NUMBER, LexemeClassifier.NUMBER_REGEX);
-        this.categories2Regex.put(LexemeClassifier.DELIMITER, LexemeClassifier.DELIMITER_REGEX);
         this.categories2Regex.put(LexemeClassifier.RELATIONAL_OPERATOR, LexemeClassifier.RELATIONAL_OPERATOR_REGEX);
         this.categories2Regex.put(LexemeClassifier.LOGICAL_OPERATOR, LexemeClassifier.LOGICAL_OPERATOR_REGEX);
         this.categories2Regex.put(LexemeClassifier.ARITHMETICAL_OPERATOR, LexemeClassifier.ARITHMETICAL_OPERATOR_REGEX);
+        this.categories2Regex.put(LexemeClassifier.DELIMITER, LexemeClassifier.DELIMITER_REGEX);
+        this.categories2Regex.put(LexemeClassifier.STRING, LexemeClassifier.STRING_REGEX);
         this.categories2Regex.put(LexemeClassifier.BLOCK_COMMENT, LexemeClassifier.BLOCK_COMMENT_REGEX);
         this.categories2Regex.put(LexemeClassifier.LINE_COMMENT, LexemeClassifier.LINE_COMMENT_REGEX);
     }

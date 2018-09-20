@@ -57,7 +57,8 @@ public class LexicalAnalyzer {
             if (token.isEmpty() || lexemeClassifier.checkTokenType(token, LexemeClassifier.SPACE)) {
                 continue;
             }
-            //System.out.println(token);
+
+            System.out.println(token);
 
 
             if (tokenType.isPresent()) { // is reserved word, number, operator or delimiter
