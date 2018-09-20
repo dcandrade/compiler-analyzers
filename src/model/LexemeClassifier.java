@@ -32,7 +32,7 @@ public class LexemeClassifier {
     private static final String RELATIONAL_OPERATOR_REGEX = "!=|==|\\<|\\<=|\\>|\\>=|=";
     private static final String RESERVERD_WORD_REGEX = "class|const|variables|method|return|main|if|then|else|while|read|write|void|int|float|bool|string|true|false|extends";
     private static final String IDENTIFIER_REGEX = LETTER_REGEX + "(" + LETTER_REGEX + "|" + DIGIT_REGEX + "|_)*";
-    private static final String NUMBER_REGEX = "(-)?(" + SPACE_REGEX + ")*" + DIGIT_REGEX + "+" + "(." + DIGIT_REGEX + "+" + ")";
+    private static final String NUMBER_REGEX = "(-)?(" + SPACE_REGEX + ")*" + DIGIT_REGEX + "+" + "(\\." + DIGIT_REGEX + "+" + ")*";
     private static final String LOGICAL_OPERATOR_REGEX = "!|&&|\\|\\|";
     private static final String DELIMITER_REGEX = ";|,|\\(|\\)|\\[|\\]|\\{|\\}|\\.";
     private static final String BLOCK_COMMENT_REGEX = "^/\\*";

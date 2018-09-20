@@ -57,13 +57,16 @@ public class LexicalAnalyzer {
             String currentBufferToken = this.buffer.toString();
             Optional<String> nextBufferType = this.lexemeClassifier.classify(currentBufferToken + token);
 
+            String currentBufferType = this.lexemeClassifier.classify(currentBufferToken).orElse("");
+
             boolean isSpace = lexemeClassifier.checkTokenType(token, LexemeClassifier.SPACE);
 
-            if (isSpace || !nextBufferType.isPresent()) {
+            if (!nextBufferType.isPresent() && currentBufferType.equals(LexemeClassifier.NUMBER) && token.equals(".")){
+                this.buffer.append(token);
+            }
+            else if (isSpace || !nextBufferType.isPresent()){
                 this.buffer.delete(0, this.buffer.length());
                 this.buffer.append(token);
-
-                String currentBufferType = this.lexemeClassifier.classify(currentBufferToken).orElse("");
 
                 if(!currentBufferType.equals(LexemeClassifier.SPACE)) {
                     Token tkn = new Token(currentBufferType, currentBufferToken, this.currentLineNumber);
