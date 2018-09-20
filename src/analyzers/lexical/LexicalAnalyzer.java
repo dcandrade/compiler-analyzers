@@ -38,7 +38,7 @@ public class LexicalAnalyzer {
         }
 
         String token = "";
-        String peek = tokenizer.nextToken();
+        String peek = tokenizer.nextToken().trim();
         Optional<String> tokenType, peekType = this.lexemeClassifier.classify(peek);
 
         while (!token.isEmpty() || tokenizer.hasMoreTokens()) {
@@ -46,37 +46,33 @@ public class LexicalAnalyzer {
             tokenType = peekType;
 
             if (tokenizer.hasMoreTokens()) {
-                peek = tokenizer.nextToken();
+                peek = tokenizer.nextToken().trim();
                 peekType = this.lexemeClassifier.checkForPrimitiveTypes(peek);
             } else {
                 peek = "";
                 peekType = Optional.empty();
             }
 
-            //TODO: check empty string on lexeme classifier
-            if (token.isEmpty() || lexemeClassifier.checkTokenType(token, LexemeClassifier.SPACE)) {
-                continue;
-            }
 
-            System.out.println(token);
+            String currentBufferToken = this.buffer.toString();
+            Optional<String> nextBufferType = this.lexemeClassifier.classify(currentBufferToken + token);
 
+            boolean isSpace = lexemeClassifier.checkTokenType(token, LexemeClassifier.SPACE);
 
-            if (tokenType.isPresent()) { // is reserved word, number, operator or delimiter
-                String conjugate = token + peek;
-                Optional<String> conjugateType = this.lexemeClassifier.checkForPrimitiveTypes(conjugate);
+            if (isSpace || !nextBufferType.isPresent()) {
+                this.buffer.delete(0, this.buffer.length());
+                this.buffer.append(token);
 
-                if (conjugateType.isPresent()) { // gets &&, <= etc
-                    Token tkn = new Token(conjugateType.get(), conjugate, this.currentLineNumber);
-                    this.tokens.add(tkn);
-                    peek = "";
-                    peekType = Optional.empty();
-                } else {
-                    Token tkn = new Token(tokenType.get(), token, this.currentLineNumber);
+                String currentBufferType = this.lexemeClassifier.classify(currentBufferToken).orElse("");
+
+                if(!currentBufferType.equals(LexemeClassifier.SPACE)) {
+                    Token tkn = new Token(currentBufferType, currentBufferToken, this.currentLineNumber);
                     this.tokens.add(tkn);
                 }
-            }
 
-            //TODO: other checks
+            } else {
+                this.buffer.append(token);
+            }
 
         }
     }

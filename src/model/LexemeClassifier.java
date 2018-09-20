@@ -25,7 +25,7 @@ public class LexemeClassifier {
 
     private static String SYMBOL_REGEX;
     private static String STRING_REGEX;
-    private static final String SPACE_REGEX = "[ \t\n]";
+    private static final String SPACE_REGEX = "([ \t\n])*";
     private static final String DIGIT_REGEX = "[0-9]";
     private static final String LETTER_REGEX = "([a-z]|[A-Z])";
     private static final String ARITHMETICAL_OPERATOR_REGEX = "\\+|-|\\*|/|\\+\\+|--";
@@ -87,6 +87,7 @@ public class LexemeClassifier {
         this.categories2Regex.put(LexemeClassifier.STRING, LexemeClassifier.STRING_REGEX);
         this.categories2Regex.put(LexemeClassifier.BLOCK_COMMENT, LexemeClassifier.BLOCK_COMMENT_REGEX);
         this.categories2Regex.put(LexemeClassifier.LINE_COMMENT, LexemeClassifier.LINE_COMMENT_REGEX);
+        this.categories2Regex.put(LexemeClassifier.SPACE, LexemeClassifier.SPACE_REGEX);
     }
 
     private void generatePendingRegexes() {
