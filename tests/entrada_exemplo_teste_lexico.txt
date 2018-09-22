@@ -1,8 +1,9 @@
 exemplo teste;
 
-float f = 3.0a;
+float f =-     3.0;
 
-string msg = "teste
+string msg = "teste"
+teste_espaco= "   teste espaço     "
 
 char _abc;
 

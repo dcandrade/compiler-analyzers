@@ -37,31 +37,34 @@ public class LexicalAnalyzer {
         StringTokenizer tokenizer = new StringTokenizer(line, this.delimiters, true);
 
         while (tokenizer.hasMoreTokens()) {
-            String token = tokenizer.nextToken().trim();
+            String token = tokenizer.nextToken();
 
             String currentBufferToken = this.buffer.toString();
             String nextBufferType = this.lexemeClassifier.classify(currentBufferToken + token).orElse("");
             String currentBufferType = this.lexemeClassifier.classify(currentBufferToken).orElse("");
+
             boolean isSpace = lexemeClassifier.checkTokenType(token, TokenTypes.SPACE);
 
             if (this.isCommentSectionOpen(currentBufferToken, nextBufferType)) {
-                this.errorBuffer.append(token).append(" ");
+                this.errorBuffer.append(token);
                 continue;
             }
 
-
-            if (isSpace && this.errorBuffer.length() > 0) {
-                String errorToken = this.errorBuffer.toString();
-                this.errorBuffer.delete(0, this.errorBuffer.length());
-                this.errors.add(new Error(this.currentLineNumber, errorToken));
+            if (isSpace) { // TODO: improve logic
+                this.checkForErrors();
             }
 
+            boolean isMaxMatch = nextBufferType.isEmpty();
 
-            if (nextBufferType.isEmpty() && currentBufferType.equals(TokenTypes.NUMBER) && token.equals(".")) {
-                this.buffer.append(token);
-            } else if (isSpace || nextBufferType.isEmpty()) {
-                this.buffer.delete(0, this.buffer.length());
-                this.buffer.append(token);
+            if (isMaxMatch) {
+                char firstBufferSymbol = (char) this.buffer.chars().findFirst().getAsInt();
+
+                if (currentBufferType.equals(TokenTypes.NUMBER) && token.equals(".")) {
+                    this.buffer.append(token);
+                    continue;
+                }else if(firstBufferSymbol == '-' && isSpace){ // spaces after -. wait for digits
+                    continue;
+                }
 
                 if (currentBufferType.isEmpty()) {
                     this.errorBuffer.append(currentBufferToken);
@@ -70,12 +73,22 @@ public class LexicalAnalyzer {
                     this.tokens.add(tkn);
                 }
 
+                // reset buffer
+                this.buffer.delete(0, this.buffer.length());
+                this.buffer.append(token);
+
             } else {
                 this.buffer.append(token);
             }
-
         }
+    }
 
+    private void checkForErrors() {
+        if (this.errorBuffer.length() > 0) {
+            String errorToken = this.errorBuffer.toString();
+            this.errorBuffer.delete(0, this.errorBuffer.length());
+            this.errors.add(new Error(this.currentLineNumber, errorToken));
+        }
     }
 
     private boolean isCommentSectionOpen(String currentBufferToken, String nextBufferType) {
@@ -97,11 +110,7 @@ public class LexicalAnalyzer {
 
 
     public List<Error> getErrors() {
-        if (this.errorBuffer.length() > 0) {
-            String errorToken = this.errorBuffer.toString();
-            this.errorBuffer.delete(0, this.errorBuffer.length());
-            this.errors.add(new Error(this.currentLineNumber, errorToken));
-        }
+        this.checkForErrors();
         return this.errors;
     }
 }
