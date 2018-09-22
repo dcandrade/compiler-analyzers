@@ -3,7 +3,7 @@ exemplo teste;
 float f =-     3.0;
 
 string msg = "teste"
-teste_espaco= "   teste espaço     "
+teste_espaco_str= "   teste espaço     "
 
 char _abc;
 

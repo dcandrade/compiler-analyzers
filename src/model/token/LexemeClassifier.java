@@ -47,8 +47,13 @@ public class LexemeClassifier {
     }
 
     public static void main(String[] args) {
+        LexemeClassifier lexemeClassifier = new LexemeClassifier();
         System.out.println(STRING_REGEX);
-        System.out.println(Pattern.matches(STRING_REGEX, "\"a_123\""));
+        String str = "\"teste\";;;";
+        System.out.println(str);
+
+        System.out.println(Pattern.matches(STRING_REGEX, str));
+        System.out.println(lexemeClassifier.classify(str));
     }
 
     public Optional<String> classify(String token) {

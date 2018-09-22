@@ -7,6 +7,7 @@ import model.token.TokenTypes;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.StringTokenizer;
 
 
@@ -40,36 +41,53 @@ public class LexicalAnalyzer {
             String token = tokenizer.nextToken();
 
             String currentBufferToken = this.buffer.toString();
-            String nextBufferType = this.lexemeClassifier.classify(currentBufferToken + token).orElse("");
-            String currentBufferType = this.lexemeClassifier.classify(currentBufferToken).orElse("");
+            Optional<String> nextBufferType = this.lexemeClassifier.classify(currentBufferToken + token);
+            Optional<String> currentBufferType = this.lexemeClassifier.classify(currentBufferToken);
 
             boolean isSpace = lexemeClassifier.checkTokenType(token, TokenTypes.SPACE);
 
-            if (this.isCommentSectionOpen(currentBufferToken, nextBufferType)) {
+            if (this.isCommentSectionOpen(currentBufferToken, nextBufferType.orElse(""))) {
                 this.errorBuffer.append(token);
                 continue;
             }
 
-            if (isSpace) { // TODO: improve logic
+            if (isSpace) {
                 this.checkForErrors();
             }
 
-            boolean isMaxMatch = nextBufferType.isEmpty();
+            boolean isMaxMatch = !nextBufferType.isPresent();
 
             if (isMaxMatch) {
-                char firstBufferSymbol = (char) this.buffer.chars().findFirst().getAsInt();
+                char firstBufferSymbol = this.buffer.charAt(0);
+                char lastBufferSymbol = this.buffer.charAt(this.buffer.length() - 1);
 
-                if (currentBufferType.equals(TokenTypes.NUMBER) && token.equals(".")) {
+                if (currentBufferType.isPresent() && currentBufferType.get().equals(TokenTypes.NUMBER) && token.equals(".")) {
                     this.buffer.append(token);
                     continue;
-                }else if(firstBufferSymbol == '-' && isSpace){ // spaces after -. wait for digits
+                } else if (firstBufferSymbol == '-' && isSpace) { // spaces after -. wait for digits
                     continue;
+                } else if (firstBufferSymbol == '"') { // String received
+                    if (lastBufferSymbol != '"' || this.buffer.length() <= 1) {
+                        this.buffer.append(token);
+
+                        while (this.buffer.charAt(this.buffer.length() - 1) != '"' && tokenizer.hasMoreTokens()) {
+                            this.buffer.append(tokenizer.nextToken());
+                        }
+
+                        if (this.buffer.charAt(this.buffer.length() - 1) == '"') {
+                            currentBufferType = Optional.of(TokenTypes.STRING);
+                        } else {
+                            currentBufferType = Optional.empty();
+                        }
+                        currentBufferToken = this.buffer.toString();
+                    }
                 }
 
-                if (currentBufferType.isEmpty()) {
+
+                if (!currentBufferType.isPresent()) {
                     this.errorBuffer.append(currentBufferToken);
-                } else if (!currentBufferType.equals(TokenTypes.SPACE)) {
-                    Token tkn = new Token(currentBufferType, currentBufferToken, this.currentLineNumber);
+                } else if (!currentBufferType.get().equals(TokenTypes.SPACE)) {
+                    Token tkn = new Token(currentBufferType.get(), currentBufferToken, this.currentLineNumber);
                     this.tokens.add(tkn);
                 }
 
