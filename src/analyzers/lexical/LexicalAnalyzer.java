@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.StringTokenizer;
 
-
 public class LexicalAnalyzer {
     private final LexemeClassifier lexemeClassifier;
     private final List<Token> tokens;
@@ -33,14 +32,17 @@ public class LexicalAnalyzer {
     }
 
     public void processLine(String line) {
+
         this.currentLineNumber++;
+
         line = line.replaceAll(LexemeClassifier.LINE_COMMENT_REGEX, ""); // Erase line comments
-        StringTokenizer tokenizer = new StringTokenizer(line, this.delimiters, true);
+        StringTokenizer tokenizer = new StringTokenizer(line, this.delimiters, true); //get the tolkens
 
-        while (tokenizer.hasMoreTokens()) {
+        while (tokenizer.hasMoreTokens()) { //check all tokens
+
             String token = tokenizer.nextToken();
-
             String currentBufferToken = this.buffer.toString();
+
             Optional<String> nextBufferType = this.lexemeClassifier.classify(currentBufferToken + token);
             Optional<String> currentBufferType = this.lexemeClassifier.classify(currentBufferToken);
 
@@ -55,7 +57,7 @@ public class LexicalAnalyzer {
                 this.checkForErrors();
             }
 
-            boolean isMaxMatch = !nextBufferType.isPresent();
+            boolean isMaxMatch = !nextBufferType.isPresent(); //Perguntar a Dani
 
             if (isMaxMatch) {
                 char firstBufferSymbol = this.buffer.charAt(0);
@@ -64,8 +66,10 @@ public class LexicalAnalyzer {
                 if (currentBufferType.isPresent() && currentBufferType.get().equals(TokenTypes.NUMBER) && token.equals(".")) {
                     this.buffer.append(token);
                     continue;
+
                 } else if (firstBufferSymbol == '-' && isSpace) { // spaces after -. wait for digits
                     continue;
+
                 } else if (firstBufferSymbol == '"') { // String received
                     if (lastBufferSymbol != '"' || this.buffer.length() <= 1) {
                         this.buffer.append(token);
