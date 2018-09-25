@@ -5,25 +5,28 @@ import model.token.LexemeClassifier;
 import model.token.Token;
 import model.token.TokenTypes;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.StringTokenizer;
+import javax.naming.OperationNotSupportedException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 
-public class LexicalAnalyzer {
+public class LexicalAnalyzer implements Iterable<Token>{
     private final LexemeClassifier lexemeClassifier;
-    private final List<Token> tokens;
     private final List<Error> errors;
     private final StringBuilder buffer;
     private final StringBuilder errorBuffer;
     private final String delimiters;
     private int currentLineNumber;
     private boolean isComment;
+    private final String path;
 
-    public LexicalAnalyzer() {
+    public LexicalAnalyzer(String path) {
+        this.path = path;
         this.lexemeClassifier = new LexemeClassifier();
-        this.tokens = new LinkedList<>();
         this.buffer = new StringBuilder();
         this.currentLineNumber = 0;
         this.errorBuffer = new StringBuilder();
@@ -32,7 +35,9 @@ public class LexicalAnalyzer {
         this.delimiters = LexemeClassifier.getAllCompilerDemiliters();
     }
 
-    public void processLine(String line) {
+    private List<Token> processLine(String line) {
+        List<Token> tokens = new LinkedList<>();
+        
         this.currentLineNumber++;
         line = line.replaceAll(LexemeClassifier.LINE_COMMENT_REGEX, ""); // Erase line comments
         StringTokenizer tokenizer = new StringTokenizer(line, this.delimiters, true);
@@ -88,7 +93,7 @@ public class LexicalAnalyzer {
                     this.errorBuffer.append(currentBufferToken);
                 } else if (!currentBufferType.get().equals(TokenTypes.SPACE)) {
                     Token tkn = new Token(currentBufferType.get(), currentBufferToken, this.currentLineNumber);
-                    this.tokens.add(tkn);
+                    tokens.add(tkn);
                 }
 
                 // reset buffer
@@ -99,6 +104,8 @@ public class LexicalAnalyzer {
                 this.buffer.append(token);
             }
         }
+        
+        return tokens;
     }
 
     private void checkForErrors() {
@@ -122,8 +129,11 @@ public class LexicalAnalyzer {
         return this.isComment;
     }
 
-    public List<Token> getTokens() {
-        return this.tokens;
+    public List<Token> getTokens() throws IOException {
+         return Files.lines(Paths.get(path))
+                .map(this::processLine)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 
 
@@ -131,4 +141,20 @@ public class LexicalAnalyzer {
         this.checkForErrors();
         return this.errors;
     }
+
+    @Override
+    public Iterator<Token> iterator() {
+        try {
+            return Files.lines(Paths.get(path))
+                    .map(this::processLine)
+                    .flatMap(List::stream)
+                    .iterator();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return (new ArrayList<Token>()).iterator();
+    }
+
+
 }

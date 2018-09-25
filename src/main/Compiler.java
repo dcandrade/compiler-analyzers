@@ -8,13 +8,10 @@ import java.nio.file.Paths;
 
 public class Compiler {
     public static void main(String[] args) throws IOException {
-        LexicalAnalyzer analyzer = new LexicalAnalyzer();
         String path = "tests/entrada_exemplo_teste_lexico.txt";
+        LexicalAnalyzer analyzer = new LexicalAnalyzer(path);
 
-        Files.lines(Paths.get(path))
-                .forEach(analyzer::processLine);
-
-        analyzer.getTokens().forEach(System.out::println);
+        analyzer.forEach(System.out::println);
         System.out.println("\n\n");
         analyzer.getErrors().forEach(System.out::println);
     }
