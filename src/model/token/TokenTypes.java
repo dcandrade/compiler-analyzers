@@ -13,7 +13,7 @@ public class TokenTypes {
     public final static String STRING = "CDC";
     public final static String BLOCK_COMMENT_START = "CBC";
     public final static String BLOCK_COMMENT_END = "FBC";
-    public final static String NUMBER_REGEX = "(-)?(" + LexemeClassifier.SPACE_REGEX + ")*" + LexemeClassifier.DIGIT_REGEX + "+" + "(\\." + LexemeClassifier.DIGIT_REGEX + "+" + ")*";
+
     public static final String[] PRIMITIVE_TYPES =
             {RESERVED_WORD, NUMBER, ARITHMETICAL_OPERATOR, LOGICAL_OPERATOR, RELATIONAL_OPERATOR, DELIMITER};
 }

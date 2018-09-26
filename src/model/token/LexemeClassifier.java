@@ -20,6 +20,9 @@ public class LexemeClassifier {
     static final String DELIMITER_REGEX = ";|,|\\(|\\)|\\[|\\]|\\{|\\}|\\.";
     static final String BLOCK_COMMENT_START_REGEX = "/\\*";
     static final String BLOCK_COMMENT_END_REGEX = "\\*/";
+    public final static String NEGATIVE_NUMBER_REGEX = "(-)(" + LexemeClassifier.SPACE_REGEX + ")*" + LexemeClassifier.DIGIT_REGEX + "+" + "(\\." + LexemeClassifier.DIGIT_REGEX + "+" + ")*";
+    public final static String POSITIVE_NUMBER_REGEX = LexemeClassifier.DIGIT_REGEX + "+" + "(\\." + LexemeClassifier.DIGIT_REGEX + "+" + ")*";
+    public final static String NUMBER_REGEX = NEGATIVE_NUMBER_REGEX +"|" + POSITIVE_NUMBER_REGEX;
     static String SYMBOL_REGEX;
     static String STRING_REGEX;
     private final Map<String, String> categories2Regex;
@@ -48,11 +51,11 @@ public class LexemeClassifier {
 
     public static void main(String[] args) {
         LexemeClassifier lexemeClassifier = new LexemeClassifier();
-        System.out.println(STRING_REGEX);
-        String str = "\"teste\";;;";
+        System.out.println(NUMBER_REGEX);
+        String str = "-    3";
         System.out.println(str);
 
-        System.out.println(Pattern.matches(STRING_REGEX, str));
+        System.out.println(Pattern.matches(NUMBER_REGEX, str));
         System.out.println(lexemeClassifier.classify(str));
     }
 
@@ -89,7 +92,7 @@ public class LexemeClassifier {
     private void populateClassificationMap() {
         this.categories2Regex.put(TokenTypes.RESERVED_WORD, RESERVERD_WORD_REGEX);
         this.categories2Regex.put(TokenTypes.IDENTIFIER, IDENTIFIER_REGEX);
-        this.categories2Regex.put(TokenTypes.NUMBER, TokenTypes.NUMBER_REGEX);
+        this.categories2Regex.put(TokenTypes.NUMBER, NUMBER_REGEX);
         this.categories2Regex.put(TokenTypes.RELATIONAL_OPERATOR, RELATIONAL_OPERATOR_REGEX);
         this.categories2Regex.put(TokenTypes.LOGICAL_OPERATOR, LOGICAL_OPERATOR_REGEX);
         this.categories2Regex.put(TokenTypes.ARITHMETICAL_OPERATOR, ARITHMETICAL_OPERATOR_REGEX);
