@@ -1,18 +1,24 @@
 package model.token;
 
 public class Token {
-    private final String name;
+    private final String type;
     private final String value;
     private final int line;
 
-    public Token(String name, String value, int line) {
-        this.name = name;
+    public Token(String type, String value, int line) {
+        this.type = type;
         this.value = value;
         this.line = line;
     }
 
-    public String getName() {
-        return name;
+    public Token(String type, char value, int line) {
+        this.type = type;
+        this.value = String.valueOf(value);
+        this.line = line;
+    }
+
+    public String getType() {
+        return type;
     }
 
     public String getValue() {
@@ -25,6 +31,6 @@ public class Token {
 
     @Override
     public String toString() {
-        return String.format("%2d %s %s", this.getLine(), this.getName(), this.getValue());
+        return String.format("%2d %s %s", this.getLine(), this.getType(), this.getValue());
     }
 }

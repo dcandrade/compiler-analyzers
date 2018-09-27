@@ -30,6 +30,16 @@ public class LexicalAnalyzer {
         this.delimiters = LexemeClassifier.getAllCompilerDemiliters();
     }
 
+    private Optional<String> getLastInsertedTokenType(){
+        if (!tokens.isEmpty()) {
+            Token lastInsertedToken = tokens.get(tokens.size() - 1);
+            return Optional.of(lastInsertedToken.getType());
+        }
+
+        return Optional.empty();
+    }
+
+
     public void processLine(String line) {
         this.buffer = new StringBuilder();
 
@@ -43,7 +53,6 @@ public class LexicalAnalyzer {
             String token = tokenizer.nextToken();
             String currentBufferToken = this.buffer.toString();
 
-            //System.out.println(currentLineNumber + currentBufferToken.toString());
             String nextBufferToken = currentBufferToken + token;
             Optional<String> nextBufferType = this.lexemeClassifier.classify(nextBufferToken);
             Optional<String> currentBufferType = this.lexemeClassifier.classify(currentBufferToken);
@@ -60,38 +69,28 @@ public class LexicalAnalyzer {
             if (isMaxMatch) {
                 char firstBufferSymbol = this.buffer.charAt(0);
                 char lastBufferSymbol = this.buffer.charAt(this.buffer.length() - 1);
+                boolean bufferIsNumber = currentBufferType.isPresent() && currentBufferType.get().equals(TokenTypes.NUMBER);
 
-                if (currentBufferType.isPresent() && currentBufferType.get().equals(TokenTypes.NUMBER) && token.equals(".")) {
+                if (bufferIsNumber && token.equals(".")) {
                     this.buffer.append(token);
                     continue;
 
                 } else if (firstBufferSymbol == '-' && isSpace) { // spaces after -. wait for digits
                     continue;
 
-                } else if (firstBufferSymbol == '-' && lexemeClassifier.checkTokenType(currentBufferToken, TokenTypes.NUMBER)) {
-                    if (!tokens.isEmpty()) {
-                        Token tokenAux = tokens.get(tokens.size() - 1);
-                        boolean isNumber = lexemeClassifier.checkTokenType(tokenAux.getValue(), TokenTypes.NUMBER);
+                } else if (firstBufferSymbol == '-' && bufferIsNumber) {
+                    Optional<String> lastInsertedTokenType = this.getLastInsertedTokenType();
 
-                        if (isNumber) {
-                            isNumber = lexemeClassifier.checkTokenType(currentBufferToken, TokenTypes.NUMBER);
-                            if (isNumber) {
-                                System.out.println(currentBufferToken);
+                    if(lastInsertedTokenType.isPresent() && lastInsertedTokenType.get().equals(TokenTypes.NUMBER)){
+                        String number = currentBufferToken.substring(1);
 
-                                char token1 = currentBufferToken.charAt(0);
-                                String token2 = currentBufferToken.substring(1);
+                        Token tkn = new Token(TokenTypes.ARITHMETICAL_OPERATOR, firstBufferSymbol, this.currentLineNumber);
+                        this.tokens.add(tkn);
 
-                                Optional<String> token1aux = this.lexemeClassifier.classify("" + token1);
-                                Token tkn = new Token(token1aux.get(), token1 + "", this.currentLineNumber);
-                                this.tokens.add(tkn);
+                        tkn = new Token(TokenTypes.NUMBER, number, this.currentLineNumber);
+                        this.tokens.add(tkn);
 
-                                token1aux = this.lexemeClassifier.classify(token2);
-                                tkn = new Token(token1aux.get(), token2, this.currentLineNumber);
-                                this.tokens.add(tkn);
-
-                                continue;
-                            }
-                        }
+                        continue;
                     }
 
                 } else if (firstBufferSymbol == '"') { // String received

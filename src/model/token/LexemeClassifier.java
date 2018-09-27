@@ -9,22 +9,23 @@ import java.util.regex.Pattern;
 public class LexemeClassifier {
 
     public static final String LINE_COMMENT_REGEX = "//.*";
-    static final String SPACE_REGEX = "([ \t\n])*";
-    static final String DIGIT_REGEX = "[0-9]";
-    static final String LETTER_REGEX = "([a-z]|[A-Z])";
-    static final String IDENTIFIER_REGEX = LETTER_REGEX + "(" + LETTER_REGEX + "|" + DIGIT_REGEX + "|_)*";
-    static final String ARITHMETICAL_OPERATOR_REGEX = "\\+|-|\\*|/|\\+\\+|--";
-    static final String RELATIONAL_OPERATOR_REGEX = "!=|==|\\<|\\<=|\\>|\\>=|=";
-    static final String RESERVERD_WORD_REGEX = "class|const|variables|method|return|main|if|then|else|while|read|write|void|int|float|bool|string|true|false|extends";
-    static final String LOGICAL_OPERATOR_REGEX = "!|&&|\\|\\|";
-    static final String DELIMITER_REGEX = ";|,|\\(|\\)|\\[|\\]|\\{|\\}|\\.";
-    static final String BLOCK_COMMENT_START_REGEX = "/\\*";
-    static final String BLOCK_COMMENT_END_REGEX = "\\*/";
-    public final static String NEGATIVE_NUMBER_REGEX = "(-)(" + LexemeClassifier.SPACE_REGEX + ")*" + LexemeClassifier.DIGIT_REGEX + "+" + "(\\." + LexemeClassifier.DIGIT_REGEX + "+" + ")*";
-    public final static String POSITIVE_NUMBER_REGEX = LexemeClassifier.DIGIT_REGEX + "+" + "(\\." + LexemeClassifier.DIGIT_REGEX + "+" + ")*";
-    public final static String NUMBER_REGEX = NEGATIVE_NUMBER_REGEX +"|" + POSITIVE_NUMBER_REGEX;
-    static String SYMBOL_REGEX;
-    static String STRING_REGEX;
+
+    private static final String SPACE_REGEX = "([ \t\n])*";
+    private static final String DIGIT_REGEX = "[0-9]";
+    private static final String LETTER_REGEX = "([a-z]|[A-Z])";
+    private static final String IDENTIFIER_REGEX = LETTER_REGEX + "(" + LETTER_REGEX + "|" + DIGIT_REGEX + "|_)*";
+    private static final String ARITHMETICAL_OPERATOR_REGEX = "\\+|-|\\*|/|\\+\\+|--";
+    private static final String RELATIONAL_OPERATOR_REGEX = "!=|==|\\<|\\<=|\\>|\\>=|=";
+    private static final String RESERVERD_WORD_REGEX = "class|const|variables|method|return|main|if|then|else|while|read|write|void|int|float|bool|string|true|false|extends";
+    private static final String LOGICAL_OPERATOR_REGEX = "!|&&|\\|\\|";
+    private static final String DELIMITER_REGEX = ";|,|\\(|\\)|\\[|\\]|\\{|\\}|\\.";
+    private static final String BLOCK_COMMENT_START_REGEX = "/\\*";
+    private static final String BLOCK_COMMENT_END_REGEX = "\\*/";
+    private final static String NEGATIVE_NUMBER_REGEX = "(-)(" + LexemeClassifier.SPACE_REGEX + ")*" + LexemeClassifier.DIGIT_REGEX + "+" + "(\\." + LexemeClassifier.DIGIT_REGEX + "+" + ")*";
+    private final static String POSITIVE_NUMBER_REGEX = LexemeClassifier.DIGIT_REGEX + "+" + "(\\." + LexemeClassifier.DIGIT_REGEX + "+" + ")*";
+    private final static String NUMBER_REGEX = NEGATIVE_NUMBER_REGEX +"|" + POSITIVE_NUMBER_REGEX;
+    private static String SYMBOL_REGEX;
+    private static String STRING_REGEX;
     private final Map<String, String> categories2Regex;
 
     public LexemeClassifier() {
