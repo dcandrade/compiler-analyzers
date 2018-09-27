@@ -50,13 +50,9 @@ public class LexicalAnalyzer {
 
             boolean isSpace = lexemeClassifier.checkTokenType(token, TokenTypes.SPACE);
 
-            if (this.isCommentSectionOpen(currentBufferToken, currentBufferType.orElse(""))) {
+            if (!isSpace && this.isCommentSectionOpen(currentBufferToken, currentBufferType.orElse(""))) {
                 this.errorBuffer.append(token);
                 continue;
-            }
-
-            if (isSpace) {
-                this.checkForErrors();
             }
 
             boolean isMaxMatch = !nextBufferType.isPresent() && !currentBufferToken.isEmpty();
@@ -118,6 +114,7 @@ public class LexicalAnalyzer {
 
                 if (!currentBufferType.isPresent()) {
                     this.errorBuffer.append(currentBufferToken);
+                    this.checkForErrors();
                 } else if (!currentBufferType.get().equals(TokenTypes.SPACE)) {
                     Token tkn = new Token(currentBufferType.get(), currentBufferToken, this.currentLineNumber);
                     this.tokens.add(tkn);
