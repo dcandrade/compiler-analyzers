@@ -50,7 +50,7 @@ public class LexicalAnalyzer {
 
             boolean isSpace = lexemeClassifier.checkTokenType(token, TokenTypes.SPACE);
 
-            if (this.isCommentSectionOpen(currentBufferToken, nextBufferType.orElse(""))) {
+            if (this.isCommentSectionOpen(currentBufferToken, currentBufferType.orElse(""))) {
                 this.errorBuffer.append(token);
                 continue;
             }
@@ -77,7 +77,7 @@ public class LexicalAnalyzer {
                         Token tokenAux = tokens.get(tokens.size() - 1);
                         boolean isNumber = lexemeClassifier.checkTokenType(tokenAux.getValue(), TokenTypes.NUMBER);
 
-                        if(isNumber) {
+                        if (isNumber) {
                             isNumber = lexemeClassifier.checkTokenType(currentBufferToken, TokenTypes.NUMBER);
                             if (isNumber) {
                                 System.out.println(currentBufferToken);
@@ -85,8 +85,8 @@ public class LexicalAnalyzer {
                                 char token1 = currentBufferToken.charAt(0);
                                 String token2 = currentBufferToken.substring(1);
 
-                                Optional<String> token1aux = this.lexemeClassifier.classify(""+token1);
-                                Token tkn = new Token(token1aux.get(), token1+"", this.currentLineNumber);
+                                Optional<String> token1aux = this.lexemeClassifier.classify("" + token1);
+                                Token tkn = new Token(token1aux.get(), token1 + "", this.currentLineNumber);
                                 this.tokens.add(tkn);
 
                                 token1aux = this.lexemeClassifier.classify(token2);
@@ -142,11 +142,12 @@ public class LexicalAnalyzer {
     }
 
     private boolean isCommentSectionOpen(String currentBufferToken, String nextBufferType) {
+        int size = errorBuffer.length();
         if (nextBufferType.equals(TokenTypes.BLOCK_COMMENT_START)) {
             this.isComment = true;
             this.errorBuffer.append(currentBufferToken);
             this.buffer.delete(0, this.buffer.length());
-        } else if (nextBufferType.equals(TokenTypes.BLOCK_COMMENT_END)) {
+        } else if (size > 0 && errorBuffer.substring(size - 2, size).equals("*/")) {
             this.isComment = false;
             this.errorBuffer.delete(0, this.errorBuffer.length());
         }

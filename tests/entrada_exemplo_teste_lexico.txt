@@ -7,6 +7,10 @@ int k =       10         -            2;
 string msg = "teste"
 teste_espaco_str= "   teste espaço     "
 
+/* teste
+
+*/
+
 char _abc;
 
 int ab%cde;
