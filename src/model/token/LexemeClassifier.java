@@ -23,7 +23,7 @@ public class LexemeClassifier {
     private static final String BLOCK_COMMENT_END_REGEX = "\\*/";
     private final static String NEGATIVE_NUMBER_REGEX = "(-)(" + LexemeClassifier.SPACE_REGEX + ")*" + LexemeClassifier.DIGIT_REGEX + "+" + "(\\." + LexemeClassifier.DIGIT_REGEX + "+" + ")*";
     private final static String POSITIVE_NUMBER_REGEX = LexemeClassifier.DIGIT_REGEX + "+" + "(\\." + LexemeClassifier.DIGIT_REGEX + "+" + ")*";
-    private final static String NUMBER_REGEX = NEGATIVE_NUMBER_REGEX +"|" + POSITIVE_NUMBER_REGEX;
+    private final static String NUMBER_REGEX = NEGATIVE_NUMBER_REGEX + "|" + POSITIVE_NUMBER_REGEX;
     private static String SYMBOL_REGEX;
     private static String STRING_REGEX;
     private final Map<String, String> categories2Regex;
