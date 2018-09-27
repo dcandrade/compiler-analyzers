@@ -14,7 +14,7 @@ public class LexicalAnalyzer {
     private final LexemeClassifier lexemeClassifier;
     private final List<Token> tokens;
     private final List<Error> errors;
-    private final StringBuilder buffer;
+    private StringBuilder buffer;
     private final StringBuilder errorBuffer;
     private final String delimiters;
     private int currentLineNumber;
@@ -23,7 +23,6 @@ public class LexicalAnalyzer {
     public LexicalAnalyzer() {
         this.lexemeClassifier = new LexemeClassifier();
         this.tokens = new LinkedList<>();
-        this.buffer = new StringBuilder();
         this.currentLineNumber = 0;
         this.errorBuffer = new StringBuilder();
         this.errors = new LinkedList<>();
@@ -32,6 +31,7 @@ public class LexicalAnalyzer {
     }
 
     public void processLine(String line) {
+        this.buffer = new StringBuilder();
 
         this.currentLineNumber++;
 
@@ -43,7 +43,9 @@ public class LexicalAnalyzer {
             String token = tokenizer.nextToken();
             String currentBufferToken = this.buffer.toString();
 
-            Optional<String> nextBufferType = this.lexemeClassifier.classify(currentBufferToken + token);
+            //System.out.println(currentLineNumber + currentBufferToken.toString());
+            String nextBufferToken = currentBufferToken + token;
+            Optional<String> nextBufferType = this.lexemeClassifier.classify(nextBufferToken);
             Optional<String> currentBufferType = this.lexemeClassifier.classify(currentBufferToken);
 
             boolean isSpace = lexemeClassifier.checkTokenType(token, TokenTypes.SPACE);
@@ -57,7 +59,7 @@ public class LexicalAnalyzer {
                 this.checkForErrors();
             }
 
-            boolean isMaxMatch = !nextBufferType.isPresent(); //Perguntar a Dani
+            boolean isMaxMatch = !nextBufferType.isPresent() && !currentBufferToken.isEmpty(); //Perguntar a Dani
 
             if (isMaxMatch) {
                 char firstBufferSymbol = this.buffer.charAt(0);
