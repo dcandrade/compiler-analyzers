@@ -59,7 +59,7 @@ public class LexicalAnalyzer {
                 this.checkForErrors();
             }
 
-            boolean isMaxMatch = !nextBufferType.isPresent() && !currentBufferToken.isEmpty(); //Perguntar a Dani
+            boolean isMaxMatch = !nextBufferType.isPresent() && !currentBufferToken.isEmpty();
 
             if (isMaxMatch) {
                 char firstBufferSymbol = this.buffer.charAt(0);
@@ -71,6 +71,32 @@ public class LexicalAnalyzer {
 
                 } else if (firstBufferSymbol == '-' && isSpace) { // spaces after -. wait for digits
                     continue;
+
+                } else if (firstBufferSymbol == '-' && lexemeClassifier.checkTokenType(currentBufferToken, TokenTypes.NUMBER)) {
+                    if (!tokens.isEmpty()) {
+                        Token tokenAux = tokens.get(tokens.size() - 1);
+                        boolean isNumber = lexemeClassifier.checkTokenType(tokenAux.getValue(), TokenTypes.NUMBER);
+
+                        if(isNumber) {
+                            isNumber = lexemeClassifier.checkTokenType(currentBufferToken, TokenTypes.NUMBER);
+                            if (isNumber) {
+                                System.out.println(currentBufferToken);
+
+                                char token1 = currentBufferToken.charAt(0);
+                                String token2 = currentBufferToken.substring(1);
+
+                                Optional<String> token1aux = this.lexemeClassifier.classify(""+token1);
+                                Token tkn = new Token(token1aux.get(), token1+"", this.currentLineNumber);
+                                this.tokens.add(tkn);
+
+                                token1aux = this.lexemeClassifier.classify(token2);
+                                tkn = new Token(token1aux.get(), token2, this.currentLineNumber);
+                                this.tokens.add(tkn);
+
+                                continue;
+                            }
+                        }
+                    }
 
                 } else if (firstBufferSymbol == '"') { // String received
                     if (lastBufferSymbol != '"' || this.buffer.length() <= 1) {
