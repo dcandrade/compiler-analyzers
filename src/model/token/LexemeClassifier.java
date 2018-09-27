@@ -34,11 +34,11 @@ public class LexemeClassifier {
         this.populateClassificationMap();
     }
 
-    static String getDelimiters() {
+    private static String getDelimiters() {
         return DELIMITER_REGEX.replace("|", "");
     }
 
-    static String getOperators() {
+    private static String getOperators() {
         String logical = LOGICAL_OPERATOR_REGEX.replace("|", "");
         String arithmetical = ARITHMETICAL_OPERATOR_REGEX.replace("|", "");
         String relational = RELATIONAL_OPERATOR_REGEX.replace("|", "");
@@ -60,18 +60,18 @@ public class LexemeClassifier {
         System.out.println(lexemeClassifier.classify(str));
     }
 
-    public Optional<String> classify(String token) {
+    public String classify(String token) {
 
         for (Map.Entry<String, String> entry : this.categories2Regex.entrySet()) {
             String category = entry.getKey();
             String regex = entry.getValue();
 
             if (Pattern.matches(regex, token)) {
-                return Optional.of(category);
+                return category;
             }
         }
 
-        return Optional.empty();
+        return TokenTypes.INVALID_TOKEN;
     }
 
     public Optional<String> checkForPrimitiveTypes(String token) {

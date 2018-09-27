@@ -11,12 +11,6 @@ public class Token {
         this.line = line;
     }
 
-    public Token(String type, char value, int line) {
-        this.type = type;
-        this.value = String.valueOf(value);
-        this.line = line;
-    }
-
     public String getType() {
         return type;
     }

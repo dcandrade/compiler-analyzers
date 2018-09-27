@@ -1,6 +1,6 @@
            exemplo teste;
 
-float f =-     3.0;
+ float f =-     3.0;
 
 int k =       10         -            2;
 

@@ -30,9 +30,9 @@ public class LexicalAnalyzer {
         this.delimiters = LexemeClassifier.getAllCompilerDemiliters();
     }
 
-    private Optional<String> getLastInsertedTokenType(){
-        if (!tokens.isEmpty()) {
-            Token lastInsertedToken = tokens.get(tokens.size() - 1);
+    private Optional<String> getLastInsertedTokenType() {
+        if (!this.tokens.isEmpty()) {
+            Token lastInsertedToken = this.tokens.get(this.tokens.size() - 1);
             return Optional.of(lastInsertedToken.getType());
         }
 
@@ -42,10 +42,9 @@ public class LexicalAnalyzer {
 
     public void processLine(String line) {
         this.buffer = new StringBuilder();
-
         this.currentLineNumber++;
 
-        line = line.replaceAll(LexemeClassifier.LINE_COMMENT_REGEX, ""); // Erase line comments
+        line = line.replaceAll(LexemeClassifier.LINE_COMMENT_REGEX, ""); // Delete line comments
         StringTokenizer tokenizer = new StringTokenizer(line, this.delimiters, true); //get the tolkens
 
         while (tokenizer.hasMoreTokens()) { //check all tokens
@@ -54,22 +53,22 @@ public class LexicalAnalyzer {
             String currentBufferToken = this.buffer.toString();
 
             String nextBufferToken = currentBufferToken + token;
-            Optional<String> nextBufferType = this.lexemeClassifier.classify(nextBufferToken);
-            Optional<String> currentBufferType = this.lexemeClassifier.classify(currentBufferToken);
+            String nextBufferType = this.lexemeClassifier.classify(nextBufferToken);
+            String currentBufferType = this.lexemeClassifier.classify(currentBufferToken);
 
-            boolean isSpace = lexemeClassifier.checkTokenType(token, TokenTypes.SPACE);
+            boolean isSpace = this.lexemeClassifier.checkTokenType(token, TokenTypes.SPACE);
 
-            if (!isSpace && this.isCommentSectionOpen(currentBufferToken, currentBufferType.orElse(""))) {
+            if (this.isCommentSectionOpen(currentBufferToken, nextBufferType)) {
                 this.errorBuffer.append(token);
                 continue;
             }
 
-            boolean isMaxMatch = !nextBufferType.isPresent() && !currentBufferToken.isEmpty();
+            boolean isMaxMatch = nextBufferType.equals(TokenTypes.INVALID_TOKEN) && !currentBufferToken.isEmpty();
 
             if (isMaxMatch) {
                 char firstBufferSymbol = this.buffer.charAt(0);
                 char lastBufferSymbol = this.buffer.charAt(this.buffer.length() - 1);
-                boolean bufferIsNumber = currentBufferType.isPresent() && currentBufferType.get().equals(TokenTypes.NUMBER);
+                boolean bufferIsNumber = currentBufferType.equals(TokenTypes.NUMBER);
 
                 if (bufferIsNumber && token.equals(".")) {
                     this.buffer.append(token);
@@ -81,52 +80,62 @@ public class LexicalAnalyzer {
                 } else if (firstBufferSymbol == '-' && bufferIsNumber) {
                     Optional<String> lastInsertedTokenType = this.getLastInsertedTokenType();
 
-                    if(lastInsertedTokenType.isPresent() && lastInsertedTokenType.get().equals(TokenTypes.NUMBER)){
+                    if (lastInsertedTokenType.isPresent() && lastInsertedTokenType.get().equals(TokenTypes.NUMBER)) {
                         String number = currentBufferToken.substring(1);
 
-                        Token tkn = new Token(TokenTypes.ARITHMETICAL_OPERATOR, firstBufferSymbol, this.currentLineNumber);
-                        this.tokens.add(tkn);
-
-                        tkn = new Token(TokenTypes.NUMBER, number, this.currentLineNumber);
-                        this.tokens.add(tkn);
-
+                        this.validateBufferToken(String.valueOf(firstBufferSymbol), TokenTypes.ARITHMETICAL_OPERATOR);
+                        this.validateBufferToken(number, TokenTypes.NUMBER);
                         continue;
                     }
-
                 } else if (firstBufferSymbol == '"') { // String received
-                    if (lastBufferSymbol != '"' || this.buffer.length() <= 1) {
+                    if (lastBufferSymbol != '"' || this.buffer.length() == 1) {
                         this.buffer.append(token);
 
                         while (this.buffer.charAt(this.buffer.length() - 1) != '"' && tokenizer.hasMoreTokens()) {
                             this.buffer.append(tokenizer.nextToken());
                         }
 
-                        if (this.buffer.charAt(this.buffer.length() - 1) == '"') {
-                            currentBufferType = Optional.of(TokenTypes.STRING);
-                        } else {
-                            currentBufferType = Optional.empty();
-                        }
                         currentBufferToken = this.buffer.toString();
+                        currentBufferType = TokenTypes.INVALID_TOKEN;
+
+                        if (currentBufferToken.endsWith("\"")) {
+                            currentBufferType = TokenTypes.STRING;
+                        }
+
+                        this.validateBufferToken(currentBufferToken, currentBufferType);
+                        continue;
                     }
                 }
 
-
-                if (!currentBufferType.isPresent()) {
-                    this.errorBuffer.append(currentBufferToken);
-                    this.checkForErrors();
-                } else if (!currentBufferType.get().equals(TokenTypes.SPACE)) {
-                    Token tkn = new Token(currentBufferType.get(), currentBufferToken, this.currentLineNumber);
-                    this.tokens.add(tkn);
-                }
-
-                // reset buffer
-                this.buffer.delete(0, this.buffer.length());
-                this.buffer.append(token);
-
+                this.validateBufferToken(currentBufferToken, currentBufferType, token);
             } else {
                 this.buffer.append(token);
             }
         }
+
+        String currentBufferToken = this.buffer.toString();
+        String currentBufferType = this.lexemeClassifier.classify(currentBufferToken);
+
+        this.validateBufferToken(currentBufferToken, currentBufferType);
+    }
+
+    private void validateBufferToken(String token, String tokenType, String nextToken) {
+        this.validateBufferToken(token, tokenType);
+        // restart buffer with given input
+        this.buffer.append(nextToken);
+    }
+
+
+    private void validateBufferToken(String token, String tokenType) {
+        if (tokenType.equals(TokenTypes.INVALID_TOKEN)) {
+            this.errors.add(new Error(this.currentLineNumber, token));
+        } else if (!tokenType.equals(TokenTypes.SPACE)) {
+            Token tkn = new Token(tokenType, token, this.currentLineNumber);
+            this.tokens.add(tkn);
+        }
+        // reset buffer
+        this.buffer.delete(0, this.buffer.length());
+
     }
 
     private void checkForErrors() {
