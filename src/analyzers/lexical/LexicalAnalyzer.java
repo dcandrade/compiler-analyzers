@@ -70,25 +70,8 @@ public class LexicalAnalyzer implements Iterable<Token> {
             boolean isMaxMatch = nextBufferType.equals(TokenTypes.INVALID_TOKEN) && !currentBufferLexeme.isEmpty();
 
             if (isMaxMatch) {
-                char firstBufferSymbol = this.buffer.charAt(0);
-                char lastBufferSymbol = this.buffer.charAt(this.buffer.length() - 1);
-                boolean bufferIsNumber = currentBufferType.equals(TokenTypes.NUMBER);
-
-
-                if (bufferIsNumber && lexeme.equals(".")) {
-                    this.buffer.append(lexeme);
+                if (isMaxMatchException(tokens, lexemeTokenizer, lexeme, currentBufferLexeme, currentBufferType, isSpace))
                     continue;
-                } else if (firstBufferSymbol == '-' && isSpace) { // spaces after -. wait for digits
-                    continue;
-                } else if (firstBufferSymbol == '-' && bufferIsNumber) {
-                    if (this.checkAndExpandArithmeticalExpression(currentBufferLexeme, firstBufferSymbol, tokens))
-                        continue;
-                } else if (firstBufferSymbol == '"') { // String received
-                    if (lastBufferSymbol != '"' || this.buffer.length() == 1) {
-                        this.processIncomingString(lexemeTokenizer, lexeme, tokens);
-                        continue;
-                    }
-                }
 
                 this.validateBufferLexeme(currentBufferLexeme, currentBufferType, tokens);
             }
@@ -103,17 +86,45 @@ public class LexicalAnalyzer implements Iterable<Token> {
         return tokens;
     }
 
-    private boolean checkAndExpandArithmeticalExpression(String currentBufferLexeme, char firstBufferSymbol, List<Token> tokens) {
-        String lastInsertedTokenType = this.getLastInsertedTokenType(tokens);
+    private boolean isMaxMatchException(List<Token> tokens, StringTokenizer lexemeTokenizer, String lexeme, String currentBufferLexeme, String currentBufferType, boolean isSpace) {
+        char firstBufferSymbol = this.buffer.charAt(0);
+        char lastBufferSymbol = this.buffer.charAt(this.buffer.length() - 1);
+        boolean bufferIsNumber = currentBufferType.equals(TokenTypes.NUMBER);
 
-        if (lastInsertedTokenType.equals(TokenTypes.NUMBER)) {
+
+        boolean incomingFPNumber = bufferIsNumber && lexeme.equals(".");
+        if (incomingFPNumber) {
+            this.buffer.append(lexeme);
+            return true;
+        }
+
+        boolean negativeNumberCandidate = firstBufferSymbol == '-' && isSpace;
+        if (negativeNumberCandidate) { // spaces after -. wait for digits
+            return true;
+        }
+
+        boolean subtractionExpression = firstBufferSymbol == '-' && bufferIsNumber && this.getLastInsertedTokenType(tokens).equals(TokenTypes.NUMBER);
+        if (subtractionExpression) {
+            this.expandSubtraction(currentBufferLexeme, firstBufferSymbol, tokens);
+            return true;
+        }
+
+        boolean incomingString = firstBufferSymbol == '"' && (lastBufferSymbol != '"' || this.buffer.length() == 1);
+        if (incomingString) { // String received
+            this.processIncomingString(lexemeTokenizer, lexeme, tokens);
+            return true;
+
+        }
+        return false;
+    }
+
+    private void expandSubtraction(String currentBufferLexeme, char firstBufferSymbol, List<Token> tokens) {
+
             String number = currentBufferLexeme.substring(1);
 
             this.validateBufferLexeme(String.valueOf(firstBufferSymbol), TokenTypes.ARITHMETICAL_OPERATOR, tokens);
             this.validateBufferLexeme(number, TokenTypes.NUMBER, tokens);
-            return true;
-        }
-        return false;
+
     }
 
     private void processIncomingString(StringTokenizer lexemeTokenizer, String lexeme, List<Token> tokens) {
