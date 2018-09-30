@@ -14,7 +14,9 @@ public class Compiler {
     public static void main(String[] args) {
         if (args.length == 0) {
             // Entrada padrão caso não seja passada nenhuma por linha de comando
-            args = new String[]{"tests/entrada_exemplo_teste_lexico.txt"};
+            String path = "tests/entrada_exemplo_teste_lexico.txt";
+            System.out.println("Nenhum arquivo passado. Utilizando teste padrão");
+            args = new String[]{path};
         }
 
         for (String file : args) {
@@ -37,6 +39,7 @@ public class Compiler {
                 }
 
                 writer.close();
+                System.out.println("-- Saída disponível em "+outputFile);
             } catch (IOException e) {
                 System.err.println("Não foi possível encontrar o arquivo " + file);
             }

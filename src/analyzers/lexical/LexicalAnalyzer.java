@@ -70,10 +70,11 @@ public class LexicalAnalyzer implements Iterable<Token> {
                 continue;
             }
 
-            //Verifica ser o token é um máximomatch
+            //Verifica ser o token é um máximo match
             boolean isMaxMatch = nextBufferType.equals(TokenTypes.INVALID_TOKEN) && !currentBufferLexeme.isEmpty();
 
             if (isMaxMatch) {
+                // Se for exceção ao máximo match passa para o próximo token
                 if (isMaxMatchException(tokens, lexemeTokenizer, lexeme, currentBufferLexeme, currentBufferType, isSpace))
                     continue;
 
@@ -206,6 +207,8 @@ public class LexicalAnalyzer implements Iterable<Token> {
         return this.errors;
     }
 
+    // Para cada linha do arquivo de entrada, extrai os tokens, acumula e retorna um iterador.
+    // As linhas são processadas por demanda, ou seja, sṍ são processadas quando um token novo é solicitado.
     @Override
     public Iterator<Token> iterator() {
 
