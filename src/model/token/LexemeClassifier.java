@@ -10,6 +10,7 @@ public class LexemeClassifier {
 
     public static final String LINE_COMMENT_REGEX = "//.*";
 
+    //Lista de REGEX
     private static final String SPACE_REGEX = "([ \t\n])*";
     private static final String DIGIT_REGEX = "[0-9]";
     private static final String LETTER_REGEX = "([a-z]|[A-Z])";
@@ -60,6 +61,7 @@ public class LexemeClassifier {
         System.out.println(lexemeClassifier.classify(str));
     }
 
+    //Classifica um tokem
     public String classify(String token) {
 
         for (Map.Entry<String, String> entry : this.categories2Regex.entrySet()) {
@@ -90,6 +92,7 @@ public class LexemeClassifier {
         return regex != null && Pattern.matches(regex, token);
     }
 
+    //Povoa o HashMap com os REGEX com base na prescedência
     private void populateClassificationMap() {
         this.categories2Regex.put(TokenTypes.RESERVED_WORD, RESERVERD_WORD_REGEX);
         this.categories2Regex.put(TokenTypes.IDENTIFIER, IDENTIFIER_REGEX);

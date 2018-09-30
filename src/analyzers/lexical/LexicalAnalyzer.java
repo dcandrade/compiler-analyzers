@@ -47,9 +47,12 @@ public class LexicalAnalyzer implements Iterable<Token> {
         this.buffer = new StringBuilder();
         this.currentLineNumber++;
 
-        line = line.replaceAll(LexemeClassifier.LINE_COMMENT_REGEX, ""); // Delete line comments
-        StringTokenizer lexemeTokenizer = new StringTokenizer(line, this.delimiters, true); //get the tolkens
+        line = line.replaceAll(LexemeClassifier.LINE_COMMENT_REGEX, ""); //Deletar todos os comentários de linha
 
+        //Armazenar todos os tokens separados pelos delimitadores
+        StringTokenizer lexemeTokenizer = new StringTokenizer(line, this.delimiters, true);
+
+        //Iniciar a varredura dos tokens para classificação
         while (lexemeTokenizer.hasMoreTokens()) { //check all tokens
 
             String lexeme = lexemeTokenizer.nextToken();
@@ -67,6 +70,7 @@ public class LexicalAnalyzer implements Iterable<Token> {
                 continue;
             }
 
+            //Verifica ser o token é um máximomatch
             boolean isMaxMatch = nextBufferType.equals(TokenTypes.INVALID_TOKEN) && !currentBufferLexeme.isEmpty();
 
             if (isMaxMatch) {
@@ -91,7 +95,7 @@ public class LexicalAnalyzer implements Iterable<Token> {
         char lastBufferSymbol = this.buffer.charAt(this.buffer.length() - 1);
         boolean bufferIsNumber = currentBufferType.equals(TokenTypes.NUMBER);
 
-
+        //Verificação de números
         boolean incomingFPNumber = bufferIsNumber && lexeme.equals(".");
         if (incomingFPNumber) {
             this.buffer.append(lexeme);
@@ -103,12 +107,14 @@ public class LexicalAnalyzer implements Iterable<Token> {
             return true;
         }
 
+        //Verifica se um sinal negativo é uma expressão aritmética ou pertence a um número negativo
         boolean subtractionExpression = firstBufferSymbol == '-' && bufferIsNumber && this.getLastInsertedTokenType(tokens).equals(TokenTypes.NUMBER);
         if (subtractionExpression) {
             this.expandSubtraction(currentBufferLexeme, firstBufferSymbol, tokens);
             return true;
         }
 
+        //Verificação de String incompleta
         boolean incomingString = firstBufferSymbol == '"' && (lastBufferSymbol != '"' || this.buffer.length() == 1);
         if (incomingString) { // String received
             this.processIncomingString(lexemeTokenizer, lexeme, tokens);
@@ -147,7 +153,7 @@ public class LexicalAnalyzer implements Iterable<Token> {
         this.validateBufferLexeme(currentBufferLexeme, currentBufferType, tokens);
     }
 
-
+    //Validação de um um token
     private void validateBufferLexeme(String token, String tokenType, List<Token> tokens) {
         if (tokenType.equals(TokenTypes.INVALID_TOKEN)) {
             this.errors.add(new Error(this.currentLineNumber, token));
@@ -168,6 +174,7 @@ public class LexicalAnalyzer implements Iterable<Token> {
         }
     }
 
+    //Verificação de comentários de bloco
     private boolean isCommentSectionOpen(String currentBufferToken, String nextBufferType) {
         int size = errorBuffer.length();
         if (nextBufferType.equals(TokenTypes.BLOCK_COMMENT_START)) {
