@@ -23,6 +23,9 @@ public class Token {
         return line;
     }
 
+    public boolean isIdentifier(){
+        return this.type.equals(TokenTypes.IDENTIFIER);
+    }
     @Override
     public String toString() {
         return String.format("%2d %s %s", this.getLine(), this.getType(), this.getValue());
