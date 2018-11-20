@@ -18,7 +18,7 @@ public class SyntaticalAnalyzer {
         this.nativeTypes = List.of("int", "float", "string", "bool");
     }
 
-    public void updateToken() throws Exception {
+    private void updateToken() throws Exception {
         if (tokens.hasNext()) {
             this.currentToken = this.tokens.next();
         } else {
@@ -26,22 +26,22 @@ public class SyntaticalAnalyzer {
         }
     }
 
-    public boolean checkForTerminal(String terminal) {
+    private boolean checkForTerminal(String terminal) {
         return currentToken.getValue().equals(terminal);
     }
 
-    public boolean checkForType(String type) {
+    private boolean checkForType(String type) {
         return currentToken.getType().equals(type);
     }
 
-    public void eatTerminal(String terminal) throws Exception {
+    private void eatTerminal(String terminal) throws Exception {
         if (!currentToken.getValue().equals(terminal)) {
             throw new Exception("Expected " + terminal + " got " + currentToken.getValue());
         }
         updateToken();
     }
 
-    public void eatType(String type) throws Exception {
+    private void eatType(String type) throws Exception {
         if (!currentToken.getType().equals(type)) {
             throw new Exception("Expected type " + type + " got " + currentToken.getType());
         }
@@ -61,36 +61,40 @@ public class SyntaticalAnalyzer {
 
     private void parseClasses() throws Exception {
         if (checkForTerminal("class")) {
-            updateToken();
+            eatTerminal("class");
             eatType(TokenTypes.IDENTIFIER);
             parseExtends();
             eatTerminal("{");
             parseVariables();
             parseMethods();
             eatTerminal("}");
+
+            parseClasses();
         }
 
-        if (checkForTerminal("class")) {
-            parseClasses();
+        return;
+    }
+
+    private void parseExtends() throws Exception {
+        if (currentToken.getValue().equals("extends")) {
+            eatTerminal("extends");
+            eatType(TokenTypes.IDENTIFIER);
         }
     }
 
     private void parseMethods() throws Exception {
         if (checkForTerminal("method")) {
-            updateToken();
+            eatTerminal("method");
             parseType();
             eatTerminal("(");
             parseParams();
             eatTerminal(")");
             parseFunctionBody();
+
+            parseMethods();
         }
 
-        updateToken();
-
-        if (checkForTerminal("method")) {
-            updateToken();
-            parseClasses();
-        }
+        return;
     }
 
     private void parseFunctionBody() throws Exception {
@@ -98,19 +102,20 @@ public class SyntaticalAnalyzer {
         parseVariables();
         parseStatements();
         parseReturn();
-        eatTerminal(";");
         eatTerminal("}");
     }
 
     private void parseReturn() throws Exception {
         if (checkForTerminal("return")) {
-            updateToken();
+            eatTerminal("return");
             parseExpression();
+            eatTerminal(";");
         }
     }
 
     private void parseExpression() throws Exception {
         parseAddExp();
+
         if (checkForType(TokenTypes.RELATIONAL_OPERATOR)) {
             parseExpression();
         }
@@ -118,6 +123,7 @@ public class SyntaticalAnalyzer {
 
     private void parseAddExp() throws Exception {
         parseMultExp();
+
         if (checkForTerminal("+") || checkForTerminal("-")) {
             parseAddExp();
         }
@@ -135,6 +141,7 @@ public class SyntaticalAnalyzer {
         if (checkForTerminal("-")) {
             eatTerminal("-");
         }
+
         parseValue();
     }
 
@@ -177,34 +184,32 @@ public class SyntaticalAnalyzer {
         parseElse();
     }
 
-    public void parseGeneralIdentifierList() throws Exception {
+    private void parseGeneralIdentifierList() throws Exception {
         parseGeneralIdentifier();
         parseOptionalExtraIds();
-
     }
 
     private void parseOptionalExtraIds() throws Exception {
         if (checkForTerminal(",")) {
+            eatTerminal(",");
             parseGeneralIdentifierList();
         } else if (true) { // TODO: replace by peek first
             parseGeneralIdentifier();
         }
     }
 
-    public void parseGeneralIdentifier() throws Exception {
+    private void parseGeneralIdentifier() throws Exception {
         parseOptVector();
         parseComposedIdentifier();
     }
 
-    private boolean parseComposedIdentifier() throws Exception {
+    private void parseComposedIdentifier() throws Exception {
         if (checkForTerminal(".")) {
             parseGeneralIdentifier();
-            return true;
         }
-        return false;
     }
 
-    public void parseOptVector() throws Exception {
+    private void parseOptVector() throws Exception {
         eatType(TokenTypes.IDENTIFIER);
         parseVectorIndex();
     }
@@ -215,14 +220,15 @@ public class SyntaticalAnalyzer {
             parseExpression();
             eatTerminal("]");
 
-            if (checkForTerminal("["))
-                parseVectorIndex();
+            parseVectorIndex();
         }
 
+        return;
     }
 
     private void parseElse() throws Exception {
         if (checkForTerminal("else")) {
+            eatTerminal("else");
             eatTerminal("{");
             parseStatements();
             eatTerminal("}");
@@ -245,13 +251,6 @@ public class SyntaticalAnalyzer {
 
     private void parseVariables() {
 
-    }
-
-    private void parseExtends() throws Exception {
-        if (currentToken.getValue().equals("extends")) {
-            updateToken();
-            eatType(TokenTypes.IDENTIFIER);
-        }
     }
 
 
