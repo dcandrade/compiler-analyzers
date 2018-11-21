@@ -1,17 +1,17 @@
 package main;
 
 import analyzers.lexical.LexicalAnalyzer;
+import analyzers.syntatical.SyntaticalAnalyzer;
 import model.error.Error;
 import model.token.Token;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.lang.reflect.AnnotatedArrayType;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class Compiler {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         if (args.length == 0) {
             // Entrada padrão caso não seja passada nenhuma por linha de comando
             String path = "tests/entrada_exemplo_teste_lexico.txt";
@@ -26,20 +26,24 @@ public class Compiler {
                 String outputFile = String.join("/", split);
 
                 BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputFile));
-                LexicalAnalyzer analyzer = new LexicalAnalyzer(file);
+                LexicalAnalyzer lexer = new LexicalAnalyzer(file);
 
-                for (Token token : analyzer) {
+                for (Token token : lexer.getTokens()) {
                     writer.write(token + "\n");
                 }
 
                 writer.write("\n\n");
 
-                for (Error error : analyzer.getErrors()) {
+                for (Error error : lexer.getErrors()) {
                     writer.write(error + "\n");
+                    System.out.println("ERRROOOOOOO");
                 }
 
                 writer.close();
-                System.out.println("-- Saída disponível em "+outputFile);
+                System.out.println("-- Saída do léxico disponível em "+outputFile);
+                SyntaticalAnalyzer parser = new SyntaticalAnalyzer(lexer.getTokens().iterator());
+                parser.parseProgram();
+
             } catch (IOException e) {
                 System.err.println("Não foi possível encontrar o arquivo " + file);
             }

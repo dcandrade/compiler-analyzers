@@ -1,25 +1,101 @@
-           exemplo teste;
+const{
+    float TAXA_DE_JUROS = 0.014;
+    int NUM_CONTAS = 1000;
+    int LIMITE_DIARIO_TRANSACOES = 10;
+    string NOME_DO_BANCO = "Nome do Banco";
+}
 
- float f =-     3.0;
+class Conta {
+    variables{
+        string proprietario;
+        double saldo = 0, limite = 1500;
+        int numero;
+    }
 
-int k =       10         -            2;
+    method void depositar(float valor){
+        saldo = saldo + valor;
+        return void;
+    }
 
-string msg = "teste"
-teste_espaco_str= "   teste espaço     "
+    method void saque(float valor){
+        saldo = saldo - valor;
+        return void;
+    }
 
-/* teste
+    method double getSaldo(){
+        return saldo;
+    }
 
-*/
+    method void emprestimo(float valor, float juros){
+        saldo = saldo - (valor * (1 + juros));
+        return void;
+    }
 
-char _abc;
+    method void emprestimo(float valor){
+        emprestimo(valor, TAXA_DE_JUROS);
+        return voud;
+    }
+}
 
-int ab%cde;
+class ContaPremium extends Conta{
+    method void emprestimoPremium(float valor){
+        variables{float taxaNova = TAXA_DE_JUROS/2;}
+        emprestimo(valor, taxaNova);
+        return void;
+    }
+}
 
-int 4.;
-if ( f >= -10) && (f < ) 
-	write("mensagem );
-	
-// exemplo de teste do lexico
+class ContaSuperPremium extends ContaPremium{
+    method void emprestimoPremium(float valor){
+        emprestimo(valor, 0);
+        return void;
+    }
+}
 
-/* exa869 mi processadores de 
-linguagem de programacao
+class Banco{
+    variables{
+        Conta contas[NUM_CONTAS];
+        int num_contas;
+    }
+
+    method boolean addConta(){
+        variables{
+            Conta conta;
+            boolean result = false;
+        }
+        
+        if(num_conta < NUM_CONTAS){
+            conta.numero = num_contas;
+            contas[num_contas] = conta;
+            result = true;
+        }
+        else{
+            result = false;
+        }
+
+        return result;
+    }
+    method double getSaldo(int numConta){
+        variables{
+            int i = 0;
+            int result = -1;
+        }
+        while (i < NUM_CONTAS){
+            if(contas[i].numero == numConta){
+                result = contas[i].getSaldo();
+            }
+        }
+
+        return result;
+    }
+}
+
+main{
+    variables{Banco banco;
+    int num_conta;
+    int saldo = 0;}
+    write("Consultar saldo de qual conta?");
+    read(num_conta);
+    saldo = banco.getSaldo(num_conta);
+    write("O saldo da conta ", num_conta, " eh de ", saldo);
+}

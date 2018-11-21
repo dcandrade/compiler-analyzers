@@ -11,7 +11,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class LexicalAnalyzer implements Iterable<Token> {
+public class LexicalAnalyzer {
     private final LexemeClassifier lexemeClassifier;
     private final List<Error> errors;
     private StringBuilder buffer;
@@ -20,6 +20,7 @@ public class LexicalAnalyzer implements Iterable<Token> {
     private int currentLineNumber;
     private boolean isComment;
     private String inputFilePath;
+    private List<Token> tokens;
 
     public LexicalAnalyzer(String inputFilePath) {
         this.lexemeClassifier = new LexemeClassifier();
@@ -29,6 +30,7 @@ public class LexicalAnalyzer implements Iterable<Token> {
         this.isComment = false;
         this.delimiters = LexemeClassifier.getAllCompilerDemiliters();
         this.inputFilePath = inputFilePath;
+        this.tokens = Collections.emptyList();
     }
 
     private String getLastInsertedTokenType(List<Token> tokens) {
@@ -127,10 +129,10 @@ public class LexicalAnalyzer implements Iterable<Token> {
 
     private void expandSubtraction(String currentBufferLexeme, char firstBufferSymbol, List<Token> tokens) {
 
-            String number = currentBufferLexeme.substring(1);
+        String number = currentBufferLexeme.substring(1);
 
-            this.validateBufferLexeme(String.valueOf(firstBufferSymbol), TokenTypes.ARITHMETICAL_OPERATOR, tokens);
-            this.validateBufferLexeme(number, TokenTypes.NUMBER, tokens);
+        this.validateBufferLexeme(String.valueOf(firstBufferSymbol), TokenTypes.ARITHMETICAL_OPERATOR, tokens);
+        this.validateBufferLexeme(number, TokenTypes.NUMBER, tokens);
 
     }
 
@@ -190,15 +192,15 @@ public class LexicalAnalyzer implements Iterable<Token> {
         return this.isComment;
     }
 
-    public List<Token> getTokens() {
-        try {
-            return Files.lines(Paths.get(this.inputFilePath))
+    public List<Token> getTokens() throws IOException {
+        if (this.tokens.size() == 0) {
+            this.tokens = Files.lines(Paths.get(this.inputFilePath))
                     .map(this::processLine)
                     .flatMap(List::stream)
                     .collect(Collectors.toList());
-        } catch (IOException e) {
-            return Collections.emptyList();
         }
+
+        return this.tokens;
     }
 
 
@@ -209,18 +211,5 @@ public class LexicalAnalyzer implements Iterable<Token> {
 
     // Para cada linha do arquivo de entrada, extrai os tokens, acumula e retorna um iterador.
     // As linhas são processadas por demanda, ou seja, sṍ são processadas quando um token novo é solicitado.
-    @Override
-    public Iterator<Token> iterator() {
 
-        try {
-            return Files.lines(Paths.get(this.inputFilePath))
-                    .map(this::processLine)
-                    .flatMap(List::stream)
-                    .iterator();
-
-        } catch (IOException e) {
-            return Collections.emptyIterator();
-        }
-
-    }
 }
