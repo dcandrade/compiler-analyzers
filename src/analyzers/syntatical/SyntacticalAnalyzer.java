@@ -3,6 +3,8 @@ package analyzers.syntatical;
 import model.token.Token;
 import model.token.TokenTypes;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -15,7 +17,7 @@ public class SyntacticalAnalyzer {
 
     public SyntacticalAnalyzer(Iterator<Token> tokens) {
         this.tokens = tokens;
-        this.nativeTypes = List.of("int", "float", "string", "bool", "void");
+        this.nativeTypes = Arrays.asList(new String[]{"int", "float", "string", "bool", "void"});//List.of("int", "float", "string", "bool", "void");
     }
 
     private void updateToken() throws Exception {
@@ -523,8 +525,8 @@ public class SyntacticalAnalyzer {
             eatTerminal(",");
             parseVectorValueList();
         }
-        List<String> t = List.of("-", "--", "(", "[", "++", "true", "false");
-        List<String> v = List.of(TokenTypes.NUMBER, TokenTypes.STRING, TokenTypes.IDENTIFIER);
+        List<String> t  = Arrays.asList(new String[]{"-", "--", "(", "[", "++", "true", "false"});//= List.of("-", "--", "(", "[", "++", "true", "false");
+        List<String> v = Arrays.asList(new String[]{TokenTypes.NUMBER, TokenTypes.STRING, TokenTypes.IDENTIFIER});//List.of(TokenTypes.NUMBER, TokenTypes.STRING, TokenTypes.IDENTIFIER);
 
         if (t.contains(currentToken.getValue()) || v.contains(currentToken.getType())) {
             parseVectorDecl();
