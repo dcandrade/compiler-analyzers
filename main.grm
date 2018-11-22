@@ -1,0 +1,120 @@
+<Start>   ::= <Program>
+
+<Program> ::= <Const> <Classes> <Main>
+
+<Type> ::= 'int' | 'float' | 'string' | 'bool' | Identifier
+
+
+<GeneralIdentifier> ::= <OptVector> <ComposedIdentifier>
+
+<OptVector> ::= Identifier <VectorIndex>
+             
+<ComposedIdentifier> ::= '.' <GeneralIdentifier> | <VOID>
+                                           
+<VectorIndex>  ::= '[' <Expression> ']' <VectorIndex> | <VOID>
+ 
+
+<GeneralIdentifierList> ::= <GeneralIdentifier> <OptionalExtraIds> | <VOID>
+
+<OptionalExtraIds> ::= ',' <GeneralIdentifierList> | <GeneralIdentifier> | <VOID>
+
+<VectorDecl>  ::= <Expression> | <VectorBody>
+                
+<VectorBody> ::= '[' <VectorValueList> ']'
+                
+<VectorValueList> ::=  <VectorDecl> <OptionalValue>
+             
+<OptionalValue> ::= ',' <VectorValueList> | <VectorDecl> | <VOID>
+              
+<Variables> ::= 'variables''{' <VariablesBody> '}' | <VOID>
+
+<VariablesBody> ::=  <Type> <VarDeclList> ';' <VariablesBody> | <VOID>
+
+<VarDeclList> ::= <VarDecl>  <OptionalDecls>
+                       
+<OptionalDecls>  ::= ',' <VarDeclList> |  <VarDecl> | <VOID>
+
+<VarDecl> ::= <GeneralIdentifier> <VarAttribution>
+           
+<VarAttribution> ::= '=' <VectorDecl> | <VOID>
+
+
+<Const> ::= 'const''{' <ConstBody> '}' | <VOID>
+        
+<ConstBody> ::=  <Type> <ConstAssignmentList> ';' <ConstBody> | <VOID>  
+
+<ConstAssignment> ::= <GeneralIdentifier> '=' <VectorDecl> 
+                   
+<ConstAssignmentList> ::= <ConstAssignment>  <OptionalAssignments>
+                       
+<OptionalAssignments>  ::= ',' <ConstAssignmentList> |  <ConstAssignment> | <VOID>
+
+
+<Expression>  ::= <Add Exp> '>'  <Expression> | <Add Exp> '<'  <Expression> | <Add Exp> '<=' <Expression> | <Add Exp> '>=' <Expression> | <Add Exp> '==' <Expression> | <Add Exp> '!=' <Expression> | <Add Exp> '&&' <Expression> | <Add Exp> '||' <Expression> | <Add Exp> '!'  <Expression> |  <Add Exp>
+
+<Add Exp>     ::= <Mult Exp> '+' <Add Exp> | <Mult Exp> '-' <Add Exp> | <Mult Exp> 
+
+<Mult Exp>    ::= <Negate Exp> '*' <Mult Exp> | <Negate Exp> '/' <Mult Exp> | <Negate Exp> 
+
+<Negate Exp>  ::= '-' <Value> | <Value> 
+
+<BaseValue> ::= <Number> | StringLiteral | BoolLiteral
+
+<Value>      ::= <BaseValue> | '(' <Expression> ')' | <MethodCall>
+
+
+<Number>     ::= <Increment> <NumberLiteral> | <NumberLiteral> <Increment> | <NumberLiteral>
+               
+<NumberLiteral> ::= DecLiteral | FloatLiteral | <GeneralIdentifier>
+
+<Increment>  ::= '++' | '--'
+
+
+<ArgList>  ::= <BaseValue> <OptionalExtraArgs> | <VOID>
+ 
+<OptionalExtraArgs> ::= ',' <ArgList> | <BaseValue> | <VOID>
+                 
+<FunctionParams>  ::= '(' <ArgList> ')'
+
+<MethodCall>  ::= <GeneralIdentifier> <FunctionParams> 
+
+
+<Write>  ::= 'write' <FunctionParams>
+<Read>  ::= 'read' '(' <GeneralIdentifierList> ')'
+         
+
+<IfStatement> ::= 'if''('<Expression>')''{'<Statements>'}'<ElseStatement>
+
+<ElseStatement> ::= 'else''{'<Statements>'}' | <VOID>
+
+<While>  ::= 'while' '(' <Expression> ')' '{' <Statements> '}' 
+          
+
+<Statements>  ::= <Statement><Statements> | <VOID>
+
+<Statement>  ::= <IfStatement> | <While> | <Expression> ';' | <Assignment> ';' | <Write> ';' | <Read> ';'
+  
+             
+<Assignment>  ::= <GeneralIdentifier> '=' <Expression>
+<Return> ::= 'return' <Expression> 
+
+<Function>  ::= <Type> Identifier '('<Params> ')' <FunctionBody>
+
+<Params> ::= <Type> <OptVector> <OptParams> | <VOID>
+
+<OptParams> ::= ',' <Params> | <VOID>
+
+<FunctionBody> ::= '{'<Variables> <Statements> <Return> ';' '}'
+
+<Method> ::= 'method' <Function>
+
+
+<Classes> ::= <Class> <Classes> | <VOID>
+
+<Class> ::= 'class' Identifier <Extends> '{' <Variables> <Methods> '}'
+         
+<Methods> ::= <Method> <Methods> | <VOID>
+
+<Extends> ::= 'extends' Identifier | <VOID>
+
+<Main> ::= 'main'  '{' <Variables> <Statements> '}'

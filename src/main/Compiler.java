@@ -1,7 +1,7 @@
 package main;
 
 import analyzers.lexical.LexicalAnalyzer;
-import analyzers.syntatical.SyntaticalAnalyzer;
+import analyzers.syntatical.SyntacticalAnalyzer;
 import model.error.Error;
 import model.token.Token;
 
@@ -41,7 +41,7 @@ public class Compiler {
 
                 writer.close();
                 System.out.println("-- Saída do léxico disponível em "+outputFile);
-                SyntaticalAnalyzer parser = new SyntaticalAnalyzer(lexer.getTokens().iterator());
+                SyntacticalAnalyzer parser = new SyntacticalAnalyzer(lexer.getTokens().iterator());
                 parser.parseProgram();
 
             } catch (IOException e) {

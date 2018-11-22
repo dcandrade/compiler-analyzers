@@ -45,7 +45,7 @@ public class LexicalAnalyzer {
 
     private List<Token> processLine(String line) {
         List<Token> tokens = new ArrayList<>();
-
+        line = line.trim();
         this.buffer = new StringBuilder();
         this.currentLineNumber++;
 
@@ -87,7 +87,7 @@ public class LexicalAnalyzer {
 
         String currentBufferToken = this.buffer.toString();
         String currentBufferType = this.lexemeClassifier.classify(currentBufferToken);
-
+        //System.out.println(currentLineNumber + " " + currentBufferToken);
         this.validateBufferLexeme(currentBufferToken, currentBufferType, tokens);
 
         return tokens;
@@ -114,6 +114,7 @@ public class LexicalAnalyzer {
         boolean subtractionExpression = firstBufferSymbol == '-' && bufferIsNumber && this.getLastInsertedTokenType(tokens).equals(TokenTypes.NUMBER);
         if (subtractionExpression) {
             this.expandSubtraction(currentBufferLexeme, firstBufferSymbol, tokens);
+            this.buffer.append(lexeme);
             return true;
         }
 
@@ -198,6 +199,7 @@ public class LexicalAnalyzer {
                     .map(this::processLine)
                     .flatMap(List::stream)
                     .collect(Collectors.toList());
+            this.tokens.add(new Token(TokenTypes.NO_MORE_TOKENS, "$", -1));
         }
 
         return this.tokens;

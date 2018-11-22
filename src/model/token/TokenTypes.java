@@ -14,6 +14,8 @@ public class TokenTypes {
     public final static String BLOCK_COMMENT_START = "CBC";
     public final static String BLOCK_COMMENT_END = "FBC";
     public final static String INVALID_TOKEN = "ITO";
+    public final static String NO_MORE_TOKENS = "EOF";
+
 
     public static final String[] PRIMITIVE_TYPES =
             {RESERVED_WORD, NUMBER, ARITHMETICAL_OPERATOR, LOGICAL_OPERATOR, RELATIONAL_OPERATOR, DELIMITER};
