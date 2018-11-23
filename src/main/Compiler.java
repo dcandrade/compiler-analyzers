@@ -2,7 +2,7 @@ package main;
 
 import analyzers.lexical.LexicalAnalyzer;
 import analyzers.syntatical.SyntacticalAnalyzer;
-import model.error.Error;
+import model.error.LexicalError;
 import model.token.Token;
 
 import java.io.BufferedWriter;
@@ -34,8 +34,8 @@ public class Compiler {
 
                 writer.write("\n\n");
 
-                for (Error error : lexer.getErrors()) {
-                    writer.write(error + "\n");
+                for (LexicalError lexicalError : lexer.getLexicalErrors()) {
+                    writer.write(lexicalError + "\n");
                     System.out.println("ERRROOOOOOO");
                 }
 

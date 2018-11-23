@@ -1,6 +1,6 @@
 package analyzers.lexical;
 
-import model.error.Error;
+import model.error.LexicalError;
 import model.token.LexemeClassifier;
 import model.token.Token;
 import model.token.TokenTypes;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class LexicalAnalyzer {
     private final LexemeClassifier lexemeClassifier;
-    private final List<Error> errors;
+    private final List<LexicalError> lexicalErrors;
     private StringBuilder buffer;
     private final StringBuilder errorBuffer;
     private final String delimiters;
@@ -26,7 +26,7 @@ public class LexicalAnalyzer {
         this.lexemeClassifier = new LexemeClassifier();
         this.currentLineNumber = 0;
         this.errorBuffer = new StringBuilder();
-        this.errors = new LinkedList<>();
+        this.lexicalErrors = new LinkedList<>();
         this.isComment = false;
         this.delimiters = LexemeClassifier.getAllCompilerDemiliters();
         this.inputFilePath = inputFilePath;
@@ -160,7 +160,7 @@ public class LexicalAnalyzer {
     //Validação de um um token
     private void validateBufferLexeme(String token, String tokenType, List<Token> tokens) {
         if (tokenType.equals(TokenTypes.INVALID_TOKEN)) {
-            this.errors.add(new Error(this.currentLineNumber, token));
+            this.lexicalErrors.add(new LexicalError(this.currentLineNumber, token));
         } else if (!tokenType.equals(TokenTypes.SPACE)) {
             Token tkn = new Token(tokenType, token, this.currentLineNumber);
             tokens.add(tkn);
@@ -174,7 +174,7 @@ public class LexicalAnalyzer {
         if (this.errorBuffer.length() > 0) {
             String errorToken = this.errorBuffer.toString();
             this.errorBuffer.delete(0, this.errorBuffer.length());
-            this.errors.add(new Error(this.currentLineNumber, errorToken));
+            this.lexicalErrors.add(new LexicalError(this.currentLineNumber, errorToken));
         }
     }
 
@@ -206,9 +206,9 @@ public class LexicalAnalyzer {
     }
 
 
-    public List<Error> getErrors() {
+    public List<LexicalError> getLexicalErrors() {
         this.checkForErrors();
-        return this.errors;
+        return this.lexicalErrors;
     }
 
     // Para cada linha do arquivo de entrada, extrai os tokens, acumula e retorna um iterador.

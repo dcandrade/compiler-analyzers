@@ -1,5 +1,6 @@
 package analyzers.syntatical;
 
+import model.error.SyntaxError;
 import model.token.Token;
 import model.token.TokenTypes;
 
@@ -13,10 +14,12 @@ public class SyntacticalAnalyzer {
 
     private final Iterator<Token> tokens;
     private final List<String> nativeTypes;
+    private List<SyntaxError> errors;
     private Token currentToken = null;
 
     public SyntacticalAnalyzer(Iterator<Token> tokens) {
         this.tokens = tokens;
+        this.errors = new ArrayList<>();
         this.nativeTypes = Arrays.asList(new String[]{"int", "float", "string", "bool", "void"});//List.of("int", "float", "string", "bool", "void");
     }
 
@@ -36,17 +39,38 @@ public class SyntacticalAnalyzer {
         return currentToken.getType().equals(type);
     }
 
-    private void eatTerminal(String terminal) throws Exception {
+    private void eatTerminal(String terminal, boolean updateOnError) throws Exception {
         if (!currentToken.getValue().equals(terminal)) {
-            throw new Exception("Line: " + currentToken.getLine() + " -> " + "Expected " + terminal + " got " + currentToken.getValue());
-        }
+            this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getValue(), terminal, SyntaxError.TERMINAL_MISMATCH));
 
+            if(updateOnError){
+                updateToken();
+            }else{
+                throw new Exception("Line: " + currentToken.getLine() + " -> " + "Expected " + terminal + " got " + currentToken.getValue());
+
+            }
+        }
         updateToken();
     }
 
+
+    private void eatTerminal(String terminal) throws Exception {
+        this.eatTerminal(terminal, false);
+    }
+
     private void eatType(String type) throws Exception {
+        this.eatType(type, true);
+    }
+
+    private void eatType(String type, boolean updateOnError) throws Exception {
         if (!currentToken.getType().equals(type)) {
-            throw new Exception("Line: " + currentToken.getLine() + " -> " + "Expected type " + type + " got " + currentToken.getType() + " (" + currentToken.getValue() +")");
+            this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getType(), type, SyntaxError.IDENTIFIER_MISMATCH));
+
+            if(updateOnError) {
+                updateToken();
+            }else {
+                throw new Exception("Line: " + currentToken.getLine() + " -> " + "Expected type " + type + " got " + currentToken.getType() + " (" + currentToken.getValue() + ")");
+            }
         }
         updateToken();
     }
@@ -70,7 +94,7 @@ public class SyntacticalAnalyzer {
 
     private void parseConstBody() throws Exception {
         if (this.nativeTypes.contains(this.currentToken.getValue())) {
-            parseType();
+            parseType(true);
             parseConstAssignmentList();
             eatTerminal(";");
 
@@ -129,7 +153,7 @@ public class SyntacticalAnalyzer {
     private void parseMethods() throws Exception {
         if (checkForTerminal("method")) {
             eatTerminal("method");
-            parseType();
+            parseType(true);
             eatType(TokenTypes.IDENTIFIER);
             eatTerminal("(");
             parseParams();
@@ -419,7 +443,7 @@ public class SyntacticalAnalyzer {
 
     private void parseParams() throws Exception {
         if (this.nativeTypes.contains(this.currentToken.getValue()) || this.checkForType(TokenTypes.IDENTIFIER)) {
-            parseType();
+            parseType(true);
             parseOptVector();
             parseOptParams();
 
@@ -435,11 +459,11 @@ public class SyntacticalAnalyzer {
         }
     }
 
-    private void parseType() throws Exception {
+    private void parseType(boolean updateOnError) throws Exception {
         if (this.nativeTypes.contains(currentToken.getValue())) {
-            eatTerminal(currentToken.getValue());
+            eatTerminal(currentToken.getValue(), updateOnError);
         } else {
-            this.eatType(TokenTypes.IDENTIFIER);
+            this.eatType(TokenTypes.IDENTIFIER, updateOnError);
         }
     }
 

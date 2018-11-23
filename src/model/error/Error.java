@@ -3,12 +3,23 @@ package model.error;
 public class Error {
     private final int line;
     private final String token;
-    private final String type;
+    protected String type;
 
     public Error(int line, String token) {
         this.line = line;
         this.token = token;
-        this.type = ErrorClassifier.classify(token);
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public int getLine() {
+        return line;
     }
 
     @Override
