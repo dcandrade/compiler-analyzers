@@ -16,10 +16,6 @@ public class SyntaxError extends Error {
 
     @Override
     public String toString() {
-        if(this.getLine() == 0){
-            return this.type;
-        }
-
-        else return super.toString();
+        return String.format("%2d %s (recebido: %s, esperado: %s)", this.getLine(), this.getType(), this.getToken(), this.expected);
     }
 }

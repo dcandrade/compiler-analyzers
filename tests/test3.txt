@@ -1,0 +1,23 @@
+const{ 
+    int x=1, 
+        x=6,
+        k=200-100; 
+    float x=5, 
+        x=6; 
+    int x[10] = "vetor";
+    Classe z = x[0],
+        y = x.y, 
+        z = "oi",
+        x = y[0][0][0];
+    Test vector = [[0],[true,false,2,[true, false,[vetor,vetor, fff2]]],[10-20,2,3,a]];
+}
+
+main{
+    variables{
+    int num_conta;
+    int saldo = 0;}
+    write("Consultar saldo de qual conta?");
+    read(num_conta);
+    saldo = banco.getSaldo(num_conta);
+    write("O saldo da conta ", num_conta, " eh de ", saldo);
+}

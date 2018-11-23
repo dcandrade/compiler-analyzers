@@ -1,0 +1,24 @@
+const{ 
+
+}
+
+class Conta {
+
+
+}
+
+class ContaPremium extends Conta{
+
+}
+
+class ContaSuperPremium extends ContaPremium{
+    method void emprestimoPremium(float valor){
+        emprestimo(valor, 0);
+        return void;
+    }
+}
+
+
+main{
+
+}
