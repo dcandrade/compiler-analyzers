@@ -7,6 +7,7 @@ import model.token.TokenTypes;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,10 +20,10 @@ public class LexicalAnalyzer {
     private final String delimiters;
     private int currentLineNumber;
     private boolean isComment;
-    private String inputFilePath;
+    private Path inputFilePath;
     private List<Token> tokens;
 
-    public LexicalAnalyzer(String inputFilePath) {
+    public LexicalAnalyzer(Path inputFilePath) {
         this.lexemeClassifier = new LexemeClassifier();
         this.currentLineNumber = 0;
         this.errorBuffer = new StringBuilder();
@@ -195,7 +196,7 @@ public class LexicalAnalyzer {
 
     public List<Token> getTokens() throws IOException {
         if (this.tokens.size() == 0) {
-            this.tokens = Files.lines(Paths.get(this.inputFilePath))
+            this.tokens = Files.lines(this.inputFilePath)
                     .map(this::processLine)
                     .flatMap(List::stream)
                     .collect(Collectors.toList());

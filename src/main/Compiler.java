@@ -17,13 +17,14 @@ import java.util.stream.Collectors;
 public class Compiler {
     public static void main(String[] args) throws Exception {
         List<Path> inputs = Files.list(Paths.get("tests")).collect(Collectors.toList());
-        for (Path p : inputs) {
-            String file = p.toString();
-            String[] split = file.split("/");
-            String filename = split[split.length - 1];
-            String outputFile = "output/lexico_" + filename;
+        for (Path file : inputs) {
 
-            BufferedWriter writer = Files.newBufferedWriter(Paths.get(outputFile));
+            Files.createDirectories(Paths.get("output", "lexico"));
+            Files.createDirectories(Paths.get("output", "sintatico"));
+
+            Path outputFile = Paths.get("output",  "lexico", file.getFileName().toString());
+
+            BufferedWriter writer = Files.newBufferedWriter(outputFile);
             LexicalAnalyzer lexer = new LexicalAnalyzer(file);
 
             for (Token token : lexer.getTokens()) {
