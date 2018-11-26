@@ -196,8 +196,8 @@ public class SyntacticalAnalyzer {
     private void parseMethods() throws Exception {
         if (checkForTerminal("method")) {
             eatTerminal("method");
-            parseType(true, "Tipo de retorno ausente", null);
-            eatType(TokenTypes.IDENTIFIER, "Nome da função ausente");
+            parseType(true, "Tipo de retorno ausente", TokenTypes.IDENTIFIER + NATIVE_TYPE_SYNC);
+            eatType(TokenTypes.IDENTIFIER, "Nome da função ausente", "(");
             eatTerminal("(");
             parseParams();
             eatTerminal(")");

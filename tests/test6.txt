@@ -139,7 +139,7 @@ class Banco{
         return result;
     }
 
-    method double getSaldo(int numConta){
+    method double (int numConta){
         variables{
             int i = 0;
             int result = -1;
@@ -158,7 +158,7 @@ main{
     variables{Banco banco;
     int num_conta;
     int saldo = 0;}
-    chamada_funcao(;
+    chamada_funcao();
     write("Consultar saldo de qual conta?");
     read(num_conta);
     saldo = banco.getSaldo(num_conta);
