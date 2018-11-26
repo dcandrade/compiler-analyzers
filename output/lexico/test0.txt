@@ -139,7 +139,6 @@
 40 PRE class
 40 IDE ContaPremium
 40 PRE extends
-40 IDE Conta
 40 DEL {
 41 PRE method
 41 PRE void
