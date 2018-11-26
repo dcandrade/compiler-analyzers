@@ -54,7 +54,6 @@ public class SyntacticalAnalyzer {
             String msg = "TerminalError -> Line: " + currentToken.getLine() + " -> " + "Expected " + terminal + " got " + currentToken.getValue();
             System.err.println(msg + " ---> " + errorMsg);
 
-
             if (throwException) {
                 throw new Exception(msg);
             }
@@ -174,7 +173,8 @@ public class SyntacticalAnalyzer {
     private void parseClasses() throws Exception {
         if (checkForTerminal("class")) {
             eatTerminal("class");
-            eatType(TokenTypes.IDENTIFIER);
+            //eatType(TokenTypes.IDENTIFIER);
+            eatType(TokenTypes.IDENTIFIER, "Nome da classe ausente", "{");
             parseExtends();
             eatTerminal("{");
             parseVariables();

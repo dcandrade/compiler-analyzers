@@ -22,7 +22,6 @@
  5 DEL ;
  6 DEL }
  8 PRE class
- 8 IDE Conta
  8 DEL {
  9 PRE variables
  9 DEL {

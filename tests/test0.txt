@@ -5,7 +5,7 @@ const{
     string NOME_DO_BANCO = "Nome do Banco";
 }
 
-class Conta {
+class {
     variables{
         string proprietario;
         double saldo = 0, limite = 1500;
