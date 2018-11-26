@@ -9,7 +9,7 @@ const{
         y = x.y, 
         z = "oi",
         x = y[0][0][0];
-    Test vector = [[0],[true,false,2,[true, false,[vetor,vetor, fff2]]],[10-,2,3,a]];
+    Test vector = [[0],[true,false,2,[true, false,[vetor,vetor, fff2]]],[10-20,2,3,a]];
 }
 
 class Conta {
@@ -158,6 +158,7 @@ main{
     variables{Banco banco;
     int num_conta;
     int saldo = 0;}
+    chamada_funcao(;
     write("Consultar saldo de qual conta?");
     read(num_conta);
     saldo = banco.getSaldo(num_conta);

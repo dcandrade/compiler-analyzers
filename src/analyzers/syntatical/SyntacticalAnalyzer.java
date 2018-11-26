@@ -124,7 +124,7 @@ public class SyntacticalAnalyzer {
             eatTerminal("const");
             eatTerminal("{");
             parseConstBody();
-            eatTerminal("}", "class"+"main");
+            eatTerminal("}", "class" + "main");
         }
 
     }
@@ -153,12 +153,12 @@ public class SyntacticalAnalyzer {
     private void parseOptionalAssignments() throws Exception {
         if (checkForTerminal(",")) {
             eatTerminal(",");
-            if(checkForType(TokenTypes.IDENTIFIER)) {
+            if (checkForType(TokenTypes.IDENTIFIER)) {
                 parseConstAssignmentList();
-            }else{
+            } else {
                 this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getValue(), TokenTypes.DELIMITER, "Esperava ;"));
                 panic(",;");
-                if(checkForTerminal(",")){
+                if (checkForTerminal(",")) {
                     parseOptionalAssignments();
                 }
             }
@@ -333,7 +333,7 @@ public class SyntacticalAnalyzer {
         if (checkForTerminal("(")) {
             eatTerminal("(");
             parseArgList();
-            eatTerminal(")");
+            eatTerminal(")", ";");
         }
     }
 
@@ -361,7 +361,12 @@ public class SyntacticalAnalyzer {
             // Parsing assigment
             if (checkForTerminal("=")) {
                 eatTerminal("=");
-                parseExpression();
+                try {
+                    parseExpression();
+                } catch (Exception e) {
+                    this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getValue(), "Expressão", "Expressão Malformada"));
+                    this.panic(";");
+                }
             } else if (checkForTerminal("(")) {
                 parseFunctionParams();
             } else if (checkForTerminal("++") || checkForTerminal("--")) {
@@ -371,10 +376,15 @@ public class SyntacticalAnalyzer {
 
             if (checkForType(TokenTypes.LOGICAL_OPERATOR) || checkForType(TokenTypes.RELATIONAL_OPERATOR) || checkForType(TokenTypes.ARITHMETICAL_OPERATOR)) {
                 updateToken();
-                parseExpression();
+                try {
+                    parseExpression();
+                } catch (Exception e) {
+                    this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getValue(), "Expressão", "Expressão Malformada"));
+                    this.panic(";");
+                }
             }
 
-            eatTerminal(";");
+            eatTerminal(";", ";"+TokenTypes.IDENTIFIER+"if"+"while"+"write"+"read");
 
             parseStatements();
 
@@ -468,7 +478,7 @@ public class SyntacticalAnalyzer {
     }
 
     private void parseOptVector() throws Exception {
-        eatType(TokenTypes.IDENTIFIER, true, "Nome da variável está ausente", "=,;");
+        eatType(TokenTypes.IDENTIFIER, true, "Nome da variável está ausente", "=,;)");
         parseVectorIndex();
     }
 
@@ -591,7 +601,7 @@ public class SyntacticalAnalyzer {
         } else {
             try {
                 parseExpression();
-            }catch (Exception e){
+            } catch (Exception e) {
                 this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getValue(), "Expressão", "Expressão Malformada"));
 
             }
