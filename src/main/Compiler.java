@@ -39,7 +39,7 @@ public class Compiler {
 
             writer.close();
             System.out.println("-- Saída do léxico disponível em " + outputFile);
-            SyntacticalAnalyzer parser = new SyntacticalAnalyzer(lexer.getTokens().iterator());
+            SyntacticalAnalyzer parser = new SyntacticalAnalyzer(lexer.getTokens());
             parser.parseProgram();
 
             for (SyntaxError error : parser.getErrors()) {

@@ -8,22 +8,25 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 public class SyntacticalAnalyzer {
-    private static boolean THROW_EXCEPTION = true;
+    private static boolean THROW_EXCEPTION = false;
     private static String NATIVE_TYPE_SYNC;
 
-    private final Iterator<Token> tokens;
     private final List<String> nativeTypes;
+    private final List<Token> tokenList;
+    private final Iterator<Token> tokens;
+    private int tokenIndex;
     private List<SyntaxError> errors;
     private Token currentToken = null;
 
-    public SyntacticalAnalyzer(Iterator<Token> tokens) {
-        this.tokens = tokens;
+    public SyntacticalAnalyzer(List<Token> tokens) {
+        this.tokens = tokens.iterator();
+        this.tokenList = tokens;
+        this.tokenIndex = 0;
         this.errors = new ArrayList<>();
-        this.nativeTypes = Arrays.asList(new String[]{"int", "float", "string", "bool", "void"});//List.of("int", "float", "string", "bool", "void");
+        this.nativeTypes = Arrays.asList("int", "float", "string", "bool", "void");//List.of("int", "float", "string", "bool", "void");
 
         NATIVE_TYPE_SYNC = String.join("", this.nativeTypes);
     }
@@ -33,19 +36,28 @@ public class SyntacticalAnalyzer {
     }
 
     private void updateToken() throws Exception {
-        if (tokens.hasNext()) {
+        if (this.tokenIndex < this.tokenList.size()) {
             this.currentToken = this.tokens.next();
+            this.tokenIndex++;
         } else {
             throw new Exception("No more tokens");
         }
     }
 
     private boolean checkForTerminal(String terminal) {
-        return currentToken.getValue().equals(terminal);
+        return this.checkForTerminal(this.currentToken, terminal);
+    }
+
+    private boolean checkForTerminal(Token token, String terminal) {
+        return token.getValue().equals(terminal);
+    }
+
+    private boolean checkForType(Token token, String type) {
+        return token.getType().equals(type);
     }
 
     private boolean checkForType(String type) {
-        return currentToken.getType().equals(type);
+        return this.checkForType(this.currentToken, type);
     }
 
     private boolean eatTerminal(String terminal, boolean throwException, String errorMsg, String sync) throws Exception {
@@ -112,6 +124,10 @@ public class SyntacticalAnalyzer {
         return true;
     }
 
+    private Token peekToken(int offset) {
+        return this.tokenList.get(this.tokenIndex + offset);
+    }
+
     public void parseProgram() throws Exception {
         this.currentToken = tokens.next();
         parseConst();
@@ -120,8 +136,14 @@ public class SyntacticalAnalyzer {
     }
 
     private void parseConst() throws Exception {
-        if (checkForTerminal("const")) {
-            eatTerminal("const");
+        boolean possiblyMistypedKeyword = checkForType(TokenTypes.IDENTIFIER);
+        boolean hasBraces = checkForTerminal(peekToken(1), "{");
+        boolean hasVarDecl = checkForType(peekToken(2), TokenTypes.RESERVED_WORD) || checkForType(peekToken(2), TokenTypes.IDENTIFIER);
+
+        boolean isConst = checkForTerminal("const") || (possiblyMistypedKeyword && hasBraces && hasVarDecl);
+
+        if (isConst) {
+            eatTerminal("const", "{");
             eatTerminal("{");
             parseConstBody();
             eatTerminal("}", "class" + "main");
@@ -172,8 +194,15 @@ public class SyntacticalAnalyzer {
     }
 
     private void parseClasses() throws Exception {
-        if (checkForTerminal("class")) {
-            eatTerminal("class");
+        boolean hasClassName = checkForType(peekToken(1), TokenTypes.IDENTIFIER);
+        boolean missingClassKeywords = checkForType(TokenTypes.IDENTIFIER);
+
+        if (checkForTerminal("class") || hasClassName || missingClassKeywords) {
+
+            if (!eatTerminal("class") && hasClassName) {
+                updateToken();
+            }
+
             eatType(TokenTypes.IDENTIFIER);
             parseExtends();
             eatTerminal("{");
@@ -194,6 +223,9 @@ public class SyntacticalAnalyzer {
     }
 
     private void parseMethods() throws Exception {
+        boolean missingOnlyKeyword = (this.checkForType(peekToken(0), TokenTypes.IDENTIFIER) || nativeTypes.contains(this.currentToken.getValue()) && this.checkForType(peekToken(1), TokenTypes.IDENTIFIER));
+        boolean mistypedKeyword = checkForType(TokenTypes.IDENTIFIER) && (this.checkForType(peekToken(1), TokenTypes.IDENTIFIER) || nativeTypes.contains(this.currentToken.getValue()) && this.checkForType(peekToken(2), TokenTypes.IDENTIFIER));
+
         if (checkForTerminal("method")) {
             eatTerminal("method");
             parseType(true, "Tipo de retorno ausente", TokenTypes.IDENTIFIER + NATIVE_TYPE_SYNC);
@@ -286,7 +318,7 @@ public class SyntacticalAnalyzer {
         } else if (checkForTerminal("--") || checkForTerminal("++") || checkForType(TokenTypes.NUMBER) || checkForType(TokenTypes.IDENTIFIER)) {
             parseNumber();
         } else {
-            throw new Exception("Expressão esperada");
+            throw new Exception("Expressão Malformada");
         }
     }
 
@@ -368,7 +400,29 @@ public class SyntacticalAnalyzer {
                     this.panic(";");
                 }
             } else if (checkForTerminal("(")) {
+                Token keep = this.currentToken;
+                
                 parseFunctionParams();
+
+                if (checkForTerminal("{")) {
+                    this.errors.add(new SyntaxError(keep.getLine(), keep.getValue(), "If ou While", "Loop ou Condicional malformado"));
+
+                    eatTerminal("{");
+                    parseStatements();
+                    eatTerminal("}");
+
+                    if (checkForTerminal("else")) {
+                        this.errors.add(new SyntaxError(keep.getLine(), keep.getValue(), "If", "IF malformado"));
+
+                        eatTerminal("else");
+                        eatTerminal("{");
+                        parseStatements();
+                        eatTerminal("}");
+                    } else {
+                        this.errors.add(new SyntaxError(keep.getLine(), keep.getValue(), "If ou While", "Loop ou Condicional malformado"));
+
+                    }
+                }
             } else if (checkForTerminal("++") || checkForTerminal("--")) {
                 //parseExpression();
                 updateToken();
@@ -384,7 +438,7 @@ public class SyntacticalAnalyzer {
                 }
             }
 
-            eatTerminal(";", ";"+TokenTypes.IDENTIFIER+"if"+"while"+"write"+"read");
+            eatTerminal(";", ";" + TokenTypes.IDENTIFIER + "if" + "while" + "write" + "read");
 
             parseStatements();
 
@@ -541,7 +595,9 @@ public class SyntacticalAnalyzer {
     }
 
     private void parseVariables() throws Exception {
-        if (checkForTerminal("variables")) {
+        boolean missingKeyword = checkForTerminal("{");
+
+        if (checkForTerminal("variables") || missingKeyword) {
             eatTerminal("variables");
             eatTerminal("{");
             parseVariablesBody();
@@ -644,11 +700,6 @@ public class SyntacticalAnalyzer {
             System.err.println("unexpected extra tokens");
             //this.tokens.forEachRemaining(System.out::println);
         }
-    }
-
-    private void panic() throws Exception {
-        String SYNC_TOKENS = "[]{}();.,";
-        this.panic(SYNC_TOKENS);
     }
 
     private void panic(String sync) throws Exception {

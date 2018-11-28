@@ -254,7 +254,6 @@
 35 REL >
 35 CDC "value"
 35 LOG &&
-35 DEL (
 35 IDE x
 35 REL ==
 35 IDE y
@@ -269,7 +268,6 @@
 35 IDE x
 35 REL ==
 35 NRO 5
-35 DEL )
 35 DEL )
 35 LOG ||
 35 IDE X
@@ -749,6 +747,7 @@
 140 DEL }
 142 PRE method
 142 IDE double
+142 IDE getSaldo
 142 DEL (
 142 PRE int
 142 IDE numConta

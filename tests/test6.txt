@@ -1,4 +1,4 @@
-const{ 
+const{
     int x=1, 
         x=6,
         k=200-100; 
@@ -32,7 +32,7 @@ class Conta {
 
     method void depositar(float valor){
         saldo = saldo + valor;
-        if(x > "value" && (x == y || (y.y <= x && x == 5)) || X[0][0][0]){
+        if(x > "value" && x == y || (y.y <= x && x == 5) || X[0][0][0]){
         x = 1;
     } else {
         outro.metodo();
@@ -139,7 +139,7 @@ class Banco{
         return result;
     }
 
-    method double (int numConta){
+    method double getSaldo(int numConta){
         variables{
             int i = 0;
             int result = -1;
