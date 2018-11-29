@@ -223,7 +223,7 @@ public class SyntacticalAnalyzer {
     private void parseExtends() throws NoSuchElementException {
         if (checkForTerminal("extends")) {
             eatTerminal("extends");
-            eatType(TokenTypes.IDENTIFIER);
+            eatType(TokenTypes.IDENTIFIER, "Herança ausente", "{");
         }
     }
 
