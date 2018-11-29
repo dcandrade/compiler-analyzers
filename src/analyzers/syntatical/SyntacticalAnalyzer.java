@@ -4,10 +4,7 @@ import model.error.SyntaxError;
 import model.token.Token;
 import model.token.TokenTypes;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 
 public class SyntacticalAnalyzer {
@@ -15,34 +12,35 @@ public class SyntacticalAnalyzer {
     private static String NATIVE_TYPE_SYNC;
 
     private final List<String> nativeTypes;
-    private final List<Token> tokenList;
-    private final Iterator<Token> tokens;
+    private final List<Token> tokens;
     private int tokenIndex;
     private List<SyntaxError> errors;
     private Token currentToken = null;
 
     public SyntacticalAnalyzer(List<Token> tokens) {
-        this.tokens = tokens.iterator();
-        this.tokenList = tokens;
+        this.tokens = tokens;
         this.tokenIndex = 0;
         this.errors = new ArrayList<>();
         this.nativeTypes = Arrays.asList("int", "float", "string", "bool", "void");//List.of("int", "float", "string", "bool", "void");
 
         NATIVE_TYPE_SYNC = String.join("", this.nativeTypes);
+        this.updateToken();
     }
 
     public List<SyntaxError> getErrors() {
         return errors;
     }
 
-    private void updateToken() throws Exception {
-        if (this.tokenIndex < this.tokenList.size()) {
-            this.currentToken = this.tokens.next();
+    private void updateToken() throws IndexOutOfBoundsException {
+        if (this.tokenIndex < this.tokens.size()) {
+            this.currentToken = this.tokens.get(this.tokenIndex);
             this.tokenIndex++;
         } else {
-            throw new Exception("No more tokens");
+            throw new IndexOutOfBoundsException("No more tokens");
         }
     }
+
+
 
     private boolean checkForTerminal(String terminal) {
         return this.checkForTerminal(this.currentToken, terminal);
@@ -60,7 +58,7 @@ public class SyntacticalAnalyzer {
         return this.checkForType(this.currentToken, type);
     }
 
-    private boolean eatTerminal(String terminal, boolean throwException, String errorMsg, String sync) throws Exception {
+    private boolean eatTerminal(String terminal, boolean throwException, String errorMsg, String sync) throws NoSuchElementException {
         if (!currentToken.getValue().equals(terminal)) {
             this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getValue(), terminal, errorMsg));
             String msg = "TerminalError -> Line: " + currentToken.getLine() + " -> " + "Expected " + terminal + " got " + currentToken.getValue();
@@ -68,7 +66,7 @@ public class SyntacticalAnalyzer {
 
 
             if (throwException) {
-                throw new Exception(msg);
+                throw new NoSuchElementException(msg);
             }
 
             if (sync != null) {
@@ -82,34 +80,34 @@ public class SyntacticalAnalyzer {
         return true;
     }
 
-    private boolean eatTerminal(String terminal) throws Exception {
+    private boolean eatTerminal(String terminal) throws NoSuchElementException {
         return this.eatTerminal(terminal, THROW_EXCEPTION, "Token inesperado", null);
     }
 
-    private boolean eatTerminal(String terminal, String sync) throws Exception {
+    private boolean eatTerminal(String terminal, String sync) throws NoSuchElementException {
         return this.eatTerminal(terminal, false, "Token inesperado", sync);
     }
 
-    private boolean eatType(String type) throws Exception {
-        return this.eatType(type, THROW_EXCEPTION, "Tipo inesperado", null);
+    private void eatType(String type) throws NoSuchElementException {
+        this.eatType(type, THROW_EXCEPTION, "Tipo inesperado", null);
     }
 
-    private boolean eatType(String type, String errorMsg) throws Exception {
+    private boolean eatType(String type, String errorMsg) throws NoSuchElementException {
         return this.eatType(type, THROW_EXCEPTION, errorMsg, null);
     }
 
-    private boolean eatType(String type, String errorMsg, String sync) throws Exception {
-        return this.eatType(type, THROW_EXCEPTION, errorMsg, sync);
+    private void eatType(String type, String errorMsg, String sync) throws NoSuchElementException {
+        this.eatType(type, THROW_EXCEPTION, errorMsg, sync);
     }
 
-    private boolean eatType(String type, boolean throwException, String errorMsg, String sync) throws Exception {
+    private boolean eatType(String type, boolean throwException, String errorMsg, String sync) throws NoSuchElementException {
         if (!currentToken.getType().equals(type)) {
             this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getType(), type, errorMsg));
             String msg = "TypeError -> Line: " + currentToken.getLine() + " -> " + "Expected type " + type + " got " + currentToken.getType() + " (" + currentToken.getValue() + ")";
             System.err.println(msg + "  --->  " + errorMsg);
 
             if (throwException && sync == null) {
-                throw new Exception(msg);
+                throw new NoSuchElementException(msg);
             }
 
 
@@ -125,17 +123,16 @@ public class SyntacticalAnalyzer {
     }
 
     private Token peekToken(int offset) {
-        return this.tokenList.get(this.tokenIndex + offset);
+        return this.tokens.get(this.tokenIndex + offset);
     }
 
-    public void parseProgram() throws Exception {
-        this.currentToken = tokens.next();
+    public void parseProgram() throws NoSuchElementException {
         parseConst();
         parseClasses();
         parseMain();
     }
 
-    private void parseConst() throws Exception {
+    private void parseConst() throws NoSuchElementException {
         boolean possiblyMistypedKeyword = checkForType(TokenTypes.IDENTIFIER);
         boolean hasBraces = checkForTerminal(peekToken(1), "{");
         boolean hasVarDecl = checkForType(peekToken(2), TokenTypes.RESERVED_WORD) || checkForType(peekToken(2), TokenTypes.IDENTIFIER);
@@ -151,7 +148,7 @@ public class SyntacticalAnalyzer {
 
     }
 
-    private void parseConstBody() throws Exception {
+    private void parseConstBody() throws NoSuchElementException {
         if (this.nativeTypes.contains(this.currentToken.getValue())) {
             parseType(false, "Tipo da constante ausente", null);
             parseConstAssignmentList();
@@ -167,12 +164,12 @@ public class SyntacticalAnalyzer {
         }
     }
 
-    private void parseConstAssignmentList() throws Exception {
+    private void parseConstAssignmentList() throws NoSuchElementException {
         parseConstAssignment();
         parseOptionalAssignments();
     }
 
-    private void parseOptionalAssignments() throws Exception {
+    private void parseOptionalAssignments() throws NoSuchElementException {
         if (checkForTerminal(",")) {
             eatTerminal(",");
             if (checkForType(TokenTypes.IDENTIFIER)) {
@@ -187,13 +184,13 @@ public class SyntacticalAnalyzer {
         }
     }
 
-    private void parseConstAssignment() throws Exception {
+    private void parseConstAssignment() throws NoSuchElementException {
         parseGeneralIdentifier();
         eatTerminal("=");
         parseVectorDecl();
     }
 
-    private void parseClasses() throws Exception {
+    private void parseClasses() throws NoSuchElementException {
         boolean hasClassName = checkForType(peekToken(1), TokenTypes.IDENTIFIER);
         boolean missingClassKeywords = checkForType(TokenTypes.IDENTIFIER);
 
@@ -215,14 +212,14 @@ public class SyntacticalAnalyzer {
 
     }
 
-    private void parseExtends() throws Exception {
+    private void parseExtends() throws NoSuchElementException {
         if (checkForTerminal("extends")) {
             eatTerminal("extends");
             eatType(TokenTypes.IDENTIFIER);
         }
     }
 
-    private void parseMethods() throws Exception {
+    private void parseMethods() throws NoSuchElementException {
         boolean missingOnlyKeyword = (this.checkForType(peekToken(0), TokenTypes.IDENTIFIER) || nativeTypes.contains(this.currentToken.getValue()) && this.checkForType(peekToken(1), TokenTypes.IDENTIFIER));
         boolean mistypedKeyword = checkForType(TokenTypes.IDENTIFIER) && (this.checkForType(peekToken(1), TokenTypes.IDENTIFIER) || nativeTypes.contains(this.currentToken.getValue()) && this.checkForType(peekToken(2), TokenTypes.IDENTIFIER));
 
@@ -240,7 +237,7 @@ public class SyntacticalAnalyzer {
 
     }
 
-    private void parseFunctionBody() throws Exception {
+    private void parseFunctionBody() throws NoSuchElementException {
         eatTerminal("{");
         parseVariables();
         parseStatements();
@@ -248,14 +245,14 @@ public class SyntacticalAnalyzer {
         eatTerminal("}");
     }
 
-    private void parseReturn() throws Exception {
+    private void parseReturn() throws NoSuchElementException {
         if (eatTerminal("return", "}")) {
             if (checkForTerminal("void")) {
                 updateToken();
             } else {
                 try {
                     parseExpression();
-                } catch (Exception e) {
+                } catch (IndexOutOfBoundsException e) {
                     this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getValue(), "Expressão", e.getMessage()));
                     panic(";");
                 }
@@ -264,7 +261,7 @@ public class SyntacticalAnalyzer {
         }
     }
 
-    private void parseExpression() throws Exception {
+    private void parseExpression() throws NoSuchElementException {
         parseAddExp();
 
         if (checkForType(TokenTypes.RELATIONAL_OPERATOR) || checkForType(TokenTypes.LOGICAL_OPERATOR)) {
@@ -273,7 +270,7 @@ public class SyntacticalAnalyzer {
         }
     }
 
-    private void parseAddExp() throws Exception {
+    private void parseAddExp() throws NoSuchElementException {
         parseMultExp();
 
         if (checkForTerminal("+") || checkForTerminal("-")) {
@@ -283,7 +280,7 @@ public class SyntacticalAnalyzer {
     }
 
 
-    private void parseMultExp() throws Exception {
+    private void parseMultExp() throws NoSuchElementException {
         parseNegateExp();
 
         if (checkForTerminal("*") || checkForTerminal("/")) {
@@ -292,7 +289,7 @@ public class SyntacticalAnalyzer {
         }
     }
 
-    private void parseNegateExp() throws Exception {
+    private void parseNegateExp() throws NoSuchElementException {
         if (checkForTerminal("-")) {
             eatTerminal("-");
         }
@@ -300,7 +297,7 @@ public class SyntacticalAnalyzer {
         parseValue();
     }
 
-    private void parseValue() throws Exception {
+    private void parseValue() throws NoSuchElementException {
         if (checkForTerminal("(")) {
             eatTerminal("(");
             parseExpression();
@@ -310,7 +307,7 @@ public class SyntacticalAnalyzer {
         }
     }
 
-    private void parseBaseValue() throws Exception {
+    private void parseBaseValue() throws NoSuchElementException {
         if (checkForType(TokenTypes.STRING)) {
             eatType(TokenTypes.STRING);
         } else if (checkForTerminal("true") || checkForTerminal("false")) {
@@ -318,7 +315,7 @@ public class SyntacticalAnalyzer {
         } else if (checkForTerminal("--") || checkForTerminal("++") || checkForType(TokenTypes.NUMBER) || checkForType(TokenTypes.IDENTIFIER)) {
             parseNumber();
         } else {
-            throw new Exception("Expressão Malformada");
+            throw new IndexOutOfBoundsException("Expressão Malformada");
         }
     }
 
@@ -326,12 +323,12 @@ public class SyntacticalAnalyzer {
         try {
             parseBaseValue();
             return true;
-        } catch (Exception e) {
+        } catch (IndexOutOfBoundsException e) {
             return false;
         }
     }
 
-    private void parseNumber() throws Exception {
+    private void parseNumber() throws NoSuchElementException {
         if (checkForTerminal("++") || checkForTerminal("--")) {
             updateToken();
         }
@@ -344,24 +341,24 @@ public class SyntacticalAnalyzer {
 
     }
 
-    private void parseNumberLiteral() throws Exception {
+    private void parseNumberLiteral() throws NoSuchElementException {
 
         if (checkForType(TokenTypes.IDENTIFIER)) {
             parseMethodCall();
         } else if (checkForType(TokenTypes.NUMBER)) {
             updateToken();
         } else {
-            throw new Exception("expected number or identifier: " + this.currentToken);
+            throw new NoSuchElementException("expected number or identifier: " + this.currentToken);
         }
 
     }
 
-    private void parseMethodCall() throws Exception {
+    private void parseMethodCall() throws NoSuchElementException {
         parseGeneralIdentifier();
         parseFunctionParams();
     }
 
-    private void parseFunctionParams() throws Exception {
+    private void parseFunctionParams() throws NoSuchElementException {
         if (checkForTerminal("(")) {
             eatTerminal("(");
             parseArgList();
@@ -369,13 +366,13 @@ public class SyntacticalAnalyzer {
         }
     }
 
-    private void parseArgList() throws Exception {
+    private void parseArgList() throws NoSuchElementException {
         if (checkBaseValue()) {
             parseOptionalExtraArgs();
         }
     }
 
-    private void parseOptionalExtraArgs() throws Exception {
+    private void parseOptionalExtraArgs() throws NoSuchElementException {
         if (checkForTerminal(",")) {
             eatTerminal(",");
             parseArgList();
@@ -384,7 +381,7 @@ public class SyntacticalAnalyzer {
         }
     }
 
-    private void parseStatements() throws Exception {
+    private void parseStatements() throws NoSuchElementException {
         // Check for expressions and assignments
 
         if (checkForType(TokenTypes.IDENTIFIER)) {
@@ -395,13 +392,13 @@ public class SyntacticalAnalyzer {
                 eatTerminal("=");
                 try {
                     parseExpression();
-                } catch (Exception e) {
+                } catch (IndexOutOfBoundsException e) {
                     this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getValue(), "Expressão", "Expressão Malformada"));
                     this.panic(";");
                 }
             } else if (checkForTerminal("(")) {
                 Token keep = this.currentToken;
-                
+
                 parseFunctionParams();
 
                 if (checkForTerminal("{")) {
@@ -432,7 +429,7 @@ public class SyntacticalAnalyzer {
                 updateToken();
                 try {
                     parseExpression();
-                } catch (Exception e) {
+                } catch (IndexOutOfBoundsException e) {
                     this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getValue(), "Expressão", "Expressão Malformada"));
                     this.panic(";");
                 }
@@ -467,19 +464,19 @@ public class SyntacticalAnalyzer {
     }
 
 
-    private void parseRead() throws Exception {
+    private void parseRead() throws NoSuchElementException {
         eatTerminal("read");
         eatTerminal("(");
         parseGeneralIdentifierList();
         eatTerminal(")");
     }
 
-    private void parseWrite() throws Exception {
+    private void parseWrite() throws NoSuchElementException {
         eatTerminal("write");
         parseFunctionParams();
     }
 
-    private void parseWhile() throws Exception {
+    private void parseWhile() throws NoSuchElementException {
         eatTerminal("while");
         eatTerminal("(");
         parseExpression();
@@ -489,7 +486,7 @@ public class SyntacticalAnalyzer {
         eatTerminal("}");
     }
 
-    private void parseIf() throws Exception {
+    private void parseIf() throws NoSuchElementException {
         eatTerminal("if");
 
         if (eatTerminal("(", ")")) {
@@ -504,12 +501,12 @@ public class SyntacticalAnalyzer {
     }
 
 
-    private void parseGeneralIdentifierList() throws Exception {
+    private void parseGeneralIdentifierList() throws NoSuchElementException {
         parseGeneralIdentifier();
         parseOptionalExtraIds();
     }
 
-    private void parseOptionalExtraIds() throws Exception {
+    private void parseOptionalExtraIds() throws NoSuchElementException {
 
         if (checkForTerminal(",")) {
             eatTerminal(",");
@@ -519,24 +516,24 @@ public class SyntacticalAnalyzer {
         }
     }
 
-    private void parseGeneralIdentifier() throws Exception {
+    private void parseGeneralIdentifier() throws NoSuchElementException {
         parseOptVector();
         parseComposedIdentifier();
     }
 
-    private void parseComposedIdentifier() throws Exception {
+    private void parseComposedIdentifier() throws NoSuchElementException {
         if (checkForTerminal(".")) {
             eatTerminal(".");
             parseGeneralIdentifier();
         }
     }
 
-    private void parseOptVector() throws Exception {
+    private void parseOptVector() throws NoSuchElementException {
         eatType(TokenTypes.IDENTIFIER, true, "Nome da variável está ausente", "=,;)");
         parseVectorIndex();
     }
 
-    private void parseVectorIndex() throws Exception {
+    private void parseVectorIndex() throws NoSuchElementException {
         if (checkForTerminal("[")) {
             eatTerminal("[");
             parseExpression();
@@ -547,7 +544,7 @@ public class SyntacticalAnalyzer {
 
     }
 
-    private void parseElse() throws Exception {
+    private void parseElse() throws NoSuchElementException {
         if (checkForTerminal("else")) {
             eatTerminal("else");
             eatTerminal("{");
@@ -556,7 +553,7 @@ public class SyntacticalAnalyzer {
         }
     }
 
-    private void parseParams() throws Exception {
+    private void parseParams() throws NoSuchElementException {
         if (this.nativeTypes.contains(this.currentToken.getValue()) || this.checkForType(TokenTypes.IDENTIFIER)) {
             parseType(false, "Tipo do parâmetro ausente", null);
             parseOptVector();
@@ -567,14 +564,14 @@ public class SyntacticalAnalyzer {
     }
 
 
-    private void parseOptParams() throws Exception {
+    private void parseOptParams() throws NoSuchElementException {
         if (checkForTerminal(",")) {
             eatTerminal(",");
             parseParams();
         }
     }
 
-    private void parseType(boolean throwException, String errorMsg, String sync) throws Exception {
+    private void parseType(boolean throwException, String errorMsg, String sync) throws NoSuchElementException {
         if (this.nativeTypes.contains(currentToken.getValue())) {
             eatTerminal(currentToken.getValue(), throwException, errorMsg, sync);
         } else {
@@ -582,7 +579,7 @@ public class SyntacticalAnalyzer {
         }
     }
 
-    private boolean attemptToParseType() throws Exception {
+    private boolean attemptToParseType() throws NoSuchElementException {
         if (this.nativeTypes.contains(this.currentToken.getValue())) {
             eatTerminal(this.currentToken.getValue());
             return true;
@@ -594,7 +591,7 @@ public class SyntacticalAnalyzer {
         return false;
     }
 
-    private void parseVariables() throws Exception {
+    private void parseVariables() throws NoSuchElementException {
         boolean missingKeyword = checkForTerminal("{");
 
         if (checkForTerminal("variables") || missingKeyword) {
@@ -606,7 +603,7 @@ public class SyntacticalAnalyzer {
 
     }
 
-    private void parseVariablesBody() throws Exception {
+    private void parseVariablesBody() throws NoSuchElementException {
         if (this.attemptToParseType()) {
             parseVarDeclList();
             eatTerminal(";", ";"); // TODO: diminuir granularidade
@@ -620,12 +617,12 @@ public class SyntacticalAnalyzer {
         }
     }
 
-    private void parseVarDeclList() throws Exception {
+    private void parseVarDeclList() throws NoSuchElementException {
         parseVarDecl();
         parseOptionalDecls();
     }
 
-    private void parseOptionalDecls() throws Exception {
+    private void parseOptionalDecls() throws NoSuchElementException {
         if (checkForTerminal(",")) {
             eatTerminal(",");
             try {
@@ -639,49 +636,49 @@ public class SyntacticalAnalyzer {
         }
     }
 
-    private void parseVarDecl() throws Exception {
+    private void parseVarDecl() throws NoSuchElementException {
         parseGeneralIdentifier();
         parseVarAttribution();
     }
 
-    private void parseVarAttribution() throws Exception {
+    private void parseVarAttribution() throws NoSuchElementException {
         if (checkForTerminal("=")) {
             eatTerminal("=");
             parseVectorDecl();
         }
     }
 
-    private void parseVectorDecl() throws Exception {
+    private void parseVectorDecl() throws NoSuchElementException {
         if (checkForTerminal("[")) {
             parseVectorBody();
         } else {
             try {
                 parseExpression();
-            } catch (Exception e) {
+            } catch (IndexOutOfBoundsException e) {
                 this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getValue(), "Expressão", "Expressão Malformada"));
 
             }
         }
     }
 
-    private void parseVectorBody() throws Exception {
+    private void parseVectorBody() throws NoSuchElementException {
         eatTerminal("[");
         parseVectorValueList();
         eatTerminal("]");
     }
 
-    private void parseVectorValueList() throws Exception {
+    private void parseVectorValueList() throws NoSuchElementException {
         parseVectorDecl();
         parseOptionalValue();
     }
 
-    private void parseOptionalValue() throws Exception {
+    private void parseOptionalValue() throws NoSuchElementException {
         if (checkForTerminal(",")) {
             eatTerminal(",");
             parseVectorValueList();
         }
-        List<String> t = Arrays.asList(new String[]{"-", "--", "(", "[", "++", "true", "false"});//= List.of("-", "--", "(", "[", "++", "true", "false");
-        List<String> v = Arrays.asList(new String[]{TokenTypes.NUMBER, TokenTypes.STRING, TokenTypes.IDENTIFIER});//List.of(TokenTypes.NUMBER, TokenTypes.STRING, TokenTypes.IDENTIFIER);
+        List<String> t = Arrays.asList("-", "--", "(", "[", "++", "true", "false");//= List.of("-", "--", "(", "[", "++", "true", "false");
+        List<String> v = Arrays.asList(TokenTypes.NUMBER, TokenTypes.STRING, TokenTypes.IDENTIFIER);//List.of(TokenTypes.NUMBER, TokenTypes.STRING, TokenTypes.IDENTIFIER);
 
         if (t.contains(currentToken.getValue()) || v.contains(currentToken.getType())) {
             parseVectorDecl();
@@ -689,20 +686,20 @@ public class SyntacticalAnalyzer {
     }
 
 
-    private void parseMain() throws Exception {
+    private void parseMain() throws NoSuchElementException {
         eatTerminal("main");
         eatTerminal("{");
         parseVariables();
         parseStatements();
         eatTerminal("}");
 
-        if (this.tokens.hasNext()) {
+        if (this.tokenIndex != this.tokens.size()) {
             System.err.println("unexpected extra tokens");
-            //this.tokens.forEachRemaining(System.out::println);
+            this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getValue(), "Fim do arquivo", "Esperado fim do arquivo"));
         }
     }
 
-    private void panic(String sync) throws Exception {
+    private void panic(String sync) throws NoSuchElementException {
         System.err.println("---- Entering panic mode ----");
         //System.out.println(Arrays.toString(Thread.currentThread().getStackTrace()));
         while (!sync.contains(this.currentToken.getValue()) && !sync.contains(this.currentToken.getType())) {
