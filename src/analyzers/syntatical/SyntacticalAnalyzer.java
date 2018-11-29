@@ -263,7 +263,12 @@ public class SyntacticalAnalyzer {
     }
 
     private void parseReturn() throws NoSuchElementException {
-        if (eatTerminal("return", "}")) {
+        boolean mistypedReturn = checkForType(TokenTypes.IDENTIFIER) && checkForType(peekToken(1), TokenTypes.IDENTIFIER);
+
+        if (mistypedReturn || eatTerminal("return", "}")) {
+            if(mistypedReturn){
+                updateToken();
+            }
             if (checkForTerminal("void")) {
                 updateToken();
             } else {
@@ -452,6 +457,9 @@ public class SyntacticalAnalyzer {
                 }
             }
 
+            if(checkForType(TokenTypes.IDENTIFIER)){
+                return; // Mistyped return
+            }
             eatTerminal(";", ";" + TokenTypes.IDENTIFIER + "if" + "while" + "write" + "read");
 
             parseStatements();
