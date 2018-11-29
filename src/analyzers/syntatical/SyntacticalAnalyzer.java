@@ -40,7 +40,15 @@ public class SyntacticalAnalyzer {
         }
     }
 
+    private void rollback(int tokenIndex) {
+        this.currentToken = this.tokens.get(tokenIndex);
+        this.tokenIndex = tokenIndex;
+    }
 
+    private void roolback(Token target) {
+        this.currentToken = target;
+        this.tokenIndex = this.tokens.indexOf(target);
+    }
 
     private boolean checkForTerminal(String terminal) {
         return this.checkForTerminal(this.currentToken, terminal);
@@ -222,11 +230,20 @@ public class SyntacticalAnalyzer {
     private void parseMethods() throws NoSuchElementException {
         boolean missingOnlyKeyword = (this.checkForType(peekToken(0), TokenTypes.IDENTIFIER) || nativeTypes.contains(this.currentToken.getValue()) && this.checkForType(peekToken(1), TokenTypes.IDENTIFIER));
         boolean mistypedKeyword = checkForType(TokenTypes.IDENTIFIER) && (this.checkForType(peekToken(1), TokenTypes.IDENTIFIER) || nativeTypes.contains(this.currentToken.getValue()) && this.checkForType(peekToken(2), TokenTypes.IDENTIFIER));
+        boolean hasOnlyName = checkForType(TokenTypes.IDENTIFIER) && checkForTerminal(peekToken(1), "(");
 
-        if (checkForTerminal("method")) {
+
+        if (checkForTerminal("method") || missingOnlyKeyword || mistypedKeyword || hasOnlyName || checkForType(TokenTypes.IDENTIFIER)) {
             eatTerminal("method");
-            parseType(true, "Tipo de retorno ausente", TokenTypes.IDENTIFIER + NATIVE_TYPE_SYNC);
-            eatType(TokenTypes.IDENTIFIER, "Nome da função ausente", "(");
+
+            if (mistypedKeyword) {
+                updateToken();
+            }
+
+            parseType(true, "Erro na assinatura do método", TokenTypes.IDENTIFIER + NATIVE_TYPE_SYNC);
+
+            eatType(TokenTypes.IDENTIFIER, "Erro na assinatura do método", "(");
+
             eatTerminal("(");
             parseParams();
             eatTerminal(")");
