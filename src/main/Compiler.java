@@ -22,29 +22,37 @@ public class Compiler {
             Files.createDirectories(Paths.get("output", "lexico"));
             Files.createDirectories(Paths.get("output", "sintatico"));
 
-            Path outputFile = Paths.get("output",  "lexico", file.getFileName().toString());
+            Path lexerOutputFile = Paths.get("output",  "lexico", file.getFileName().toString());
 
-            BufferedWriter writer = Files.newBufferedWriter(outputFile);
+            BufferedWriter lexerOutput = Files.newBufferedWriter(lexerOutputFile);
             LexicalAnalyzer lexer = new LexicalAnalyzer(file);
 
             for (Token token : lexer.getTokens()) {
-                writer.write(token + "\n");
+                lexerOutput.write(token + "\n");
             }
 
-            writer.write("\n\n");
+            lexerOutput.write("\n\n");
 
             for (LexicalError lexicalError : lexer.getLexicalErrors()) {
-                writer.write(lexicalError + "\n");
+                lexerOutput.write(lexicalError + "\n");
             }
 
-            writer.close();
-            System.out.println("-- Saída do léxico disponível em " + outputFile);
+            lexerOutput.close();
+
+
+            Path parserOutputFile = Paths.get("output",  "sintatico", file.getFileName().toString());
+            BufferedWriter parserOutput = Files.newBufferedWriter(parserOutputFile);
+
             SyntacticalAnalyzer parser = new SyntacticalAnalyzer(lexer.getTokens());
             parser.parseProgram();
 
             for (SyntaxError error : parser.getErrors()) {
-                System.out.println(error);
+                parserOutput.write(error + "\n");
             }
+
+            System.out.println(" -- Arquivo " + lexerOutputFile + " processado");
+
+            parserOutput.close();
         }
     }
 
