@@ -13,9 +13,8 @@ class Conta {
 	int numero2;
     }
 
-    method void depositar(float valor){
-        saldo = saldo + valor;
-        return void;
+    method float depositar(float valor){
+        return saldo;
     }
 
     method void saque(float valor){
