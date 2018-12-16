@@ -101,7 +101,7 @@ public class SemanticAnalyzer {
                 getCurrentTypeMethod = currentToken.getValue();
             }
 
-            System.out.println(currentToken.getValue());
+            //System.out.println(currentToken.getValue());
             this.updateToken();
             return true;
         }
@@ -127,9 +127,9 @@ public class SemanticAnalyzer {
                     return true;
                 } else {
                     if (currentVariable.isConst()) {
-                        System.out.println("Constante: " + currentVariable.getName() + "não add");
+                        //System.out.println("Constante: " + currentVariable.getName());
                     } else {
-                        System.out.println("Variavel: " + currentVariable.getName() + " add");
+                        //System.out.println("Variavel: " + currentVariable.getName());
                         currentVariableList.add(currentVariable);
                     }
                     checkDeclaration();
@@ -139,9 +139,9 @@ public class SemanticAnalyzer {
                 checkToken("REL");
                 checkAssignment();
                 if (currentVariable.isConst()) {
-                    System.out.println("Constante: " + currentVariable.getName() + "não add");
+                    //System.out.println("Constante: " + currentVariable.getName());
                 } else {
-                    System.out.println("Variavel: " + currentVariable.getName() + " add");
+                    //System.out.println("Variavel: " + currentVariable.getName());
                     currentVariableList.add(currentVariable);
                 }
             }
@@ -161,9 +161,9 @@ public class SemanticAnalyzer {
             currentVariable.setConst(false);
             checkDeclaration();
             if (currentVariable.isConst()) {
-                System.out.println("Constante: " + currentVariable.getName() + "não add");
+                //System.out.println("Constante: " + currentVariable.getName());
             } else {
-                System.out.println("Variavel: " + currentVariable.getName() + " add");
+                //System.out.println("Variavel: " + currentVariable.getName());
                 currentVariableList.add(currentVariable);
             }
         }
@@ -176,7 +176,6 @@ public class SemanticAnalyzer {
         if(currentType.equals("string")) {
             if(currentToken.getType().equals("CDC")){
                 currentVariable.setValue(currentToken.getValue());
-                System.out.println(currentToken.getValue());
                 this.updateToken();
             } else {
                 System.err.println("Erro");
@@ -185,7 +184,6 @@ public class SemanticAnalyzer {
 
             if(currentToken.getValue().equals("true") || currentToken.getValue().equals("false")) {
                 currentVariable.setValue(currentToken.getValue());
-                System.out.println(currentToken.getValue());
                 this.updateToken();
             } else {
                 System.err.println("Erro");
@@ -194,7 +192,6 @@ public class SemanticAnalyzer {
 
             if(currentToken.getType().equals("NRO")) {
                 currentVariable.setValue(currentToken.getValue());
-                System.out.println(currentToken.getValue());
                 this.updateToken();
             } else {
                 System.err.println("Erro");
