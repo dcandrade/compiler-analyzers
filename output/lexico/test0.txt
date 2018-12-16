@@ -18,7 +18,7 @@
  5 PRE string
  5 IDE NOME_DO_BANCO
  5 REL =
- 5 CDC "Nome do Banco"
+ 5 NRO 1
  5 DEL ;
  6 DEL }
  8 PRE class

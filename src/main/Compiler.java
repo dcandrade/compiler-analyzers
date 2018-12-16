@@ -1,6 +1,7 @@
 package main;
 
 import analyzers.lexical.LexicalAnalyzer;
+import analyzers.semantic.SemanticAnalyzer;
 import analyzers.syntatical.SyntacticalAnalyzer;
 import model.error.LexicalError;
 import model.error.SyntaxError;
@@ -39,7 +40,6 @@ public class Compiler {
 
             lexerOutput.close();
 
-
             Path parserOutputFile = Paths.get("output",  "sintatico", file.getFileName().toString());
             BufferedWriter parserOutput = Files.newBufferedWriter(parserOutputFile);
 
@@ -53,7 +53,8 @@ public class Compiler {
             System.out.println(" -- Arquivo " + lexerOutputFile + " processado");
 
             parserOutput.close();
+
+            SemanticAnalyzer semantic = new SemanticAnalyzer(lexer.getTokens());
         }
     }
-
 }
