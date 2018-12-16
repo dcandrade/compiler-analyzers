@@ -91,7 +91,7 @@ public class SemanticAnalyzer {
                     System.out.println("Finishe");
                     return true;
                 } else {
-                    //analyzerConst();
+                    //analyzerConst(); //Verificar possivel erro
                     checkDeclaration();
                 }
 
