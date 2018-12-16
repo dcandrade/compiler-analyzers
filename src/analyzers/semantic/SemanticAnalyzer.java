@@ -2,6 +2,7 @@ package analyzers.semantic;
 
 import model.semantic.SymbleTable;
 import model.semantic.Variable;
+import model.semantic.Class;
 import model.token.Token;
 
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ public class SemanticAnalyzer {
 
     private Token currentToken, lastToken;
     private Variable currentVariable;
+    private Class currenteClasss;
     private String currentType;
 
     private final List<String> nativeTypes;
@@ -23,6 +25,7 @@ public class SemanticAnalyzer {
 
     public SemanticAnalyzer(List<Token> tokens) {
         currentVariable = new Variable();
+        currenteClasss = new Class();
         symbleTable = new SymbleTable();
         this.tokens = tokens;
         this.tokenIndex = 0;
@@ -43,6 +46,7 @@ public class SemanticAnalyzer {
 
     public void analyzer() {
         Const();
+        chechClass();
     }
 
     public void Const() {
@@ -55,18 +59,7 @@ public class SemanticAnalyzer {
 
     public boolean analyzerConst() {
         currentVariable.setConst(true);
-        checkType();
         checkDeclaration();
-        if(checkToken(";")) {
-            if(checkToken("}")) {
-                System.out.println("Finishe Const");
-                return true;
-            } else {
-                analyzerConst();
-            }
-        } else if(checkToken(",")) {
-            checkDeclaration();
-        }
         return false;
     }
 
@@ -90,13 +83,35 @@ public class SemanticAnalyzer {
     }
 
     public boolean checkDeclaration() {
+        checkType();
         if(checkToken("IDE")) {
             currentVariable.setName(lastToken.getValue());
-            checkToken("REL");
-            checkAssignment();
-            return true;
+            if (checkToken(";")) {
+                if(checkToken("}")) {
+                    System.out.println("Finishe");
+                    return true;
+                } else {
+                    //analyzerConst();
+                    checkDeclaration();
+                }
+
+            } else {
+                checkToken("REL");
+                checkAssignment();
+            }
         }
-        return true;
+        if(checkToken(";")) {
+            if(checkToken("}")) {
+                System.out.println("Finishe");
+                return true;
+            } else {
+                analyzerConst();
+            }
+        } else if(checkToken(",")) {
+            checkDeclaration();
+            //return true;
+        }
+        return false;
     }
 
     public boolean checkAssignment() {
@@ -131,5 +146,27 @@ public class SemanticAnalyzer {
         }
         symbleTable.addConst(currentVariable);
         return true;
+    }
+
+    public boolean chechClass() {
+        if(checkToken("class")) {
+            if(checkToken("IDE")) {
+                if (checkToken("{")) {
+                    checkVariable();
+                }
+            }
+        }
+
+        return true;
+    }
+
+    public boolean checkVariable() {
+        if (checkToken("variables")) {
+            if (checkToken("{")) {
+                checkDeclaration();
+                return true;
+            }
+        }
+        return false;
     }
 }
