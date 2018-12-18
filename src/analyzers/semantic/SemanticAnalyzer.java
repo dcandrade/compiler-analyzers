@@ -1,9 +1,10 @@
 package analyzers.semantic;
 
-import model.semantic.SymbleTable;
+import model.semantic.SymbolTable;
 import model.semantic.Variable;
 import model.semantic.Class;
 import model.token.Token;
+import model.token.TokenTypes;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,12 +13,12 @@ import java.util.List;
 public class SemanticAnalyzer {
 
     private final List<Token> tokens;
-    private SymbleTable symbleTable;
+    private SymbolTable symbolTable;
     private int tokenIndex;
 
     private Token currentToken, lastToken;
     private Variable currentVariable;
-    private Class currenteClass;
+    private Class currentClass;
     private String currentType, currentValue, getCurrentTypeMethod;
     private List<Variable> currentVariableList;
     private List<Variable> currentConstantList;
@@ -28,11 +29,11 @@ public class SemanticAnalyzer {
 
     public SemanticAnalyzer(List<Token> tokens) {
         currentVariable = new Variable();
-        currenteClass = new Class();
-        currentVariableList = new ArrayList<Variable>();
-        currentConstantList = new ArrayList<Variable>();
+        currentClass = new Class();
+        currentVariableList = new ArrayList<>();
+        currentConstantList = new ArrayList<>();
 
-        symbleTable = new SymbleTable();
+        symbolTable = new SymbolTable();
 
         this.tokens = tokens;
         this.tokenIndex = 0;
@@ -111,7 +112,7 @@ public class SemanticAnalyzer {
     public boolean checkDeclaration() {
         checkType(1);
 
-        if(checkToken("IDE")) {
+        if(checkToken(TokenTypes.IDENTIFIER)) {
             currentVariable = new Variable();
             if(isCost) {
                 currentVariable.setConst(true);
@@ -136,7 +137,7 @@ public class SemanticAnalyzer {
                 }
 
             } else {
-                checkToken("REL");
+                checkToken(TokenTypes.RELATIONAL_OPERATOR);
                 checkAssignment();
                 if (currentVariable.isConst()) {
                     //System.out.println("Constante: " + currentVariable.getName());
@@ -174,7 +175,7 @@ public class SemanticAnalyzer {
     public boolean checkAssignment() {
 
         if(currentType.equals("string")) {
-            if(currentToken.getType().equals("CDC")){
+            if(currentToken.getType().equals(TokenTypes.STRING)){
                 currentVariable.setValue(currentToken.getValue());
                 this.updateToken();
             } else {
@@ -197,22 +198,22 @@ public class SemanticAnalyzer {
                 System.err.println("Erro");
             }
         }
-        symbleTable.addConst(currentVariable);
+        symbolTable.addConst(currentVariable);
         return true;
     }
 
     public boolean chechClass() {
         if(checkToken("class")) {
-            if(checkToken("IDE")) {
+            if(checkToken(TokenTypes.IDENTIFIER)) {
                 if (checkToken("{")) {
                     checkVariable();
-                    currenteClass.addVariableList(currentVariableList);
+                    currentClass.addVariableList(currentVariableList);
                     checkMethod();
                 } else if(checkToken(currentToken.getValue())) {
-                    if (checkToken("IDE")) {//Verificar se a classe herdade existe
+                    if (checkToken(TokenTypes.IDENTIFIER)) {//Verificar se a classe herdade existe
                         if (checkToken("{")) {
                             checkVariable();
-                            currenteClass.addVariableList(currentVariableList);
+                            currentClass.addVariableList(currentVariableList);
                             checkMethod();
                         }
                     }
@@ -229,7 +230,7 @@ public class SemanticAnalyzer {
         if (checkToken("method")) {
             if(nativeTypes.contains(currentToken.getValue())) {
                 checkType(2);
-                if (checkToken("IDE")) {
+                if (checkToken(TokenTypes.IDENTIFIER)) {
                     checkParams();
                     if (checkToken("{")) {
                         checkFunctionBody();
@@ -258,7 +259,7 @@ public class SemanticAnalyzer {
     public boolean checkReturn() {
         if(checkToken("return")) {
             System.out.println("valor do return para análise: " + currentToken.getValue());
-            if(currenteClass.checkVariableType(currentToken.getValue(), getCurrentTypeMethod)) {
+            if(currentClass.checkVariableType(currentToken.getValue(), getCurrentTypeMethod)) {
                 updateToken();
                 System.out.println("Return correto");
                 return true;
@@ -277,7 +278,7 @@ public class SemanticAnalyzer {
         if(checkToken("(")) {
             if(nativeTypes.contains(currentToken.getValue())){
                 updateToken();
-                if(checkToken("IDE")) {
+                if(checkToken(TokenTypes.IDENTIFIER)) {
                     if (checkToken(")")) {
                         return true;
                     }
