@@ -2,7 +2,7 @@ package analyzers.semantic;
 
 import model.semantic.SymbolTable;
 import model.semantic.Variable;
-import model.semantic.Class;
+import model.semantic.ClassTable;
 import model.token.Token;
 import model.token.TokenTypes;
 
@@ -18,18 +18,18 @@ public class SemanticAnalyzer {
 
     private Token currentToken, lastToken;
     private Variable currentVariable;
-    private Class currentClass;
+    private ClassTable currentClassTable;
     private String currentType, currentValue, getCurrentTypeMethod;
     private List<Variable> currentVariableList;
     private List<Variable> currentConstantList;
-    private boolean isCost = false;
+    private boolean isConst = false;
 
     private final List<String> nativeTypes;
 
 
     public SemanticAnalyzer(List<Token> tokens) {
         currentVariable = new Variable();
-        currentClass = new Class();
+        currentClassTable = new ClassTable();
         currentVariableList = new ArrayList<>();
         currentConstantList = new ArrayList<>();
 
@@ -55,12 +55,12 @@ public class SemanticAnalyzer {
 
     public void analyzer() {
         checkConst();
-        chechClass();
+        checkClass();
     }
 
     public boolean checkConst() {
         if(checkToken("const")) {
-            isCost = true;
+            isConst = true;
             if (checkToken("{")) {
                 analyzerVariable();
                 return true;
@@ -71,7 +71,7 @@ public class SemanticAnalyzer {
 
     public boolean checkVariable() {
         if (checkToken("variables")) {
-            isCost = false;
+            isConst = false;
             if (checkToken("{")) {
                 analyzerVariable();
                 return true;
@@ -114,11 +114,8 @@ public class SemanticAnalyzer {
 
         if(checkToken(TokenTypes.IDENTIFIER)) {
             currentVariable = new Variable();
-            if(isCost) {
-                currentVariable.setConst(true);
-            } else {
-                currentVariable.setConst(false);
-            }
+            currentVariable.setConst(isConst);
+
             currentVariable.setName(lastToken.getValue());
             currentVariable.setType(currentType);
 
@@ -202,18 +199,18 @@ public class SemanticAnalyzer {
         return true;
     }
 
-    public boolean chechClass() {
+    public boolean checkClass() {
         if(checkToken("class")) {
             if(checkToken(TokenTypes.IDENTIFIER)) {
                 if (checkToken("{")) {
                     checkVariable();
-                    currentClass.addVariableList(currentVariableList);
+                    currentClassTable.addVariableList(currentVariableList);
                     checkMethod();
                 } else if(checkToken(currentToken.getValue())) {
                     if (checkToken(TokenTypes.IDENTIFIER)) {//Verificar se a classe herdade existe
                         if (checkToken("{")) {
                             checkVariable();
-                            currentClass.addVariableList(currentVariableList);
+                            currentClassTable.addVariableList(currentVariableList);
                             checkMethod();
                         }
                     }
@@ -247,7 +244,7 @@ public class SemanticAnalyzer {
                 }
             }
         } else  if (checkToken("}")) {
-            chechClass();
+            checkClass();
         }
         return false;
     }
@@ -259,7 +256,7 @@ public class SemanticAnalyzer {
     public boolean checkReturn() {
         if(checkToken("return")) {
             System.out.println("valor do return para análise: " + currentToken.getValue());
-            if(currentClass.checkVariableType(currentToken.getValue(), getCurrentTypeMethod)) {
+            if(currentClassTable.checkVariableType(currentToken.getValue(), getCurrentTypeMethod)) {
                 updateToken();
                 System.out.println("Return correto");
                 return true;

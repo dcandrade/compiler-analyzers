@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SymbolTable {
-    private List<Class> classes;
+    private List<ClassTable> classTables;
     private  List<Variable> constants;
 
     public SymbolTable() {

@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class Class {
+public class ClassTable {
     private String name;
     private List<Variable> variables;
 
-    public Class() {
-        variables = new ArrayList<Variable>();
+    public ClassTable() {
+        variables = new ArrayList<>();
     }
 
     public String getName() {
@@ -23,10 +23,10 @@ public class Class {
     public boolean checkVariableType(String variable, String type) {
         Variable variable1Aux = new Variable();
         variable1Aux.setName(variable);
-        Iterator i = variables.iterator();
+        Iterator<Variable> i = variables.iterator();
 
         while (i.hasNext()) {
-            Variable aux = (Variable) i.next();
+            Variable aux =  i.next();
 
             if(aux.getName().equals(variable)) {
                 if(aux.getType().equals(type)){
