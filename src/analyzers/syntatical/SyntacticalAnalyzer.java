@@ -193,6 +193,10 @@ public class SyntacticalAnalyzer {
         boolean hasClassName = checkForType(peekToken(1), TokenTypes.IDENTIFIER);
         boolean missingClassKeywords = checkForType(TokenTypes.IDENTIFIER);
 
+        if(checkForTerminal("main")){
+            return;
+        }
+
         if (checkForTerminal("class") || hasClassName || missingClassKeywords) {
 
             if (!eatTerminal("class") && hasClassName) {
@@ -214,7 +218,12 @@ public class SyntacticalAnalyzer {
     private void parseExtends() throws NoSuchElementException {
         if (checkForTerminal("extends")) {
             eatTerminal("extends");
-            eatType(TokenTypes.IDENTIFIER, "Herança ausente", "{");
+            eatType(TokenTypes.IDENTIFIER, "Herança ausente", "{variables");
+        }
+
+        else if(checkForType(TokenTypes.IDENTIFIER)){
+            this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getValue(), "extends", "Esperado extends"));
+            this.updateToken();
         }
     }
 
@@ -231,7 +240,7 @@ public class SyntacticalAnalyzer {
                 updateToken();
             }
 
-            parseType(true, "Erro na assinatura do método", TokenTypes.IDENTIFIER + NATIVE_TYPE_SYNC);
+            parseType(THROW_EXCEPTION, "Erro na assinatura do método", TokenTypes.IDENTIFIER + NATIVE_TYPE_SYNC);
 
             eatType(TokenTypes.IDENTIFIER, "Erro na assinatura do método", "(");
 
@@ -314,7 +323,11 @@ public class SyntacticalAnalyzer {
         if (checkForTerminal("(")) {
             eatTerminal("(");
             parseExpression();
-            eatTerminal(")");
+
+            if(checkForTerminal(")")) {
+                eatTerminal(")");
+            }
+
         } else {
             parseBaseValue();
         }
@@ -328,7 +341,7 @@ public class SyntacticalAnalyzer {
         } else if (checkForTerminal("--") || checkForTerminal("++") || checkForType(TokenTypes.NUMBER) || checkForType(TokenTypes.IDENTIFIER)) {
             parseNumber();
         } else {
-            throw new IndexOutOfBoundsException("Expressão Malformada");
+            throw new IndexOutOfBoundsException("Expressão Malformada na linha "+currentToken.getLine());
         }
     }
 
@@ -403,11 +416,17 @@ public class SyntacticalAnalyzer {
             Token keep = this.currentToken;
 
             // Parsing assigment
+
             if (checkForTerminal("=")) {
                 eatTerminal("=");
+
                 try {
                     parseExpression();
-                } catch (IndexOutOfBoundsException e) {
+                    if(!checkForTerminal(";")){
+                        throw new IndexOutOfBoundsException();
+                    }
+                } catch (IndexOutOfBoundsException | NoSuchElementException e) {
+
                     this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getValue(), "Expressão", "Expressão Malformada"));
                     this.panic(";");
                 }
@@ -454,7 +473,22 @@ public class SyntacticalAnalyzer {
             }
 
             if (checkForType(TokenTypes.IDENTIFIER)) {
-                return; // Mistyped return
+
+                int ref = this.tokenIndex;
+                Token current = this.currentToken;
+                panic(");.[");
+
+                if(checkForTerminal(")")){
+                    eatTerminal(")");
+                    this.errors.add(new SyntaxError(current.getLine(), current.getValue(), "(", "Chamada de método malformada"));
+                }else if( checkForTerminal(";")){
+                    rollback(ref);
+                    return; // Mistyped return
+                }else{
+                    this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getValue(), "Ponto ou =", "Atribuição Malformada"));
+                    panic(";");
+                }
+
             }
 
             if (comma)
@@ -462,7 +496,13 @@ public class SyntacticalAnalyzer {
 
             parseStatements();
 
-        } else {
+        } else if(checkForTerminal("(")){
+            this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getValue(), "Chamada de Método", "Identificador Ausente"));
+
+            parseFunctionParams();
+            eatTerminal(";");
+        }
+        else {
             switch (currentToken.getValue()) {
                 case "if":
                     parseIf();
@@ -486,6 +526,11 @@ public class SyntacticalAnalyzer {
         }
     }
 
+    private void rollback(int ref) {
+        this.currentToken = this.tokens.get(ref);
+        this.tokenIndex = ref;
+    }
+
 
     private void parseRead() throws NoSuchElementException {
         eatTerminal("read");
@@ -502,7 +547,18 @@ public class SyntacticalAnalyzer {
     private void parseWhile() throws NoSuchElementException {
         eatTerminal("while");
         eatTerminal("(");
-        parseExpression();
+        try {
+            parseExpression();
+
+            if(!checkForTerminal(")") && !checkForTerminal("{")){
+                panic("){");
+                throw new Exception();
+            }
+        }catch(Exception e){
+            this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getValue(), "Expressão", "Expressão Malformada"));
+        }
+
+
         eatTerminal(")");
         eatTerminal("{");
         parseStatements();
@@ -512,8 +568,17 @@ public class SyntacticalAnalyzer {
     private void parseIf() throws NoSuchElementException {
         eatTerminal("if");
 
-        if (eatTerminal("(", ")")) {
+        eatTerminal("(");
+        try {
             parseExpression();
+
+            if(!checkForTerminal(")")){
+                panic(")");
+                throw new Exception();
+            }
+        }catch(Exception e){
+            this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getValue(), "Expressão", "Expressão Malformada"));
+
         }
 
         eatTerminal(")", "{");
@@ -548,19 +613,41 @@ public class SyntacticalAnalyzer {
     private void parseComposedIdentifier() throws NoSuchElementException {
         if (checkForTerminal(".")) {
             eatTerminal(".");
-            parseGeneralIdentifier();
+            if(checkForType(TokenTypes.IDENTIFIER)) {
+                parseGeneralIdentifier();
+            }else{
+                this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getValue(), TokenTypes.IDENTIFIER, "Esperado identificador"));
+                panic(".(["+TokenTypes.IDENTIFIER);
+
+                if(checkForTerminal("(")){
+                    return;
+                }else if (checkForTerminal("[")){
+                    parseVectorIndex();
+                } else if(checkForType(TokenTypes.IDENTIFIER)){
+                    parseGeneralIdentifier();
+                }else if(checkForTerminal(".")){
+                    eatTerminal(".");
+                    parseGeneralIdentifier();
+                }
+            }
         }
     }
 
     private void parseOptVector() throws NoSuchElementException {
-        eatType(TokenTypes.IDENTIFIER, true, "Declaração de variável feita incorretamente", "=,;)");
+        eatType(TokenTypes.IDENTIFIER, true, "Sintaxe de variável ou parâmetro incorreta", "=,;)"+TokenTypes.IDENTIFIER+TokenTypes.RESERVED_WORD);
+
         parseVectorIndex();
     }
 
     private void parseVectorIndex() throws NoSuchElementException {
         if (checkForTerminal("[")) {
             eatTerminal("[");
-            parseExpression();
+            try {
+                parseExpression();
+            }catch (IndexOutOfBoundsException ex){
+                this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getValue(), "Indexação", "Indexação de vetor inválida"));
+                panic("];,");
+            }
             eatTerminal("]", ";,");
 
             parseVectorIndex();
@@ -619,12 +706,16 @@ public class SyntacticalAnalyzer {
 
     private void parseVariables() throws NoSuchElementException {
         boolean missingKeyword = checkForTerminal("{");
+        System.err.println("====variables");
 
         if (checkForTerminal("variables") || missingKeyword) {
+            System.err.println(" if ===variables");
+
             eatTerminal("variables");
             eatTerminal("{");
             parseVariablesBody();
-            eatTerminal("}", "method");
+            eatTerminal("}", "method"+TokenTypes.IDENTIFIER);
+            System.err.println("====fim variables");
         }
 
     }
@@ -728,7 +819,7 @@ public class SyntacticalAnalyzer {
     }
 
     private void panic(String sync) throws NoSuchElementException {
-        System.err.println("---- Entering panic mode ----");
+        System.err.println("---- Entering panic mode ---- (line "+ this.currentToken.getLine() + ")");
         //System.out.println(Arrays.toString(Thread.currentThread().getStackTrace()));
         while (!sync.contains(this.currentToken.getValue()) && !sync.contains(this.currentToken.getType())) {
             System.err.println("-> Skipping token " + this.currentToken);

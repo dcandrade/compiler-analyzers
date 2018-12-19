@@ -24,6 +24,7 @@ public class Compiler {
             Files.createDirectories(Paths.get("output", "sintatico"));
 
             Path lexerOutputFile = Paths.get("output",  "lexico", file.getFileName().toString());
+            System.out.println(" -->> Processando arquivo " + lexerOutputFile );
 
             BufferedWriter lexerOutput = Files.newBufferedWriter(lexerOutputFile);
             LexicalAnalyzer lexer = new LexicalAnalyzer(file);
