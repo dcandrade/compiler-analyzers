@@ -17,14 +17,15 @@ import java.util.stream.Collectors;
 
 public class Compiler {
     public static void main(String[] args) throws Exception {
-        List<Path> inputs = Files.list(Paths.get("tests")).collect(Collectors.toList());
+        List<Path> inputs = Files.list(Paths.get("tests")).sorted().collect(Collectors.toList());
         for (Path file : inputs) {
 
             Files.createDirectories(Paths.get("output", "lexico"));
             Files.createDirectories(Paths.get("output", "sintatico"));
+            Files.createDirectories(Paths.get("output", "semantico"));
 
             Path lexerOutputFile = Paths.get("output",  "lexico", file.getFileName().toString());
-            System.out.println(" -->> Processando arquivo " + lexerOutputFile );
+            System.out.println(" -->> Processando arquivo " + file );
 
             BufferedWriter lexerOutput = Files.newBufferedWriter(lexerOutputFile);
             LexicalAnalyzer lexer = new LexicalAnalyzer(file);
@@ -40,6 +41,8 @@ public class Compiler {
             }
 
             lexerOutput.close();
+            System.out.println("Léxico OK");
+
 
             Path parserOutputFile = Paths.get("output",  "sintatico", file.getFileName().toString());
             BufferedWriter parserOutput = Files.newBufferedWriter(parserOutputFile);
@@ -50,12 +53,20 @@ public class Compiler {
             for (SyntaxError error : parser.getErrors()) {
                 parserOutput.write(error + "\n");
             }
+            System.out.println("Sintático OK ");
 
-            System.out.println(" -- Arquivo " + lexerOutputFile + " processado");
 
             parserOutput.close();
 
             //SemanticAnalyzer semantic = new SemanticAnalyzer(lexer.getTokens());
+        }
+    }
+
+    private static void delete(Path path){
+        try{
+            Files.delete(path);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

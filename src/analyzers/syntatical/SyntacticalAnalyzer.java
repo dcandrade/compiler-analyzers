@@ -9,13 +9,14 @@ import java.util.*;
 
 public class SyntacticalAnalyzer {
     private static boolean THROW_EXCEPTION = false;
+    private static boolean VERBOSE = true;
     private static String NATIVE_TYPE_SYNC;
 
     private final List<String> nativeTypes;
     private final List<Token> tokens;
     private int tokenIndex;
     private List<SyntaxError> errors;
-    private Token currentToken = null;
+    private Token currentToken = new Token("", "", 0);
 
     public SyntacticalAnalyzer(List<Token> tokens) {
         this.tokens = tokens;
@@ -60,6 +61,8 @@ public class SyntacticalAnalyzer {
         if (!currentToken.getValue().equals(terminal)) {
             this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getValue(), terminal, errorMsg));
             String msg = "TerminalError -> Line: " + currentToken.getLine() + " -> " + "Expected " + terminal + " got " + currentToken.getValue();
+
+            if(VERBOSE)
             System.err.println(msg + " ---> " + errorMsg);
 
 
@@ -98,7 +101,9 @@ public class SyntacticalAnalyzer {
         if (!currentToken.getType().equals(type)) {
             this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getType(), type, errorMsg));
             String msg = "TypeError -> Line: " + currentToken.getLine() + " -> " + "Expected type " + type + " got " + currentToken.getType() + " (" + currentToken.getValue() + ")";
-            System.err.println(msg + "  --->  " + errorMsg);
+
+            if(VERBOSE)
+                System.err.println(msg + "  --->  " + errorMsg);
 
             if (throwException && sync == null) {
                 throw new NoSuchElementException(msg);
@@ -120,9 +125,13 @@ public class SyntacticalAnalyzer {
     }
 
     public void parseProgram() throws NoSuchElementException {
-        parseConst();
-        parseClasses();
-        parseMain();
+        try {
+            parseConst();
+            parseClasses();
+            parseMain();
+        }catch(IndexOutOfBoundsException ex){
+            this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getValue(), "Tokens", "Fim do arquivo inesperado"));
+        }
     }
 
     private void parseConst() throws NoSuchElementException {
@@ -384,12 +393,16 @@ public class SyntacticalAnalyzer {
         parseFunctionParams();
     }
 
-    private void parseFunctionParams() throws NoSuchElementException {
-        if (checkForTerminal("(")) {
+    private void parseFunctionParams(boolean mandatory) throws NoSuchElementException {
+        if (checkForTerminal("(") || mandatory) {
             eatTerminal("(");
             parseArgList();
             eatTerminal(")", ";");
         }
+    }
+
+    private void parseFunctionParams() throws NoSuchElementException {
+        parseFunctionParams(false);
     }
 
     private void parseArgList() throws NoSuchElementException {
@@ -402,7 +415,8 @@ public class SyntacticalAnalyzer {
         if (checkForTerminal(",")) {
             eatTerminal(",");
             parseArgList();
-        } else {
+        } else if (!checkForTerminal(")")) {
+            this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getValue(), "Vírgula", "Parâmetro inesperado"));
             checkBaseValue();// base value parsed
         }
     }
@@ -541,7 +555,7 @@ public class SyntacticalAnalyzer {
 
     private void parseWrite() throws NoSuchElementException {
         eatTerminal("write");
-        parseFunctionParams();
+        parseFunctionParams(true);
     }
 
     private void parseWhile() throws NoSuchElementException {
@@ -809,20 +823,24 @@ public class SyntacticalAnalyzer {
         eatTerminal("}");
 
         if (this.tokenIndex != this.tokens.size()) {
-            System.err.println("unexpected extra tokens");
+            if(VERBOSE)
+                System.err.println("unexpected extra tokens");
             this.errors.add(new SyntaxError(currentToken.getLine(), currentToken.getValue(), "Fim do arquivo", "Esperado fim do arquivo"));
         }
     }
 
     private void panic(String sync) throws NoSuchElementException {
-        System.err.println("---- Entering panic mode ---- (line "+ this.currentToken.getLine() + ")");
+        if(VERBOSE)
+            System.err.println("---- Entering panic mode ---- (line "+ this.currentToken.getLine() + ")");
         //System.out.println(Arrays.toString(Thread.currentThread().getStackTrace()));
         while (!sync.contains(this.currentToken.getValue()) && !sync.contains(this.currentToken.getType())) {
-            System.err.println("-> Skipping token " + this.currentToken);
+            if(VERBOSE)
+                System.err.println("-> Skipping token " + this.currentToken);
             updateToken();
         }
 
-        System.err.println("-> Panic finished w/ token " + this.currentToken);
+        if(VERBOSE)
+            System.err.println("-> Panic finished w/ token " + this.currentToken);
 
     }
 
