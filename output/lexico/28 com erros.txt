@@ -1,0 +1,27 @@
+ 1 PRE main
+ 1 DEL {
+ 2 PRE variables
+ 2 DEL {
+ 2 IDE aluno
+ 2 IDE alunos
+ 2 DEL [
+ 2 IDE Max
+ 2 DEL ]
+ 2 DEL ;
+ 2 PRE bool
+ 2 IDE flag
+ 2 DEL ;
+ 4 IDE imprimir
+ 4 DEL (
+ 4 IDE alunos
+ 4 DEL [
+ 4 IDE Max
+ 4 DEL ]
+ 4 DEL ,
+ 4 IDE Disciplinas
+ 4 DEL )
+ 4 DEL ;
+ 6 DEL }
+-1 EOF $
+
+

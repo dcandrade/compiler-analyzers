@@ -55,7 +55,7 @@ public class Compiler {
 
             parserOutput.close();
 
-            SemanticAnalyzer semantic = new SemanticAnalyzer(lexer.getTokens());
+            //SemanticAnalyzer semantic = new SemanticAnalyzer(lexer.getTokens());
         }
     }
 }

@@ -1,0 +1,72 @@
+ 1 PRE class
+ 1 IDE teste
+ 1 DEL {
+ 3 PRE variables
+ 3 DEL {
+ 5 IDE max1
+ 5 REL =
+ 5 NRO 10
+ 5 DEL ,
+ 5 IDE max2
+ 5 REL =
+ 5 NRO 20
+ 5 DEL ;
+ 7 PRE float
+ 7 IDE pi
+ 7 NRO 3.1415
+ 7 DEL ;
+ 9 PRE string
+ 9 IDE msg
+ 9 REL =
+ 9 DEL ;
+11 PRE bool
+11 IDE flag
+11 REL =
+11 PRE true
+11 DEL ;
+12 DEL }
+14 PRE method
+14 PRE float
+14 IDE soma
+14 DEL (
+14 DEL )
+14 DEL {
+16 PRE variables
+16 DEL {
+18 PRE int
+18 IDE max1
+18 REL =
+18 NRO 10
+18 IDE max2
+18 REL =
+18 NRO 20
+20 PRE float
+20 IDE pi
+20 REL =
+20 NRO 3.1415
+20 DEL ;
+22 PRE string
+22 IDE msg
+22 REL =
+22 CDC "mensagem teste"
+22 DEL ;
+24 PRE bool
+24 IDE flag
+24 REL =
+24 PRE true
+24 DEL ;
+26 PRE float
+26 IDE taxa
+26 DEL ;
+27 DEL }
+28 PRE return
+28 NRO 1
+28 DEL ;
+29 DEL }
+30 DEL }
+32 PRE main
+32 DEL {
+32 DEL }
+-1 EOF $
+
+

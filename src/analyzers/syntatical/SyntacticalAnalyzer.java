@@ -706,16 +706,12 @@ public class SyntacticalAnalyzer {
 
     private void parseVariables() throws NoSuchElementException {
         boolean missingKeyword = checkForTerminal("{");
-        System.err.println("====variables");
 
         if (checkForTerminal("variables") || missingKeyword) {
-            System.err.println(" if ===variables");
-
             eatTerminal("variables");
             eatTerminal("{");
             parseVariablesBody();
             eatTerminal("}", "method"+TokenTypes.IDENTIFIER);
-            System.err.println("====fim variables");
         }
 
     }

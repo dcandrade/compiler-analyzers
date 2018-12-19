@@ -1,0 +1,20 @@
+class teste {
+
+    variables {
+        
+		int max[a+b][10][10];
+        
+		float pi[max] = 3.1415;
+        
+		string msg[TAM] = "mensagem teste";
+        
+		bool flag[50] = true;
+        
+		float taxa[a>b];
+        
+		aluno vetor_alunos[a==b];
+    }
+    
+}
+
+main { }

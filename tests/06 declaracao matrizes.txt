@@ -1,0 +1,20 @@
+class teste {
+
+    variables {
+        
+		int max[a+b][10][];   // falta valor ou expressao
+		
+        float pi[max ;  // falta fecha colchetes
+        
+		string msg[TAM] = "mensagem teste";
+        
+		bool flag[50] = true;
+        
+		float [a>b];   // falta identificador
+        
+		aluno vetor_alunos[a==b];
+    }
+    
+}
+
+main { }

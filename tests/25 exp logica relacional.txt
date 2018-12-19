@@ -1,0 +1,13 @@
+main {
+    
+    while ( i <= Max && flag != false ) {
+    
+        if (j < 5 && k > 10 && m > i || flag != true) {
+		
+			if ( (a+b) > (c+d) || Max > cont ) { }
+        
+        }
+           
+    }       
+
+}  

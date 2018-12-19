@@ -1,0 +1,14 @@
+main {
+     
+    if i > j) {    // falta '('
+    
+    }
+    else 			// falta '{'
+		if (a != b) { }
+    
+    
+    
+    if (i > j)  {  // esperava '}'
+     
+    }   
+}

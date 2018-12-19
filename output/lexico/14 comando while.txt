@@ -1,0 +1,27 @@
+ 1 PRE main
+ 1 DEL {
+ 3 PRE while
+ 3 IDE i
+ 3 REL >
+ 3 IDE j
+ 3 DEL )
+ 3 DEL {
+ 3 DEL }
+ 5 PRE while
+ 5 DEL (
+ 5 IDE i
+ 5 REL >
+ 5 IDE j
+ 5 DEL {
+ 5 DEL }
+ 7 PRE while
+ 7 DEL (
+ 7 IDE i
+ 7 REL >
+ 7 IDE j
+ 7 DEL )
+ 9 DEL }
+11 DEL }
+-1 EOF $
+
+

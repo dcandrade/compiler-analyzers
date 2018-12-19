@@ -1,0 +1,69 @@
+ 1 PRE class
+ 1 IDE disciplina
+ 1 DEL {
+ 2 PRE variables
+ 2 DEL {
+ 3 PRE int
+ 3 IDE codigo
+ 3 DEL ;
+ 4 PRE string
+ 4 IDE nome
+ 4 DEL ;
+ 5 PRE int
+ 5 IDE creditos
+ 5 DEL ;
+ 6 PRE float
+ 6 IDE nota
+ 6 DEL ;
+ 7 DEL }
+ 8 DEL }
+10 PRE class
+10 IDE pessoa
+10 DEL {
+11 PRE variables
+11 DEL {
+12 PRE string
+12 IDE nome
+12 DEL ,
+12 IDE endereco
+12 DEL ;
+13 PRE int
+13 IDE idade
+13 DEL ;
+14 PRE float
+14 IDE salario
+14 DEL ,
+14 IDE despesa
+14 DEL ;
+15 DEL }
+16 DEL }
+18 PRE class
+18 IDE aluno
+18 PRE extends
+18 IDE pessoa
+18 DEL {
+19 PRE variables
+19 DEL {
+20 PRE string
+20 IDE curso
+20 DEL ;
+21 PRE int
+21 IDE matricula
+21 DEL ;
+22 PRE float
+22 IDE bolsa
+22 DEL ;
+23 IDE disciplina
+23 IDE disciplinas
+23 DEL [
+23 IDE max
+23 DEL ]
+23 DEL ;
+24 DEL }
+25 DEL }
+27 PRE main
+27 DEL {
+27 DEL }
+-1 EOF $
+
+

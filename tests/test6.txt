@@ -1,0 +1,166 @@
+const{
+    int x=1, 
+        x=6,
+        k=200-100; 
+    float x=5, 
+        x=6; 
+    int x[10] = "vetor";
+    Classe z = x[0],
+        y = x.y, 
+        z = "oi",
+        x = y[0][0][0];
+    Test vector = [[0],[true,false,2,[true, false,[vetor,vetor, fff2]]],[10-20,2,3,a]];
+}
+
+class Conta {
+    variables{
+        string proprietario;
+        double saldo = 0, limite = 1500;
+        int numero;
+            int x=1, 
+        x=6,
+        k=200-100; 
+    float x=5, 
+        x=6; 
+    int x[10] = "vetor";
+    Classe z = x[0],
+        y = x.y, 
+        z = "oi",
+        x = y[0][0][0];
+    Test vector = [[0],[true,false,2,[true, false,[vetor,vetor, fff2]]],[10-20,2,3,a]];
+    }
+
+    method void depositar(float valor){
+        saldo = saldo + valor;
+        if(x > "value" && x == y || (y.y <= x && x == 5) || X[0][0][0]){
+        x = 1;
+    } else {
+        outro.metodo();
+        contador++;
+        
+        if(true || false){
+        x = nested.cif();
+        k --;
+        m = vaaar + 10 * constante;
+        metodo();
+        }else{
+        fazer.nada();
+        nested = celse;
+        }
+    }
+        return void;
+    }
+
+    method void saque(float valor){
+        saldo = saldo - valor;
+        return void;
+    }
+
+    method double getSaldo(){
+        return saldo;
+    }
+
+    method void emprestimo(float valor, float juros){
+        saldo = saldo - (valor * (1 + juros));
+        return void;
+    }
+
+    method void emprestimo(float valor){
+        emprestimo(valor, TAXA_DE_JUROS);
+        return voud;
+    }
+    
+    method int nomeDoMetodo (int a, float b, Classe c) {
+        a ++;
+        c.atributo.metodo();
+        a = b *2 + xk;
+        
+        if(x > "value" && (x == y || (y.y <= x && x == 5)) || X[0][0][0]){
+        x = 1;
+        } else {
+        outro.metodo();
+        contador++;
+        }
+        
+        while(x+2>10){
+        atualiza();
+        proximo() + 10;
+        x ++;
+        }
+        
+        return true;
+    }
+}
+
+class ContaPremium extends Conta{
+    method void emprestimoPremium(float valor){
+        variables{float taxaNova = TAXA_DE_JUROS/2;}
+        emprestimo(valor, taxaNova);
+        return void;
+    }
+}
+
+class ContaSuperPremium extends ContaPremium{
+    method void emprestimoPremium(float valor){
+        emprestimo(valor, 0);
+        return void;
+    }
+}
+
+class Banco{
+    variables{ 
+        int x, 
+        x=6; 
+        float x=5, 
+          x; 
+        float x;     
+        Classe z = x[0], 
+          y = x.y, 
+          z = "oi",
+          x = y[0][0][0];
+       int k = [[0],[true,false,2,[true, false,[vetor,vetor, fff2]]],[1,2,3,a]];
+    }
+
+    method boolean addConta(){
+        variables{
+            Conta conta;
+            boolean result = false;
+        }
+        
+        if(num_conta < NUM_CONTAS){
+            conta.numero = num_contas;
+            contas[num_contas] = conta;
+            result = true;
+        }
+        else{
+            result = false;
+        }
+
+        return result;
+    }
+
+    method double getSaldo(int numConta){
+        variables{
+            int i = 0;
+            int result = -1;
+        }
+        while (i < NUM_CONTAS){
+            if(contas[i].numero == numConta){
+                result = contas[i].getSaldo();
+            }
+        }
+
+        return result;
+    }
+}
+
+main{
+    variables{Banco banco;
+    int num_conta;
+    int saldo = 0;}
+    chamada_funcao();
+    write("Consultar saldo de qual conta?");
+    read(num_conta);
+    saldo = banco.getSaldo(num_conta);
+    write("O saldo da conta ", num_conta, " eh de ", saldo);
+}

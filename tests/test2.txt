@@ -1,0 +1,9 @@
+main{
+    variables{Banco banco;
+    int num_conta;
+    int saldo = 0;}
+    write("Consultar saldo de qual conta?");
+    read(num_conta);
+    saldo = banco.getSaldo(num_conta);
+    write("O saldo da conta ", num_conta, " eh de ", saldo);
+}
