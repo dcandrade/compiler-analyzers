@@ -1,8 +1,8 @@
 package analyzers.semantic;
 
 import model.semantic.SymbolTable;
-import model.semantic.Variable;
-import model.semantic.ClassTable;
+import model.semantic.entries.VariableEntry;
+import model.semantic.entries.ClassEntry;
 import model.token.Token;
 import model.token.TokenTypes;
 
@@ -17,20 +17,20 @@ public class SemanticAnalyzer {
     private int tokenIndex;
 
     private Token currentToken, lastToken;
-    private Variable currentVariable;
-    private ClassTable currentClassTable;
-    private String currentType, currentValue, getCurrentTypeMethod;
-    private List<Variable> currentVariableList;
-    private List<Variable> currentConstantList;
+    private VariableEntry currentVariableEntry;
+    private ClassEntry currentClass;
+    private String currentType, getCurrentTypeMethod;
+    private List<VariableEntry> currentVariableEntryList;
+    private List<VariableEntry> currentConstantList;
     private boolean isConst = false;
 
     private final List<String> nativeTypes;
 
 
-    public SemanticAnalyzer(List<Token> tokens) {
-        currentVariable = new Variable();
-        currentClassTable = new ClassTable();
-        currentVariableList = new ArrayList<>();
+    public SemanticAnalyzer(List<Token> tokens) throws Exception {
+        currentVariableEntry = new VariableEntry(null, null);
+        currentClass = new ClassEntry(null, null);
+        currentVariableEntryList = new ArrayList<>();
         currentConstantList = new ArrayList<>();
 
         symbolTable = new SymbolTable();
@@ -53,12 +53,12 @@ public class SemanticAnalyzer {
         }
     }
 
-    public void analyzer() {
+    private void analyzer() throws Exception {
         checkConst();
         checkClass();
     }
 
-    public boolean checkConst() {
+    private boolean checkConst() throws Exception {
         if(checkToken("const")) {
             isConst = true;
             if (checkToken("{")) {
@@ -69,7 +69,7 @@ public class SemanticAnalyzer {
         return false;
     }
 
-    public boolean checkVariable() {
+    private boolean checkVariable() throws Exception {
         if (checkToken("variables")) {
             isConst = false;
             if (checkToken("{")) {
@@ -80,12 +80,12 @@ public class SemanticAnalyzer {
         return false;
     }
 
-    public boolean analyzerVariable() {
+    private boolean analyzerVariable() throws Exception {
         checkDeclaration();
         return true;
     }
 
-    public boolean checkToken(String type) {
+    private boolean checkToken(String type) {
         if(currentToken.getValue().equals(type) || currentToken.getType().equals(type)) {
             System.out.println(currentToken.getValue());
             this.updateToken();
@@ -94,7 +94,7 @@ public class SemanticAnalyzer {
         return false;
     }
 
-    public boolean checkType(int hierarchy) {
+    private boolean checkType(int hierarchy) {
         if(nativeTypes.contains(currentToken.getValue())) {
             if(hierarchy == 1) {
                 currentType = currentToken.getValue();
@@ -109,26 +109,23 @@ public class SemanticAnalyzer {
         return false;
     }
 
-    public boolean checkDeclaration() {
+    private boolean checkDeclaration() throws Exception {
         checkType(1);
 
         if(checkToken(TokenTypes.IDENTIFIER)) {
-            currentVariable = new Variable();
-            currentVariable.setConst(isConst);
+            currentVariableEntry = new VariableEntry(lastToken.getValue(), currentType, isConst);
 
-            currentVariable.setName(lastToken.getValue());
-            currentVariable.setType(currentType);
 
             if (checkToken(";")) {
                 if(checkToken("}")) {
                     System.out.println("Finishe");
                     return true;
                 } else {
-                    if (currentVariable.isConst()) {
-                        //System.out.println("Constante: " + currentVariable.getName());
+                    if (currentVariableEntry.isConst()) {
+                        //System.out.println("Constante: " + currentVariableEntry.getName());
                     } else {
-                        //System.out.println("Variavel: " + currentVariable.getName());
-                        currentVariableList.add(currentVariable);
+                        //System.out.println("Variavel: " + currentVariableEntry.getName());
+                        currentVariableEntryList.add(currentVariableEntry);
                     }
                     checkDeclaration();
                 }
@@ -136,16 +133,16 @@ public class SemanticAnalyzer {
             } else {
                 checkToken(TokenTypes.RELATIONAL_OPERATOR);
                 checkAssignment();
-                if (currentVariable.isConst()) {
-                    //System.out.println("Constante: " + currentVariable.getName());
+                if (currentVariableEntry.isConst()) {
+                    //System.out.println("Constante: " + currentVariableEntry.getName());
                 } else {
-                    //System.out.println("Variavel: " + currentVariable.getName());
-                    currentVariableList.add(currentVariable);
+                    //System.out.println("Variavel: " + currentVariableEntry.getName());
+                    currentVariableEntryList.add(currentVariableEntry);
                 }
             }
         }
 
-        //Sair da recurção
+        //Sair da recursão
         if (checkToken(";")) {
             if(checkToken("}")) {
                 System.out.println("Finishe");
@@ -155,62 +152,68 @@ public class SemanticAnalyzer {
             }
         } else if(checkToken(",")) {
             //verificar se pode haver uma variável seguida de outra na mesma linha
-            currentVariable = new Variable();
-            currentVariable.setConst(false);
+            currentVariableEntry = new VariableEntry(null, null);
+            currentVariableEntry.setConst(false);
             checkDeclaration();
-            if (currentVariable.isConst()) {
-                //System.out.println("Constante: " + currentVariable.getName());
+            if (currentVariableEntry.isConst()) {
+                //System.out.println("Constante: " + currentVariableEntry.getName());
             } else {
-                //System.out.println("Variavel: " + currentVariable.getName());
-                currentVariableList.add(currentVariable);
+                //System.out.println("Variavel: " + currentVariableEntry.getName());
+                currentVariableEntryList.add(currentVariableEntry);
             }
         }
 
         return false;
     }
 
-    public boolean checkAssignment() {
+    private boolean checkAssignment() throws Exception {
+        switch (currentType) {
 
-        if(currentType.equals("string")) {
-            if(currentToken.getType().equals(TokenTypes.STRING)){
-                currentVariable.setValue(currentToken.getValue());
-                this.updateToken();
-            } else {
-                System.err.println("Erro");
-            }
-        } else if (currentType.equals("boolean")){
+            case "string":
+                if (currentToken.getType().equals(TokenTypes.STRING)) {
+                    //currentVariableEntry.setValue(currentToken.getValue());
+                    this.updateToken();
+                } else {
+                    System.err.println("Erro");
+                }
+                break;
 
-            if(currentToken.getValue().equals("true") || currentToken.getValue().equals("false")) {
-                currentVariable.setValue(currentToken.getValue());
-                this.updateToken();
-            } else {
-                System.err.println("Erro");
-            }
-        } else if (currentType.equals("int") || currentType.equals("float")) {
+            case "boolean":
+                if (currentToken.getValue().equals("true") || currentToken.getValue().equals("false")) {
+                    //currentVariableEntry.setValue(currentToken.getValue());
+                    this.updateToken();
+                } else {
+                    System.err.println("Erro");
+                }
+                break;
 
-            if(currentToken.getType().equals("NRO")) {
-                currentVariable.setValue(currentToken.getValue());
-                this.updateToken();
-            } else {
-                System.err.println("Erro");
-            }
+            case "int":
+            case "float":
+
+                if (currentToken.getType().equals(TokenTypes.NUMBER)) {
+                    //currentVariableEntry.setValue(currentToken.getValue());
+                    this.updateToken();
+                } else {
+                    System.err.println("Erro");
+                }
+                break;
         }
-        symbolTable.addConst(currentVariable);
+        symbolTable.addConst(currentVariableEntry);
         return true;
     }
 
-    public boolean checkClass() {
+    private boolean checkClass() throws Exception {
         if(checkToken("class")) {
             if(checkToken(TokenTypes.IDENTIFIER)) {
                 if (checkToken("{")) {
                     checkVariable();
-                    currentClassTable.addVariableList(currentVariableList);
+                    currentClass.addVariableList(currentVariableEntryList);
                     checkMethod();
                 } else if(checkToken(currentToken.getValue())) {
                     if (checkToken(TokenTypes.IDENTIFIER)) {//Verificar se a classe herdade existe
                         if (checkToken("{")) {
                             checkVariable();
-                            currentClassTable.addVariableList(currentVariableList);
+                            currentClass.addVariableList(currentVariableEntryList);
                             checkMethod();
                         }
                     }
@@ -223,7 +226,7 @@ public class SemanticAnalyzer {
         return true;
     }
 
-    public boolean checkMethod() {
+    private boolean checkMethod() throws Exception {
         if (checkToken("method")) {
             if(nativeTypes.contains(currentToken.getValue())) {
                 checkType(2);
@@ -249,14 +252,14 @@ public class SemanticAnalyzer {
         return false;
     }
 
-    public boolean checkFunctionBody() {
+    private boolean checkFunctionBody() {
         return true;
     }
 
-    public boolean checkReturn() {
+    private boolean checkReturn() throws Exception {
         if(checkToken("return")) {
             System.out.println("valor do return para análise: " + currentToken.getValue());
-            if(currentClassTable.checkVariableType(currentToken.getValue(), getCurrentTypeMethod)) {
+            if(currentClass.checkVariableType(currentToken.getValue(), getCurrentTypeMethod)) {
                 updateToken();
                 System.out.println("Return correto");
                 return true;
@@ -267,11 +270,11 @@ public class SemanticAnalyzer {
         return false;
     }
 
-    public boolean checkMain() {
+    private boolean checkMain() {
         return true;
     }
 
-    public boolean checkParams() {
+    private boolean checkParams() {
         if(checkToken("(")) {
             if(nativeTypes.contains(currentToken.getValue())){
                 updateToken();

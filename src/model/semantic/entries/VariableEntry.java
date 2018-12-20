@@ -1,13 +1,21 @@
-package model.semantic;
+package model.semantic.entries;
 
-public class Variable {
+public class VariableEntry {
     private String name;
-    private String value;
     private String type;
     private boolean constant;
 
-    public Variable() {
 
+    public VariableEntry(String name, String type){
+        this.name = name;
+        this.type = type;
+        this.constant = false;
+    }
+
+    public VariableEntry(String name, String type, boolean isConst){
+        this.name = name;
+        this.type = type;
+        this.constant = isConst;
     }
 
     public void setConst(boolean constant) {
@@ -22,20 +30,12 @@ public class Variable {
         this.type = type;
     }
 
-    public void setValue(String value) {
-        this.value = value;
-    }
-
     public String getName() {
         return this.name;
     }
 
     public String getType() {
         return this.type;
-    }
-
-    public String getValue() {
-        return this.value;
     }
 
     public boolean isConst() {
