@@ -1,7 +1,7 @@
  1 PRE class
  1 IDE teste
  1 DEL {
- 3 PRE variableEntries
+ 3 PRE variables
  3 DEL {
  5 PRE int
  5 IDE max

@@ -1,0 +1,3 @@
+ 3 Token inesperado (recebido: max, esperado: ,)
+ 5 Token inesperado (recebido: soma, esperado: ()
+ 9 Token inesperado (recebido: }, esperado: ;)

@@ -3,6 +3,7 @@
  2 PRE int
  2 IDE Max
  2 REL =
+ 2 NRO 100
  2 DEL ;
  3 PRE float
  3 IDE taxa
@@ -10,6 +11,7 @@
  3 NRO 9.75
  3 DEL ;
  4 PRE int
+ 4 IDE Disciplinas
  4 REL =
  4 NRO 10
  4 DEL ;
@@ -72,14 +74,9 @@
 28 DEL ;
 29 DEL }
 32 PRE method
+32 PRE int
 32 IDE imprimir
 32 DEL (
-32 IDE aluno
-32 IDE x
-32 DEL [
-32 IDE Max
-32 DEL ]
-32 DEL ,
 32 PRE int
 32 IDE qtdade
 32 DEL ,
@@ -236,6 +233,7 @@
 49 IDE idx
 49 DEL )
 49 DEL {
+50 PRE variables
 50 DEL {
 50 PRE float
 50 IDE nota_final
@@ -254,6 +252,7 @@
 52 DEL ]
 52 DEL .
 52 IDE nota
+52 REL >=
 52 NRO 7.0
 52 DEL )
 52 DEL {
@@ -280,6 +279,9 @@
 58 DEL ;
 59 DEL }
 60 PRE return
+60 DEL (
+60 IDE flag
+60 DEL )
 60 DEL ;
 61 DEL }
 62 DEL }
@@ -296,12 +298,15 @@
 65 PRE bool
 65 IDE flag
 65 DEL ;
-67 IDE imprimir
-67 DEL (
+65 DEL }
 67 IDE alunos
 67 DEL [
-67 IDE Max
+67 IDE i
 67 DEL ]
+67 DEL .
+67 IDE imprimir
+67 DEL (
+67 NRO 10
 67 DEL ,
 67 IDE Disciplinas
 67 DEL )
@@ -322,6 +327,8 @@
 71 DEL (
 71 IDE flag
 71 REL ==
+71 PRE true
+71 DEL )
 71 DEL {
 72 PRE write
 72 DEL (

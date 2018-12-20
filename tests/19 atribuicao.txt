@@ -1,0 +1,33 @@
+main {
+
+    soma = 10.99;
+    soma = Max;
+    soma[j] = vetor[i]++;
+    soma[i][j][k] = matriz[10][max][30];
+	
+	soma.nota = aluno.nota;
+    soma[1].nota[1] = aluno[10].nota[1];
+    
+    cont = cont++;
+    
+    soma++;
+    soma--;
+    
+    soma = calculo(a, b, valores[k], matriz[10][max][superior]);
+    soma = Max();    
+ 	
+	aluno.nota[i] = 10;
+	
+	aluno[i].disciplina[j].nota[k] = 9.9;
+	
+	aluno.nome = "jose da silva";
+	
+	notas[i][j][k] = 5.5;
+	
+	msg = "hello world";
+		
+	flag = true;
+		
+	valor = calcular(A, B, 10.5);
+
+}	

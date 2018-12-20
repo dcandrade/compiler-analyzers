@@ -1,0 +1,13 @@
+main {
+    
+    while ( i <= Max  flag != false ) {  // falta operador
+    
+        if (j < 5 && k > 10 && m  i || flag != true) { // falta operador
+		
+			if ( (a+b) > (c+d) || Max >  ) { }  // falta operando
+        
+        }
+           
+    }       
+
+}  

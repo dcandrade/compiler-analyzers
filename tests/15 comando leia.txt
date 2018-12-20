@@ -1,0 +1,6 @@
+main {
+
+	read(soma, vetor[i], matriz[i][j], aluno.nome, alunos[i].nome, mais_alunos[i][j][k].nota);  
+	
+	read(curso[i].disciplina[j].aluno[k].nota[z], mensagem);
+}

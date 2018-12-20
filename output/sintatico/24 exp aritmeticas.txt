@@ -1,0 +1,3 @@
+ 3 Expressão Malformada (recebido: (, esperado: Expressão)
+ 7 Expressão Malformada (recebido: vetor, esperado: Expressão)
+11 Expressão Malformada (recebido: (, esperado: Expressão)

@@ -1,0 +1,6 @@
+ 3 Erro na assinatura do método (recebido: DEL, esperado: IDE)
+ 5 Token inesperado (recebido: return, esperado: {)
+10 Token inesperado (recebido: 0, esperado: return)
+13 Token inesperado (recebido: float, esperado: ,)
+13 Sintaxe de variável ou parâmetro incorreta (recebido: DEL, esperado: IDE)
+20 Expressão Malformada na linha 20 (recebido: ;, esperado: Expressão)

@@ -1,0 +1,4 @@
+ 3 Atribuição Malformada (recebido: [, esperado: Ponto ou =)
+ 5 Esperado identificador (recebido: [, esperado: IDE)
+ 9 Indexação de vetor inválida (recebido: ], esperado: Indexação)
+11 Expressão Malformada (recebido: ;, esperado: Expressão)

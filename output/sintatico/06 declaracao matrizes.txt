@@ -1,0 +1,6 @@
+ 5 Indexação de vetor inválida (recebido: ], esperado: Indexação)
+ 7 Token inesperado (recebido: ;, esperado: ])
+13 Sintaxe de variável ou parâmetro incorreta (recebido: DEL, esperado: IDE)
+13 Token inesperado (recebido: a, esperado: ,)
+13 Token inesperado (recebido: >, esperado: ;)
+13 Esperado declaração de variável (recebido: ;, esperado: IDE)

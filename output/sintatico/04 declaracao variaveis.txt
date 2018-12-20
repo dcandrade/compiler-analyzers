@@ -1,0 +1,7 @@
+ 5 Sintaxe de variável ou parâmetro incorreta (recebido: REL, esperado: IDE)
+ 7 Token inesperado (recebido: 3.1415, esperado: ;)
+ 7 Esperado declaração de variável (recebido: ;, esperado: IDE)
+ 9 Expressão Malformada (recebido: ;, esperado: Expressão)
+18 Token inesperado (recebido: max2, esperado: ,)
+20 Token inesperado (recebido: float, esperado: ;)
+20 Esperado declaração de variável (recebido: ;, esperado: IDE)

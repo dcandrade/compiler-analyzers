@@ -1,7 +1,7 @@
  1 PRE class
  1 IDE disciplina
  1 DEL {
- 2 PRE variableEntries
+ 2 PRE variables
  2 DEL {
  3 PRE int
  3 IDE codigo
@@ -20,7 +20,7 @@
 10 PRE class
 10 IDE pessoa
 10 DEL {
-11 PRE variableEntries
+11 PRE variables
 11 DEL {
 12 PRE string
 12 IDE nome
@@ -42,7 +42,7 @@
 18 PRE extends
 18 IDE pessoa
 18 DEL {
-19 PRE variableEntries
+19 PRE variables
 19 DEL {
 20 PRE string
 20 IDE curso
