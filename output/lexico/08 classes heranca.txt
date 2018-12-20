@@ -18,7 +18,7 @@
 11 PRE class
 11 IDE pessoa
 11 DEL {
-12 PRE variables
+12 PRE variableEntries
 12 DEL {
 13 PRE string
 13 IDE nome
@@ -39,7 +39,7 @@
 19 IDE aluno
 19 IDE pessoa
 19 DEL {
-20 PRE variables
+20 PRE variableEntries
 20 DEL {
 21 PRE string
 21 IDE curso
@@ -61,7 +61,7 @@
 28 PRE class
 28 IDE aluno
 28 PRE extends
-29 PRE variables
+29 PRE variableEntries
 29 DEL {
 30 PRE string
 30 IDE curso

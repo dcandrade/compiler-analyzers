@@ -1,11 +1,11 @@
 package model.error;
 
-public class LexicalError extends Error{
+public class LexicalError extends Error {
     private final String type;
 
     public LexicalError(int line, String token) {
-      super(line, token);
-      this.type = ErrorClassifier.classify(token);
+        super(line, token);
+        this.type = ErrorClassifier.classify(token);
     }
 
     @Override

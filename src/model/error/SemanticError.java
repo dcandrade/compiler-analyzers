@@ -1,9 +1,10 @@
 package model.error;
 
-public class SyntaxError extends Error {
+
+public class SemanticError extends Error {
     private final String expected;
 
-    public SyntaxError(int line, String token, String expected, String type) {
+    public SemanticError(int line, String token, String expected, String type) {
         super(line, token);
         this.type = type;
         this.expected = expected;

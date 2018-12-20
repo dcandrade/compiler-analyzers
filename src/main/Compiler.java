@@ -4,6 +4,7 @@ import analyzers.lexical.LexicalAnalyzer;
 import analyzers.semantic.SemanticAnalyzer;
 import analyzers.syntatical.SyntacticalAnalyzer;
 import model.error.LexicalError;
+import model.error.SemanticError;
 import model.error.SyntaxError;
 import model.token.Token;
 
@@ -24,8 +25,8 @@ public class Compiler {
             Files.createDirectories(Paths.get("output", "sintatico"));
             Files.createDirectories(Paths.get("output", "semantico"));
 
-            Path lexerOutputFile = Paths.get("output",  "lexico", file.getFileName().toString());
-            System.out.println(" -->> Processando arquivo " + file );
+            Path lexerOutputFile = Paths.get("output", "lexico", file.getFileName().toString());
+            System.out.println(" -->> Processando arquivo " + file);
 
             BufferedWriter lexerOutput = Files.newBufferedWriter(lexerOutputFile);
             LexicalAnalyzer lexer = new LexicalAnalyzer(file);
@@ -44,7 +45,7 @@ public class Compiler {
             System.out.println("Léxico OK");
 
 
-            Path parserOutputFile = Paths.get("output",  "sintatico", file.getFileName().toString());
+            Path parserOutputFile = Paths.get("output", "sintatico", file.getFileName().toString());
             BufferedWriter parserOutput = Files.newBufferedWriter(parserOutputFile);
 
             SyntacticalAnalyzer parser = new SyntacticalAnalyzer(lexer.getTokens());
@@ -58,15 +59,14 @@ public class Compiler {
 
             parserOutput.close();
 
-            //SemanticAnalyzer semantic = new SemanticAnalyzer(lexer.getTokens());
-        }
-    }
+            /*
+            SemanticAnalyzer semantic = new SemanticAnalyzer(lexer.getTokens());
 
-    private static void delete(Path path){
-        try{
-            Files.delete(path);
-        } catch (IOException e) {
-            e.printStackTrace();
+            for (SemanticError error : semantic.getErrors()) {
+                System.out.println(error);
+            }
+
+            */
         }
     }
 }

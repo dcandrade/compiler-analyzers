@@ -26,7 +26,7 @@
              
 <OptionalValue> ::= ',' <VectorValueList> | <VectorDecl> | <VOID>
               
-<Variables> ::= 'variables''{' <VariablesBody> '}' | <VOID>
+<Variables> ::= 'variableEntries''{' <VariablesBody> '}' | <VOID>
 
 <VariablesBody> ::=  <Type> <VarDeclList> ';' <VariablesBody> | <VOID>
 

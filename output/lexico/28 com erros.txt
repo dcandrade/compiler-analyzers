@@ -17,7 +17,7 @@
  7 PRE class
  7 IDE disciplina
  7 DEL {
- 8 PRE variables
+ 8 PRE variableEntries
  8 DEL {
  9 PRE int
  9 IDE codigo
@@ -36,7 +36,7 @@
 16 PRE class
 16 IDE pessoa
 16 DEL {
-17 PRE variables
+17 PRE variableEntries
 17 DEL {
 18 PRE string
 18 IDE nome
@@ -53,7 +53,7 @@
 23 PRE extends
 23 IDE pessoa
 23 DEL {
-24 PRE variables
+24 PRE variableEntries
 24 DEL {
 25 PRE string
 25 IDE curso
@@ -87,7 +87,7 @@
 32 IDE nro_disc
 32 DEL )
 32 DEL {
-33 PRE variables
+33 PRE variableEntries
 33 DEL {
 33 PRE int
 33 IDE i
@@ -285,7 +285,7 @@
 62 DEL }
 64 PRE main
 64 DEL {
-65 PRE variables
+65 PRE variableEntries
 65 DEL {
 65 IDE aluno
 65 IDE alunos

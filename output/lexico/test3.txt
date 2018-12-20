@@ -109,7 +109,7 @@
 13 DEL }
 15 PRE main
 15 DEL {
-16 PRE variables
+16 PRE variableEntries
 16 DEL {
 17 PRE int
 17 IDE num_conta

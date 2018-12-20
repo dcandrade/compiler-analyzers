@@ -15,6 +15,10 @@ public class TokenTypes {
     public final static String BLOCK_COMMENT_END = "FBC";
     public final static String INVALID_TOKEN = "ITO";
     public final static String NO_MORE_TOKENS = "EOF";
+    public final static String BOOLEAN = "BOL";
+    public final static String NUMBER_FLOAT = "NFL";
+    public final static String NUMBER_INT = "NIN";
+    public final static String UNDEFINED = "UNDEFINED";
 
 
     public static final String[] PRIMITIVE_TYPES =

@@ -1,110 +1,57 @@
  1 PRE const
  1 DEL {
  2 PRE int
- 2 IDE x
+ 2 IDE a
  2 REL =
  2 NRO 1
  2 DEL ,
- 3 IDE x
+ 3 IDE b
  3 REL =
  3 NRO 6
  3 DEL ,
- 4 IDE k
+ 4 IDE c
  4 REL =
  4 NRO 200
  4 ART -
  4 NRO 100
  4 DEL ;
  5 PRE float
- 5 IDE x
+ 5 IDE d
  5 REL =
  5 NRO 5
  5 DEL ,
- 6 IDE x
+ 6 IDE e
  6 REL =
  6 NRO 6
  6 DEL ;
  7 PRE int
- 7 IDE x
- 7 DEL [
- 7 NRO 10
- 7 DEL ]
+ 7 IDE f
  7 REL =
  7 CDC "vetor"
  7 DEL ;
- 8 IDE Classe
- 8 IDE z
+ 8 PRE string
+ 8 IDE g
  8 REL =
  8 IDE x
- 8 DEL [
- 8 NRO 0
- 8 DEL ]
  8 DEL ,
- 9 IDE y
+ 9 IDE h
  9 REL =
- 9 IDE x
- 9 DEL .
- 9 IDE y
+ 9 IDE g
  9 DEL ,
-10 IDE z
+10 IDE i
 10 REL =
 10 CDC "oi"
+10 ART +
+10 CDC "blz"
 10 DEL ,
-11 IDE x
+11 IDE j
 11 REL =
 11 IDE y
-11 DEL [
-11 NRO 0
-11 DEL ]
-11 DEL [
-11 NRO 0
-11 DEL ]
-11 DEL [
-11 NRO 0
-11 DEL ]
 11 DEL ;
-12 IDE Test
-12 IDE vector
+12 PRE float
+12 IDE k
 12 REL =
-12 DEL [
-12 DEL [
-12 NRO 0
-12 DEL ]
-12 DEL ,
-12 DEL [
-12 PRE true
-12 DEL ,
-12 PRE false
-12 DEL ,
 12 NRO 2
-12 DEL ,
-12 DEL [
-12 PRE true
-12 DEL ,
-12 PRE false
-12 DEL ,
-12 DEL [
-12 IDE vetor
-12 DEL ,
-12 IDE vetor
-12 DEL ,
-12 IDE fff2
-12 DEL ]
-12 DEL ]
-12 DEL ]
-12 DEL ,
-12 DEL [
-12 NRO 10
-12 ART -
-12 NRO 20
-12 DEL ,
-12 NRO 2
-12 DEL ,
-12 NRO 3
-12 DEL ,
-12 IDE a
-12 DEL ]
-12 DEL ]
 12 DEL ;
 13 DEL }
 15 PRE class

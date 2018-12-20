@@ -110,7 +110,7 @@
 15 PRE class
 15 IDE Conta
 15 DEL {
-16 PRE variables
+16 PRE variableEntries
 16 DEL {
 17 PRE string
 17 IDE proprietario
@@ -162,7 +162,7 @@
 33 DEL }
 36 PRE main
 36 DEL {
-37 PRE variables
+37 PRE variableEntries
 37 DEL {
 37 IDE Banco
 37 IDE banco

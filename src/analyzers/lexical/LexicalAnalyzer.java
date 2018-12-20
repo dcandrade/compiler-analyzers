@@ -8,16 +8,15 @@ import model.token.TokenTypes;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class LexicalAnalyzer {
     private final LexemeClassifier lexemeClassifier;
     private final List<LexicalError> lexicalErrors;
-    private StringBuilder buffer;
     private final StringBuilder errorBuffer;
     private final String delimiters;
+    private StringBuilder buffer;
     private int currentLineNumber;
     private boolean isComment;
     private Path inputFilePath;

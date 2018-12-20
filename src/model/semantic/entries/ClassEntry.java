@@ -1,12 +1,14 @@
 package model.semantic.entries;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ClassEntry {
     private final ClassEntry superclass;
     private String name;
-    private Map<String,VariableEntry> variables;
+    private Map<String, VariableEntry> variables;
 
     public ClassEntry(String name) {
         this(name, null);
@@ -18,7 +20,7 @@ public class ClassEntry {
         variables = new HashMap<>();
     }
 
-    public boolean hasSuperclass(){
+    public boolean hasSuperclass() {
         return this.superclass != null;
     }
 
@@ -26,19 +28,19 @@ public class ClassEntry {
         return this.name;
     }
 
-    protected VariableEntry getVariable(String name){
+    protected VariableEntry getVariable(String name) {
         return this.variables.get(name);
     }
 
     public String getVariableType(String varName) throws Exception {
-        VariableEntry var =  this.variables.get(varName);
+        VariableEntry var = this.variables.get(varName);
 
         // Variável não encontrada na classe, procurando na superclasse
-        if(var == null && this.hasSuperclass()){
+        if (var == null && this.hasSuperclass()) {
             var = this.superclass.getVariable(varName);
         }
 
-        if(var != null){
+        if (var != null) {
             return var.getType();
         }
 

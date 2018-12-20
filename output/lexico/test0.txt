@@ -24,7 +24,7 @@
  8 PRE class
  8 IDE Conta
  8 DEL {
- 9 PRE variables
+ 9 PRE variableEntries
  9 DEL {
 10 PRE string
 10 IDE proprietario
@@ -147,7 +147,7 @@
 41 IDE valor
 41 DEL )
 41 DEL {
-42 PRE variables
+42 PRE variableEntries
 42 DEL {
 42 PRE float
 42 IDE taxaNova
@@ -197,7 +197,7 @@
 55 PRE class
 55 IDE Banco
 55 DEL {
-56 PRE variables
+56 PRE variableEntries
 56 DEL {
 57 IDE Conta
 57 IDE contas
@@ -215,7 +215,7 @@
 61 DEL (
 61 DEL )
 61 DEL {
-62 PRE variables
+62 PRE variableEntries
 62 DEL {
 63 IDE Conta
 63 IDE conta
@@ -270,7 +270,7 @@
 78 IDE numConta
 78 DEL )
 78 DEL {
-79 PRE variables
+79 PRE variableEntries
 79 DEL {
 80 PRE int
 80 IDE i
@@ -322,7 +322,7 @@
 91 DEL }
 93 PRE main
 93 DEL {
-94 PRE variables
+94 PRE variableEntries
 94 DEL {
 94 IDE Banco
 94 IDE banco

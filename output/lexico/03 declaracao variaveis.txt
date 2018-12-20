@@ -1,7 +1,7 @@
  1 PRE class
  1 IDE teste
  1 DEL {
- 3 PRE variables
+ 3 PRE variableEntries
  3 DEL {
  4 PRE int
  4 IDE max1
@@ -37,7 +37,7 @@
 11 DEL (
 11 DEL )
 11 DEL {
-12 PRE variables
+12 PRE variableEntries
 12 DEL {
 13 PRE int
 13 IDE i

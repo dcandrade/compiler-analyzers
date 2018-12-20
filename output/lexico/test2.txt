@@ -1,6 +1,6 @@
  1 PRE main
  1 DEL {
- 2 PRE variables
+ 2 PRE variableEntries
  2 DEL {
  2 IDE Banco
  2 IDE banco
