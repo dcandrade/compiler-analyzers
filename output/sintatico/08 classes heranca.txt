@@ -1,5 +1,0 @@
- 1 Tipo inesperado (recebido: DEL, esperado: IDE)
- 3 Token inesperado (recebido: {, esperado: variables)
-19 Esperado extends (recebido: pessoa, esperado: extends)
-29 Herança ausente (recebido: PRE, esperado: IDE)
-29 Token inesperado (recebido: variables, esperado: {)

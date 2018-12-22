@@ -1,4 +1,0 @@
- 5 Identificador Ausente (recebido: (, esperado: Chamada de Método)
-13 Atribuição Malformada (recebido: [, esperado: Ponto ou =)
-15 Token inesperado (recebido: ;, esperado: ))
-17 Esperado identificador (recebido: (, esperado: IDE)

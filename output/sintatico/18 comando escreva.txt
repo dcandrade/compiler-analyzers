@@ -1,3 +1,0 @@
- 3 Parâmetro inesperado (recebido: max, esperado: Vírgula)
- 5 Token inesperado (recebido: soma, esperado: ()
- 9 Token inesperado (recebido: }, esperado: ;)

@@ -1,3 +1,0 @@
- 3 Token inesperado (recebido: i, esperado: ()
- 5 Token inesperado (recebido: {, esperado: ))
- 9 Token inesperado (recebido: }, esperado: {)

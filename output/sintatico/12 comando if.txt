@@ -1,3 +1,0 @@
- 3 Token inesperado (recebido: i, esperado: ()
- 7 Token inesperado (recebido: if, esperado: {)
--1 Token inesperado (recebido: $, esperado: })

@@ -1,6 +1,8 @@
 package model.token;
 
 public class Token {
+    public final static Token EMPTY_TOKEN = new Token("", "", -1);
+
     private final String type;
     private final String value;
     private final int line;

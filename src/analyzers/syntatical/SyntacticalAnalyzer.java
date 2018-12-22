@@ -12,7 +12,7 @@ import java.util.NoSuchElementException;
 
 public class SyntacticalAnalyzer {
     private static boolean THROW_EXCEPTION = false;
-    private static boolean VERBOSE = true;
+    private static boolean VERBOSE = false;
     private static String NATIVE_TYPE_SYNC;
 
     private final List<String> nativeTypes;
@@ -111,8 +111,7 @@ public class SyntacticalAnalyzer {
             if (throwException && sync == null) {
                 throw new NoSuchElementException(msg);
             }
-
-
+            
             if (sync != null) {
                 panic(sync);
             }
@@ -124,7 +123,11 @@ public class SyntacticalAnalyzer {
     }
 
     private Token peekToken(int offset) {
-        return this.tokens.get(this.tokenIndex + offset);
+        int index = this.tokenIndex + offset;
+        if (index >= this.tokens.size()) {
+            return Token.EMPTY_TOKEN;
+        } else
+            return this.tokens.get(this.tokenIndex + offset);
     }
 
     public void parseProgram() throws NoSuchElementException {
@@ -733,7 +736,7 @@ public class SyntacticalAnalyzer {
     private void parseVariablesBody() throws NoSuchElementException {
         if (this.attemptToParseType()) {
             parseVarDeclList();
-            eatTerminal(";", ";"); // TODO: diminuir granularidade
+            eatTerminal(";", ";");
 
             parseVariablesBody();
         } else if (!checkForTerminal("}")) {
