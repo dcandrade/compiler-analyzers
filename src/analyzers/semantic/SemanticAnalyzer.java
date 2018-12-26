@@ -339,17 +339,14 @@ public class SemanticAnalyzer {
         }
 
         if (currentVariableEntry.isVector()) {
-
-
-            List<Long> dimensions = new ArrayList<>();
-            System.out.println(expressionToken);
+            List<Integer> dimensions = new ArrayList<>();
             boolean done = false;
+            boolean error = false;
 
             while (!done) {
                 expressionToken = expression.stream().map(Token::getValue).reduce("", (a, b) -> a + b);
-                System.out.println("Current exp token "+expressionToken);
 
-                long size = 0;
+                int size = 0;
 
                 if (expression.get(0).getValue().equals("[")) {
                     int brackets = 0;
@@ -373,43 +370,66 @@ public class SemanticAnalyzer {
 
 
                 } else if (expressionToken.contains("]")) {
-                    System.out.println("middle : " + expressionToken);
                     int innerDim = 0;
                     int currentSize = 0;
-
+                    System.out.println(expressionToken);
                     for (Token t : expression) {
                         String tokenType = convertType(t, currentScope);
+
                         if (t.getValue().equals("]")) {
                             if (innerDim == 0) {
                                 innerDim = currentSize;
                             } else if (currentSize != innerDim) {
-                                System.err.println("erro dimensão");
+                                error = true;
+                                this.errors.add(new SemanticError(line, currentVariableEntry.getName(), "Vetor de dimensões corretas", "Vetor com dimensões diferentes da declarada"));
                             }
+
                             currentSize = 0;
                         } else if (tokenType.equals(currentVariableEntry.getType())) {
                             currentSize++;
                         }
                     }
 
+                    if (currentSize != innerDim) {
+                        error = true;
+                        this.errors.add(new SemanticError(line, currentVariableEntry.getName(), "Vetor de dimensões corretas", "Vetor com dimensões diferentes da declarada"));
+                    }
+
                     size = innerDim;
                     done = true;
                 } else {
-                    expressionToken = expression.stream().map(Token::getValue).reduce("", (a, b) -> a + b);
-                    System.out.println("--> size corrido " + expressionToken);
-                    size = expression.stream().filter(t -> !t.getType().equals(TokenTypes.DELIMITER)).count();
+                    size = (int) expression.stream().filter(t -> !t.getType().equals(TokenTypes.DELIMITER)).count();
                     done = true;
+                }
+
+                if(error){
+                    break;
                 }
 
                 dimensions.add(size);
             }
 
-            dimensions.remove(0);
-            System.out.print("Expected dimensions ");
-            currentVariableEntry.getDimensions().forEach(x -> System.out.print(x + " "));
-            System.out.println("\n");
-            System.out.print("Dimensions: ");
-            dimensions.forEach(x -> System.out.print(" " + x));
-            System.out.println("\n");
+            if(!error) {
+                dimensions.remove(0);
+
+                boolean pass = true;
+
+                if (dimensions.size() == this.currentVariableEntry.getDimensions().size()) {
+                    for (int i = 0; i < dimensions.size(); i++) {
+                        if (!dimensions.get(i).equals(this.currentVariableEntry.getDimensions().get(i))) {
+                            pass = false;
+                            break;
+                        }
+                    }
+                } else {
+                    pass = false;
+                }
+
+                if (!pass) {
+                    this.errors.add(new SemanticError(line, currentVariableEntry.getName(), "Vetor de dimensões corretas", "Vetor com dimensões diferentes da declarada"));
+                }
+            }
+
         }
         try {
             symbolTable.addConst(currentVariableEntry);
