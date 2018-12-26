@@ -68,8 +68,8 @@ public class SemanticAnalyzer {
     }
 
     private boolean checkConst() throws Exception {
-        if (checkTokenValue("const")) {
-            if (checkTokenValue("{")) {
+        if (eatTerminal("const")) {
+            if (eatTerminal("{")) {
                 checkDeclaration(true);
                 return true;
             }
@@ -78,8 +78,8 @@ public class SemanticAnalyzer {
     }
 
     private boolean checkVariable() throws Exception {
-        if (checkTokenValue("variables")) {
-            if (checkTokenValue("{")) {
+        if (eatTerminal("variables")) {
+            if (eatTerminal("{")) {
                 checkDeclaration(false);
                 return true;
             }
@@ -96,7 +96,11 @@ public class SemanticAnalyzer {
         return false;
     }
 
-    private boolean checkTokenValue(String tokenValue) {
+    private boolean checkForType(String type) {
+        return currentToken.getType().equals(type);
+    }
+
+    private boolean eatTerminal(String tokenValue) {
         if (currentToken.getValue().equals(tokenValue)) {
             this.updateToken();
             return true;
@@ -104,6 +108,9 @@ public class SemanticAnalyzer {
         return false;
     }
 
+    private boolean checkForTerminal(String terminal) {
+        return this.currentToken.getValue().equals(terminal);
+    }
 
     private boolean checkType(int hierarchy) {
         if (nativeTypes.contains(currentToken.getValue())) {
@@ -124,19 +131,44 @@ public class SemanticAnalyzer {
     }
 
     private boolean checkDeclaration(boolean isConst, boolean updateType) throws Exception {
-
         if (updateType) {
             currentType = convertType(currentToken.getValue());
             this.updateToken();
         }
 
-        if (checkTokenType(TokenTypes.IDENTIFIER)) {
-            currentVariableEntry = new VariableEntry(lastToken.getValue(), currentType, isConst);
+        if (checkForType(TokenTypes.IDENTIFIER)) {
+            List<Token> currentVar;
+            int line = currentToken.getLine();
 
+            if (isConst) {
+                currentVar = this.bufferize("=");
+            } else {
+                currentVar = this.bufferize(",;");
+            }
+
+            String fullIdentifier = currentVar.stream().map(Token::getValue).reduce("", (a, b) -> a + b);
+            String varName;
+            boolean isVector = fullIdentifier.contains("[");
+
+            if (isVector) {
+                varName = fullIdentifier.substring(0, fullIdentifier.indexOf("["));
+                String dimensions = fullIdentifier.substring(fullIdentifier.indexOf("["));
+                try {
+                    currentVariableEntry = new VariableEntry(varName, currentType, isConst, dimensions);
+                } catch (NumberFormatException ex) {
+                    this.errors.add(new SemanticError(line, "Indexador Inválido", "Número Inteiro", "Dimensão de vetor inválido"));
+                    currentVariableEntry = new VariableEntry(varName, currentType, isConst, "");
+                }
+            } else {
+                varName = fullIdentifier;
+                currentVariableEntry = new VariableEntry(varName, currentType, isConst);
+            }
+
+            this.updateToken();
             System.out.println("Current var: " + currentVariableEntry);
 
-            if (checkTokenValue(";")) {
-                if (checkTokenValue("}")) {
+            if (eatTerminal(";")) {
+                if (eatTerminal("}")) {
                     return true;
                 } else {
                     if (isConst) {
@@ -148,7 +180,7 @@ public class SemanticAnalyzer {
                 }
 
             } else {
-                checkTokenValue("=");
+                eatTerminal("=");
                 checkAssignment();
 
                 if (currentVariableEntry.isConst()) {
@@ -162,14 +194,14 @@ public class SemanticAnalyzer {
 
         //System.out.println(currentToken);
         //Sair da recursão
-        if (checkTokenValue(";")) {
-            if (checkTokenValue("}")) {
+        if (eatTerminal(";")) {
+            if (eatTerminal("}")) {
                 System.out.println("Finished");
                 return true;
             } else {
                 checkDeclaration(isConst, true);
             }
-        } else if (checkTokenValue(",")) {
+        } else if (eatTerminal(",")) {
             //verificar se pode haver uma variável seguida de outra na mesma linha
 
             checkDeclaration(isConst, false);
@@ -179,9 +211,16 @@ public class SemanticAnalyzer {
     }
 
     private List<Token> bufferize(String sync) {
+        int brackets = 0;
+
         List<Token> buffer = new ArrayList<>();
 
-        while (!sync.contains(this.currentToken.getValue())) {
+        while (!sync.contains(this.currentToken.getValue()) || brackets > 0) {
+            if (checkForTerminal("["))
+                brackets++;
+            else if (checkForTerminal("]"))
+                brackets--;
+
             buffer.add(this.currentToken);
             this.updateToken();
         }
@@ -200,7 +239,9 @@ public class SemanticAnalyzer {
                 if (lastType == null) {
                     lastType = tokenType;
                 } else if (!lastType.equals(tokenType)) {
-                    //this.errors.add(new SemanticError(token.getLine(), tokenType, lastType, "Erro de conversão"));
+                    this.errors.add(new SemanticError(token.getLine(), tokenType, lastType, "Erro de conversão"));
+
+                    return TokenTypes.UNDEFINED;
                     //System.out.println("->>> Conversão de "+tokenType+ " para "+lastType +" token "+token);
                 }
             } else if (tokenType.equals(TokenTypes.LOGICAL_OPERATOR) || token.getType().equals(TokenTypes.RELATIONAL_OPERATOR)) {
@@ -219,12 +260,18 @@ public class SemanticAnalyzer {
                 return TokenTypes.NUMBER_FLOAT;
             case "string":
                 return TokenTypes.STRING;
+            case "boolean":
+                return TokenTypes.BOOLEAN;
             default:
                 return type;
         }
     }
 
     private String convertType(Token token, int scope) {
+        if (token.isBolean()) {
+            return TokenTypes.BOOLEAN;
+        }
+
         if (scope == CONST_SCOPE) {
             if (token.getType().equals(TokenTypes.IDENTIFIER)) {
                 String type = this.symbolTable.getConstType(token.getValue());
@@ -248,12 +295,12 @@ public class SemanticAnalyzer {
         return null; //TODO: resto
     }
 
-    private boolean checkAssignment() throws Exception {
+    private void checkAssignment() throws Exception {
         List<Token> expression = this.bufferize(",;");
         int line = expression.get(0).getLine();
         String expressionToken = expression.stream().map(Token::getValue).reduce("", (a, b) -> a + b);
-
         String expressionType = getExpressionType(expression, currentScope);
+
 
         if (!expressionType.equals(TokenTypes.UNDEFINED)) {
             switch (currentType) {
@@ -267,7 +314,8 @@ public class SemanticAnalyzer {
                 case TokenTypes.BOOLEAN:
                     if (!expressionType.equals(TokenTypes.BOOLEAN)) {
                         //System.err.println("Erro: Variável booleana atribuída como " + expressionType);
-                        this.errors.add(new SemanticError(line, expressionType, currentType, "Erro de conversão"));
+                        // TODO: exibir warning?
+                        this.errors.add(new SemanticError(line, expressionType, currentType, "Aviso de conversão"));
                     }
                     break;
                 case TokenTypes.NUMBER_INT:
@@ -290,21 +338,96 @@ public class SemanticAnalyzer {
             }
         }
 
-        symbolTable.addConst(currentVariableEntry);
+        if (currentVariableEntry.isVector()) {
 
-        return true;
+
+            List<Long> dimensions = new ArrayList<>();
+            System.out.println(expressionToken);
+            boolean done = false;
+
+            while (!done) {
+                expressionToken = expression.stream().map(Token::getValue).reduce("", (a, b) -> a + b);
+                System.out.println("Current exp token "+expressionToken);
+
+                long size = 0;
+
+                if (expression.get(0).getValue().equals("[")) {
+                    int brackets = 0;
+
+                    for (Token t : expression) {
+                        if (t.getValue().equals("[")) {
+                            brackets++;
+                            if (brackets == 0) {
+                                size++;
+                            }
+                        } else if (t.getValue().equals("]")) {
+                            brackets--;
+                            if (brackets == 0) {
+                                size++;
+                            }
+                        }
+
+                    }
+                    expression.remove(0);
+                    expression.remove(expression.size() - 1);
+
+
+                } else if (expressionToken.contains("]")) {
+                    System.out.println("middle : " + expressionToken);
+                    int innerDim = 0;
+                    int currentSize = 0;
+
+                    for (Token t : expression) {
+                        String tokenType = convertType(t, currentScope);
+                        if (t.getValue().equals("]")) {
+                            if (innerDim == 0) {
+                                innerDim = currentSize;
+                            } else if (currentSize != innerDim) {
+                                System.err.println("erro dimensão");
+                            }
+                            currentSize = 0;
+                        } else if (tokenType.equals(currentVariableEntry.getType())) {
+                            currentSize++;
+                        }
+                    }
+
+                    size = innerDim;
+                    done = true;
+                } else {
+                    expressionToken = expression.stream().map(Token::getValue).reduce("", (a, b) -> a + b);
+                    System.out.println("--> size corrido " + expressionToken);
+                    size = expression.stream().filter(t -> !t.getType().equals(TokenTypes.DELIMITER)).count();
+                    done = true;
+                }
+
+                dimensions.add(size);
+            }
+
+            dimensions.remove(0);
+            System.out.print("Expected dimensions ");
+            currentVariableEntry.getDimensions().forEach(x -> System.out.print(x + " "));
+            System.out.println("\n");
+            System.out.print("Dimensions: ");
+            dimensions.forEach(x -> System.out.print(" " + x));
+            System.out.println("\n");
+        }
+        try {
+            symbolTable.addConst(currentVariableEntry);
+        } catch (Exception e) {
+            this.errors.add(new SemanticError(line, currentVariableEntry.getName(), "Identificador novo", "Identificador já utilizado"));
+        }
     }
 
     private boolean checkClass() throws Exception {
-        if (checkTokenValue("class")) {
-            if (checkTokenValue(TokenTypes.IDENTIFIER)) {
-                if (checkTokenValue("{")) {
+        if (eatTerminal("class")) {
+            if (eatTerminal(TokenTypes.IDENTIFIER)) {
+                if (eatTerminal("{")) {
                     checkVariable();
                     currentClass.addVariableList(currentVariableEntryList);
                     checkMethod();
-                } else if (checkTokenValue(currentToken.getValue())) {
+                } else if (eatTerminal(currentToken.getValue())) {
                     if (checkTokenType(TokenTypes.IDENTIFIER)) {//Verificar se a classe herdade existe
-                        if (checkTokenValue("{")) {
+                        if (eatTerminal("{")) {
                             checkVariable();
                             currentClass.addVariableList(currentVariableEntryList);
                             checkMethod();
@@ -320,16 +443,16 @@ public class SemanticAnalyzer {
     }
 
     private boolean checkMethod() throws Exception {
-        if (checkTokenValue("method")) {
+        if (eatTerminal("method")) {
             if (nativeTypes.contains(currentToken.getValue())) {
                 checkType(2);
                 if (checkTokenType(TokenTypes.IDENTIFIER)) {
                     checkParams();
-                    if (checkTokenValue("{")) {
+                    if (eatTerminal("{")) {
                         checkFunctionBody();
                         checkReturn();
-                        if (checkTokenValue(";")) {
-                            if (checkTokenValue("}")) {
+                        if (eatTerminal(";")) {
+                            if (eatTerminal("}")) {
                                 checkMethod();
                             } else {
                                 System.err.println("Não podem haver comandos após o return");
@@ -339,7 +462,7 @@ public class SemanticAnalyzer {
                     }
                 }
             }
-        } else if (checkTokenValue("}")) {
+        } else if (eatTerminal("}")) {
             checkClass();
         }
         return false;
@@ -350,7 +473,7 @@ public class SemanticAnalyzer {
     }
 
     private boolean checkReturn() throws Exception {
-        if (checkTokenValue("return")) {
+        if (eatTerminal("return")) {
             System.out.println("valor do return para análise: " + currentToken.getValue());
             if (currentClass.checkVariableType(currentToken.getValue(), getCurrentTypeMethod)) {
                 updateToken();
@@ -368,11 +491,11 @@ public class SemanticAnalyzer {
     }
 
     private boolean checkParams() {
-        if (checkTokenValue("(")) {
+        if (eatTerminal("(")) {
             if (nativeTypes.contains(currentToken.getValue())) {
                 updateToken();
                 if (checkTokenType(TokenTypes.IDENTIFIER)) {
-                    if (checkTokenValue(")")) {
+                    if (eatTerminal(")")) {
                         return true;
                     }
                 }

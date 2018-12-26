@@ -111,7 +111,7 @@ public class SyntacticalAnalyzer {
             if (throwException && sync == null) {
                 throw new NoSuchElementException(msg);
             }
-            
+
             if (sync != null) {
                 panic(sync);
             }

@@ -1,6 +1,0 @@
-main {
-
-	write("teste do comando write", soma, vetor[i], matriz[i][j], aluno.nome, alunos[i].nome);
-	
-	write(curso[i].disciplina[j].aluno[k].nota[z], mensagem);  
-}
