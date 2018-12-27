@@ -92,8 +92,11 @@ public class SemanticAnalyzer {
     }
 
     private void checkDeclaration(boolean isConst, boolean updateType, Map<String, VariableEntry> context, boolean isParam) {
-        if (updateType) {
+        if (updateType && !checkForTerminal(")")) {
             currentType = TokenTypes.convertType(currentToken.getValue());
+            if(!this.symbolTable.isValidType(currentType)){
+                this.errors.add(new SemanticError(this.currentToken.getLine(), currentType, "Classe válida ou tipo nativo", "Tipo de variável inválida"));
+            }
             this.updateToken();
         }
 
@@ -144,7 +147,7 @@ public class SemanticAnalyzer {
             }
 
             //this.updateToken();
-            System.out.println("Current var: " + currentVariableEntry);
+            //System.out.println("Current var: " + currentVariableEntry);
 
             if (eatTerminal(";")) {
                 if (eatTerminal("}")) {
@@ -162,7 +165,7 @@ public class SemanticAnalyzer {
         //Sair da recursão
         if (eatTerminal(";")) {
             if (eatTerminal("}")) {
-                System.out.println("Finished");
+                //System.out.println("Finished");
             } else {
                 checkDeclaration(isConst, true, context, isParam);
             }
@@ -170,7 +173,7 @@ public class SemanticAnalyzer {
             //verificar se pode haver uma variável seguida de outra na mesma linha
             checkDeclaration(isConst, isParam, context, isParam);
         } else if (eatTerminal(")") && isParam) {
-            System.out.println("Finished params");
+            //System.out.println("Finished params");
         }
 
     }
@@ -444,6 +447,11 @@ public class SemanticAnalyzer {
             int line = this.currentToken.getLine();
 
             String returnType = translatePRE(this.currentToken.getValue());
+
+            if(!this.symbolTable.isValidType(returnType)){
+                this.errors.add(new SemanticError(line, returnType, "Classe válida ou tipo nativo", "Tipo de variável inválida"));
+            }
+
             updateToken();
             String name = this.currentToken.getValue();
             updateToken();

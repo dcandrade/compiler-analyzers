@@ -88,4 +88,8 @@ public class SymbolTable {
     public Map<String, VariableEntry> getConstContext(){
         return this.constants;
     }
+
+    public boolean isValidType(String type){
+        return TokenTypes.encodedNativeTypes.contains(type) ||  this.classes.get(type) != null;
+    }
 }

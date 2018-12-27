@@ -24,6 +24,7 @@ public class TokenTypes {
     public final static String UNDEFINED = "UNDEFINED";
 
     public final static List<String> nativeTypes = Arrays.asList("int", "float", "string", "bool", "void");
+    public final static List<String> encodedNativeTypes = Arrays.asList(NUMBER_FLOAT, NUMBER_INT, STRING, BOOLEAN, "void");
 
 
 
