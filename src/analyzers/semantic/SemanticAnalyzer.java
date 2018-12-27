@@ -3,6 +3,7 @@ package analyzers.semantic;
 import model.error.SemanticError;
 import model.semantic.SymbolTable;
 import model.semantic.entries.ClassEntry;
+import model.semantic.entries.MethodEntry;
 import model.semantic.entries.VariableEntry;
 import model.token.Token;
 import model.token.TokenTypes;
@@ -11,32 +12,23 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class SemanticAnalyzer {
-    private static final int RESERVED_WORD_SCOPE = -1;
-    private static final int CONST_SCOPE = 0;
-    private static final int CLASS_SCOPE = 1;
-    private static final int MAIN_SCOPE = 2;
-
     private final List<Token> tokens;
     private SymbolTable symbolTable;
     private int tokenIndex;
     private Token currentToken;
     private VariableEntry currentVariableEntry;
-    private ClassEntry currentClass;
-    private String currentType, getCurrentTypeMethod;
-    private int currentScope;
+    private String currentType;
     private List<SemanticError> errors;
 
 
     public SemanticAnalyzer(List<Token> tokens) throws Exception {
         currentVariableEntry = new VariableEntry(null, null, -1);
-        currentClass = new ClassEntry(null, null);
 
         symbolTable = new SymbolTable();
 
         this.tokens = tokens;
         this.tokenIndex = 0;
         this.updateToken();
-        this.currentScope = CONST_SCOPE;
         this.errors = new ArrayList<>();
         analyzer();
     }
@@ -57,12 +49,13 @@ public class SemanticAnalyzer {
     private void analyzer() throws Exception {
         checkConst();
         checkClass();
+        checkMain();
     }
 
     private void checkConst() {
         if (eatTerminal("const")) {
             if (eatTerminal("{")) {
-                checkDeclaration(true, true, this.symbolTable.getConstContext());
+                checkDeclaration(true, this.symbolTable.getConstContext());
             }
         }
     }
@@ -70,19 +63,13 @@ public class SemanticAnalyzer {
     private void checkVariable(ClassEntry context) {
         if (eatTerminal("variables")) {
             if (eatTerminal("{")) {
-                checkDeclaration(false, true, context.getVariables());
+                Map<String, VariableEntry> fullContext = context.getVariables();
+                fullContext.putAll(this.symbolTable.getConstContext());
+                checkDeclaration(false, fullContext);
             }
         }
     }
 
-
-    private boolean checkTokenType(String type) {
-        if (currentToken.getType().equals(type)) {
-            this.updateToken();
-            return true;
-        }
-        return false;
-    }
 
     private boolean checkForType(String type) {
         return currentToken.getType().equals(type);
@@ -100,19 +87,11 @@ public class SemanticAnalyzer {
         return this.currentToken.getValue().equals(terminal);
     }
 
-    private void checkType(int hierarchy) {
-        if (TokenTypes.nativeTypes.contains(currentToken.getValue())) {
-            if (hierarchy == 1) {
-                currentType = currentToken.getValue();
-            } else if (hierarchy == 2) {
-                getCurrentTypeMethod = currentToken.getValue();
-            }
-
-            this.updateToken();
-        }
+    private void checkDeclaration(boolean isConst, Map<String, VariableEntry> context) {
+        checkDeclaration(isConst, true, context, false);
     }
 
-    private void checkDeclaration(boolean isConst, boolean updateType, Map<String, VariableEntry> context) {
+    private void checkDeclaration(boolean isConst, boolean updateType, Map<String, VariableEntry> context, boolean isParam) {
         if (updateType) {
             currentType = TokenTypes.convertType(currentToken.getValue());
             this.updateToken();
@@ -124,6 +103,8 @@ public class SemanticAnalyzer {
 
             if (isConst) {
                 currentVar = this.bufferize("=");
+            } else if (isParam) {
+                currentVar = this.bufferize(",)");
             } else {
                 currentVar = this.bufferize("=,;");
             }
@@ -156,10 +137,7 @@ public class SemanticAnalyzer {
             }
 
             //this.currentVariableEntryList.add(currentVariableEntry);
-            if (!isConst && this.symbolTable.isConst(currentVariableEntry)) {
-                this.errors.add(new SemanticError(currentVariableEntry.getLine(), currentVariableEntry.getName(), "Identificador novo", "Identificador já utilizado como constante"));
-
-            } else if (context.get(currentVariableEntry.getName()) != null) {
+            if (context.get(currentVariableEntry.getName()) != null) {
                 this.errors.add(new SemanticError(currentVariableEntry.getLine(), currentVariableEntry.getName(), "Identificador novo", "Identificador já utilizado"));
             } else {
                 context.put(currentVariableEntry.getName(), currentVariableEntry);
@@ -172,11 +150,11 @@ public class SemanticAnalyzer {
                 if (eatTerminal("}")) {
                     return;
                 } else {
-                    checkDeclaration(isConst, true, context);
+                    checkDeclaration(isConst, true, context, isParam);
                 }
 
             } else if (eatTerminal("=")) {
-                checkAssignment();
+                checkAssignment(context);
             }
         }
 
@@ -186,11 +164,13 @@ public class SemanticAnalyzer {
             if (eatTerminal("}")) {
                 System.out.println("Finished");
             } else {
-                checkDeclaration(isConst, true, context);
+                checkDeclaration(isConst, true, context, isParam);
             }
         } else if (eatTerminal(",")) {
             //verificar se pode haver uma variável seguida de outra na mesma linha
-            checkDeclaration(isConst, false, context);
+            checkDeclaration(isConst, isParam, context, isParam);
+        } else if (eatTerminal(")") && isParam) {
+            System.out.println("Finished params");
         }
 
     }
@@ -222,13 +202,17 @@ public class SemanticAnalyzer {
         return buffer;
     }
 
-    private String getExpressionType(List<Token> expression, int scope) {
+    private String getExpressionType(List<Token> expression, Map<String, VariableEntry> context) {
         String operators = TokenTypes.DELIMITER + TokenTypes.ARITHMETICAL_OPERATOR + TokenTypes.RELATIONAL_OPERATOR + TokenTypes.LOGICAL_OPERATOR;
         String lastType = null;
         String tokenType;
 
+        if (expression.size() == 1 && expression.get(0).getValue().equals("void")) {
+            return "void";
+        }
+
         for (Token token : expression) {
-            tokenType = convertType(token, scope);
+            tokenType = convertType(token, context);
             if (!operators.contains(token.getType())) {
                 if (lastType == null) {
                     lastType = tokenType;
@@ -246,11 +230,11 @@ public class SemanticAnalyzer {
         return lastType;
     }
 
-    private String convertType(Token token, int scope) {
-        return convertType(token, scope, true);
+    private String convertType(Token token, Map<String, VariableEntry> context) {
+        return convertType(token, context, true);
     }
 
-    private String convertType(Token token, int scope, boolean error) {
+    private String convertType(Token token, Map<String, VariableEntry> context, boolean error) {
         if (token.isBolean()) {
             return TokenTypes.BOOLEAN;
         }
@@ -264,49 +248,30 @@ public class SemanticAnalyzer {
 
         if (token.getType().equals(TokenTypes.IDENTIFIER)) {
 
-            if (scope == CONST_SCOPE) {
-                String type = this.symbolTable.getConstType(token.getValue());
+            VariableEntry var = context.get(token.getValue());
+            String type;
 
-                if (type == null) {
-                    type = TokenTypes.UNDEFINED;
-                    if (error)
-                        this.errors.add(new SemanticError(token.getLine(), token.getValue(), "Valor ou Identificador válido", "Constante indefinida"));
-                }
-
-                return type;
-
+            if (var == null) {
+                type = TokenTypes.UNDEFINED;
+                if (error)
+                    this.errors.add(new SemanticError(token.getLine(), token.getValue(), "Valor ou Identificador válido", "Constante indefinida"));
+            } else {
+                type = var.getType();
             }
 
-            if (scope == CLASS_SCOPE) {
-                String constType = convertType(token, CONST_SCOPE, false);
-                String type;
+            return type;
 
-                if (constType == null) {
-                    ClassEntry classEntry = this.symbolTable.checkClassVariable(token.getValue());
-
-                    if (classEntry != null) {
-                        type = classEntry.getVariableType(token.getValue());
-                        if (type == null) {
-                            type = TokenTypes.UNDEFINED;
-                            if (error)
-                                this.errors.add(new SemanticError(token.getLine(), token.getValue(), "Valor ou Identificador válido", "Constante indefinida"));
-                        }
-                        return type;
-                    }
-                }
-
-            }
         }
 
 
         return token.getType(); // TODO: remaining scopes
     }
 
-    private void checkAssignment() {
+    private void checkAssignment(Map<String, VariableEntry> context) {
         List<Token> expression = this.bufferize(",;");
         int line = expression.get(0).getLine();
         String expressionToken = expression.stream().map(Token::getValue).reduce("", (a, b) -> a + b);
-        String expressionType = getExpressionType(expression, currentScope);
+        String expressionType = getExpressionType(expression, context);
 
 
         if (!expressionType.equals(TokenTypes.UNDEFINED)) {
@@ -344,7 +309,9 @@ public class SemanticAnalyzer {
                     break;
             }
         }
-
+        if (currentVariableEntry.isConst()) {
+            currentVariableEntry.setValue(expressionToken);
+        }
         if (currentVariableEntry.isVector()) {
             List<Integer> dimensions = new ArrayList<>();
             boolean done = false;
@@ -380,7 +347,7 @@ public class SemanticAnalyzer {
                     int currentSize = 0;
 
                     for (Token t : expression) {
-                        String tokenType = convertType(t, currentScope);
+                        String tokenType = convertType(t, context);
 
                         if (t.getValue().equals("]")) {
                             if (innerDim == 0) {
@@ -441,8 +408,6 @@ public class SemanticAnalyzer {
 
     private void checkClass() throws Exception {
         if (eatTerminal("class")) {
-            this.currentScope = CLASS_SCOPE;
-
             String className, superclassName = null;
 
             className = currentToken.getValue();
@@ -466,61 +431,83 @@ public class SemanticAnalyzer {
             eatTerminal("{");
 
             checkVariable(classEntry);
-            //checkMethod();
+            checkMethod(classEntry);
             eatTerminal("}"); // Class end
             checkClass();
 
-        } else {
-            checkMain();
         }
-
     }
 
-    private void checkMethod() throws Exception {
+    // TODO: diferenciar retorno de vetores e variaveis do mesmo tipo
+    private void checkMethod(ClassEntry classEntry) {
         if (eatTerminal("method")) {
-            String returnType = this.currentToken.getValue();
+            int line = this.currentToken.getLine();
+
+            String returnType = translatePRE(this.currentToken.getValue());
             updateToken();
             String name = this.currentToken.getValue();
             updateToken();
-            System.out.println("--- Metodo "+ name + "   retorno "+returnType);
-            eatTerminal("(");
-            List<Token> params = bufferize(")");
-            System.out.println(" --- Parametros "+ params);
-            eatTerminal(")");
-            eatTerminal("{");
-            System.out.println("--->>>>" + this.currentToken);
 
+            eatTerminal("(");
+            Map<String, VariableEntry> params = new TreeMap<>(); // Deve ser TreeMap para manter a ordem
+            checkDeclaration(false, true, params, true);
+
+            MethodEntry method = new MethodEntry(name + params.toString(), returnType, params);
+
+            eatTerminal("{");
+
+            checkFunctionBody(); // TODO: implementar
+
+            eatTerminal("return");
+            List<Token> returnExpression = bufferize(";");
+
+            Map<String, VariableEntry> context = this.symbolTable.getConstContext();
+            context.putAll(classEntry.getVariables());
+            context.putAll(method.getParams());
+
+            int returnLine = this.currentToken.getLine();
+            String expressionType = getExpressionType(returnExpression, context);
+
+            try {
+                classEntry.addMethod(method);
+            } catch (Exception e) {
+                this.errors.add(new SemanticError(line, method.getName(), "Assinatura única", "Já existe um método com essa assinatura"));
+
+            }
+
+            if (!expressionType.equals(returnType)) {
+                this.errors.add(new SemanticError(returnLine, expressionType, returnType, "Tipo do retorno diferente do declarado"));
+
+            }
+
+            eatTerminal(";");
+            eatTerminal("}");
+
+            checkMethod(classEntry);
+        }
+    }
+
+    private String translatePRE(String PRE) {
+        switch (PRE) {
+            case "float":
+                return TokenTypes.NUMBER_FLOAT;
+            case "int":
+                return TokenTypes.NUMBER_INT;
+            case "string":
+                return TokenTypes.STRING;
+            default:
+                return PRE;
         }
     }
 
     private void checkFunctionBody() {
     }
 
-    private void checkReturn() throws Exception {
-        if (eatTerminal("return")) {
-            System.out.println("valor do return para análise: " + currentToken.getValue());
-            if (currentClass.checkVariableType(currentToken.getValue(), getCurrentTypeMethod)) {
-                updateToken();
-                System.out.println("Return correto");
-            } else {
-                System.out.println("Valor de retorn não é o mesmo do tipo da função");
-            }
-        }
+    private void checkStatements(){
+
     }
 
     private void checkMain() {
     }
 
-    private void checkParams() {
-        if (eatTerminal("(")) {
-            if (TokenTypes.nativeTypes.contains(currentToken.getValue())) {
-                updateToken();
-                if (checkTokenType(TokenTypes.IDENTIFIER)) {
-                    if (eatTerminal(")")) {
-                    }
-                }
-            }
-        }
-
-    }
 }

@@ -1,7 +1,5 @@
 package model.semantic.entries;
 
-import model.token.TokenTypes;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,6 +7,7 @@ public class ClassEntry {
     private final ClassEntry superclass;
     private String name;
     private Map<String, VariableEntry> variables;
+    private Map<String, MethodEntry> methods;
 
     public ClassEntry(String name) {
         this(name, null);
@@ -18,13 +17,35 @@ public class ClassEntry {
         this.name = name;
         this.superclass = superclass;
         this.variables = new HashMap<>();
+        this.methods = new HashMap<>();
 
-        if(superclass != null)
+        if(superclass != null) {
             this.variables.putAll(this.superclass.variables);
+            this.methods.putAll(this.superclass.methods);
+        }
     }
 
     public Map<String, VariableEntry> getVariables() {
         return variables;
+    }
+
+    public MethodEntry addMethod(String name, String returnType, Map<String, VariableEntry> params) throws Exception {
+        if(methods.get(name) != null){
+            throw new Exception("repetido");
+        }
+
+        MethodEntry methodEntry = new MethodEntry(name, returnType, params);
+
+        return methodEntry;
+    }
+
+
+    public void addMethod(MethodEntry method) throws Exception {
+        if(methods.get(method.getName()) != null){
+            throw new Exception();
+        }
+
+        this.methods.put(method.getName(), method);
     }
 
     private boolean hasSuperclass() {

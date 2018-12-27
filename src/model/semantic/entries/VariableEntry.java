@@ -22,6 +22,10 @@ public class VariableEntry {
         this.line = line;
     }
 
+    public VariableEntry(String name, String type){
+        this(name, type, -1);
+    }
+
     public VariableEntry(String name, String type, boolean isConst, int line) {
         this.name = name;
         this.type = type;
