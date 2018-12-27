@@ -22,7 +22,7 @@ public class SemanticAnalyzer {
     private List<SemanticError> errors;
 
 
-    public SemanticAnalyzer(List<Token> tokens) {
+    public SemanticAnalyzer(List<Token> tokens) throws InstanceAlreadyExistsException {
         currentVariableEntry = new VariableEntry(null, null, -1);
 
         symbolTable = new SymbolTable();
@@ -47,7 +47,7 @@ public class SemanticAnalyzer {
         return errors;
     }
 
-    private void analyzer() {
+    private void analyzer() throws InstanceAlreadyExistsException {
         checkConst();
         checkClass();
         checkMain();
@@ -256,7 +256,11 @@ public class SemanticAnalyzer {
             if (!operators.contains(token.getType())) {
                 if (lastType == null) {
                     lastType = tokenType;
-                } else if (!lastType.equals(tokenType)) {
+                } else if(lastType.equals(TokenTypes.STRING)){
+                    this.errors.add(new SemanticError(token.getLine(), "", "", "Não podem ser realizadas operações com strings"));
+
+                    return TokenTypes.UNDEFINED;
+                }else if (!lastType.equals(tokenType)) {
                     // Conversão de tipos dentro de uma expressão, logo o tipo da expressão é indefinido
                     this.errors.add(new SemanticError(token.getLine(), tokenType, lastType, "Erro de conversão"));
 
@@ -445,6 +449,7 @@ public class SemanticAnalyzer {
         }
     }
 
+    // TODO: add contexto das outras classes
     private void checkClass()  {
         if (eatTerminal("class")) {
             String className, superclassName = null;
@@ -559,11 +564,49 @@ public class SemanticAnalyzer {
     private void checkFunctionBody() {
     }
 
-    private void checkStatements(){
+    private void checkStatements(Map<String, VariableEntry> context){
+
+        if(checkForType(TokenTypes.IDENTIFIER)){
+            VariableEntry var = context.get(this.currentToken.getValue());
+            updateToken();
+
+            // check atributos
+
+            if(checkForTerminal("=")){
+                updateToken();
+                int line = currentToken.getLine();
+
+                List<Token> expression = bufferize(";");
+                eatTerminal(";");
+
+                String expressionType = getExpressionType(expression, context);
+
+                if(var.isConst()){
+                    this.errors.add(new SemanticError(line, "", "", "Atribuição de novo valor a uma constante ("+var.getName()+")"));
+                }else if(!var.getType().equals(expressionType) && !expressionType.equals(TokenTypes.UNDEFINED)){
+                    this.errors.add(new SemanticError(line, var.getType(), expressionType, "Erro de conversão"));
+                }
+
+                checkStatements(context);
+
+            }
+        }
 
     }
 
-    private void checkMain() {
+    private void checkMain() throws InstanceAlreadyExistsException {
+        ClassEntry mainClass = this.symbolTable.addClass("main", null);
+
+        eatTerminal("main");
+        eatTerminal("{");
+        checkVariable(mainClass);
+
+        Map<String, VariableEntry> context = this.symbolTable.getFullVariablesContext();
+
+        checkStatements(context);
+
+        eatTerminal("}");
+
     }
 
 

@@ -13,6 +13,7 @@ public class ClassEntry {
         this(name, null);
     }
 
+
     public ClassEntry(String name, ClassEntry superclass) {
         this.name = name;
         this.superclass = superclass;

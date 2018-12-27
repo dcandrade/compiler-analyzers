@@ -13,6 +13,10 @@ public class SemanticError extends Error {
 
     @Override
     public String toString() {
-        return String.format("%2d %s (recebido: %s, esperado: %s)", this.getLine(), this.getType(), this.getToken(), this.expected);
+        if(!this.getToken().isEmpty() && !this.expected.isEmpty())
+            return String.format("%2d %s (recebido: %s, esperado: %s)", this.getLine(), this.getType(), this.getToken(), this.expected);
+        else
+            return String.format("%2d %s ", this.getLine(),  this.type);
+
     }
 }

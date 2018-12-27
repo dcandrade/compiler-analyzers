@@ -1,6 +1,7 @@
 package model.semantic;
 
 import model.semantic.entries.ClassEntry;
+import model.semantic.entries.MethodEntry;
 import model.semantic.entries.VariableEntry;
 import model.token.TokenTypes;
 
@@ -51,6 +52,17 @@ public class SymbolTable {
     public Map<String, VariableEntry> getConstContext(){
         return this.constants;
     }
+
+    public Map<String, VariableEntry> getFullVariablesContext(){
+        Map<String, VariableEntry> context = new HashMap<>(this.constants);
+
+        for(Map.Entry<String, ClassEntry> ce: classes.entrySet()) {
+            context.putAll(ce.getValue().getVariables());
+        }
+
+        return context;
+    }
+
 
     public boolean isValidType(String type){
         return TokenTypes.encodedNativeTypes.contains(type) ||  this.classes.get(type) != null;
