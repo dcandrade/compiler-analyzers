@@ -18,36 +18,10 @@ public class SymbolTable {
         this.classes = new HashMap<>();
     }
 
-    public void addConst(String name, String type, int line) throws Exception {
-        if (type.equals("string")) {
-            type = TokenTypes.STRING;
-        }
-        if (this.constants.get(name) == null) {
-            this.constants.put(name, new VariableEntry(name, type, true, line));
-        } else {
-            throw new Exception("Constante já existe");
-        }
-    }
-
-    public boolean isConst(VariableEntry var) {
-        return this.constants.get(var.getName()) != null;
-    }
-
     public VariableEntry getConst(String varName){
         return this.constants.get(varName);
     }
 
-    public void addConst(VariableEntry var) throws Exception {
-        this.addConst(var.getName(), var.getType(), var.getLine());
-    }
-
-    public String getConstType(String constant) {
-        VariableEntry var = this.constants.get(constant);
-
-        if (var == null) {
-            return null;
-        } else return var.getType();
-    }
 
     public ClassEntry getClass(String className) throws ClassNotFoundException {
         if (className == null) {
@@ -63,26 +37,15 @@ public class SymbolTable {
         return classEntry;
     }
 
-    public ClassEntry addClass(String className, String superClassName) throws ClassNotFoundException, InstanceAlreadyExistsException {
+    public ClassEntry addClass(String className, ClassEntry superClass) throws  InstanceAlreadyExistsException {
         if (this.classes.get(className) != null) {
             throw new InstanceAlreadyExistsException("Classe já existe");
         }
 
-        ClassEntry classEntry = new ClassEntry(className, this.getClass(superClassName));
+        ClassEntry classEntry = new ClassEntry(className, superClass);
         this.classes.put(className, classEntry);
 
         return classEntry;
-    }
-
-    public ClassEntry checkClassVariable(String varName) {
-        for (Map.Entry<String, ClassEntry> entry : classes.entrySet()) {
-            ClassEntry ce = entry.getValue();
-
-            if (ce.hasVariable(varName)) {
-                return ce;
-            }
-        }
-        return null;
     }
 
     public Map<String, VariableEntry> getConstContext(){

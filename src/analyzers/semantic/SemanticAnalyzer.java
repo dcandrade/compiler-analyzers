@@ -8,6 +8,7 @@ import model.semantic.entries.VariableEntry;
 import model.token.Token;
 import model.token.TokenTypes;
 
+import javax.management.InstanceAlreadyExistsException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,7 +22,7 @@ public class SemanticAnalyzer {
     private List<SemanticError> errors;
 
 
-    public SemanticAnalyzer(List<Token> tokens) throws Exception {
+    public SemanticAnalyzer(List<Token> tokens) {
         currentVariableEntry = new VariableEntry(null, null, -1);
 
         symbolTable = new SymbolTable();
@@ -46,7 +47,7 @@ public class SemanticAnalyzer {
         return errors;
     }
 
-    private void analyzer() throws Exception {
+    private void analyzer() {
         checkConst();
         checkClass();
         checkMain();
@@ -94,6 +95,7 @@ public class SemanticAnalyzer {
     private void checkDeclaration(boolean isConst, boolean updateType, Map<String, VariableEntry> context, boolean isParam) {
         if (updateType && !checkForTerminal(")")) {
             currentType = TokenTypes.convertType(currentToken.getValue());
+
             if(!this.symbolTable.isValidType(currentType)){
                 this.errors.add(new SemanticError(this.currentToken.getLine(), currentType, "Classe válida ou tipo nativo", "Tipo de variável inválida"));
             }
@@ -131,7 +133,7 @@ public class SemanticAnalyzer {
 
                     currentVariableEntry = new VariableEntry(varName, currentType, isConst, dims, line);
                 } catch (NumberFormatException ex) {
-                    this.errors.add(new SemanticError(line, "Indexador Inválido", "Número/identificador Inteiro", "Dimensão de vetor inválida"));
+                    this.errors.add(new SemanticError(line, "Indexador Inválido ("+dimensions+")", "Número/identificador Inteiro", "Dimensão de vetor inválida"));
                     currentVariableEntry = new VariableEntry(varName, currentType, isConst, Collections.EMPTY_LIST, line);
                 }
             } else {
@@ -140,8 +142,18 @@ public class SemanticAnalyzer {
             }
 
             //this.currentVariableEntryList.add(currentVariableEntry);
-            if (context.get(currentVariableEntry.getName()) != null) {
-                this.errors.add(new SemanticError(currentVariableEntry.getLine(), currentVariableEntry.getName(), "Identificador novo", "Identificador já utilizado"));
+            VariableEntry var = context.get(currentVariableEntry.getName());
+            if (var != null) {
+                String msg;
+
+                // TODO: especificar escopo da variável (classe etc)
+                if(var.isConst()){
+                    msg = "Identificador já utilizado com constante";
+                }else{
+                    msg = "Indentificador já foi definido na classe ou na classe mãe";
+                }
+
+                this.errors.add(new SemanticError(currentVariableEntry.getLine(), currentVariableEntry.getName(), "Identificador novo", msg));
             } else {
                 context.put(currentVariableEntry.getName(), currentVariableEntry);
             }
@@ -205,6 +217,7 @@ public class SemanticAnalyzer {
         return buffer;
     }
 
+    //TODO: diferenciar retorn de vetor indexado e não indexado
     private String getExpressionType(List<Token> expression, Map<String, VariableEntry> context) {
         String operators = TokenTypes.DELIMITER + TokenTypes.ARITHMETICAL_OPERATOR + TokenTypes.RELATIONAL_OPERATOR + TokenTypes.LOGICAL_OPERATOR;
         String lastType = null;
@@ -214,8 +227,32 @@ public class SemanticAnalyzer {
             return "void";
         }
 
-        for (Token token : expression) {
+        if(expression.isEmpty()){
+            return TokenTypes.UNDEFINED;
+        }
+
+        boolean skip = false;
+
+        for (int i = 0; i < expression.size(); i++) {
+            Token token = expression.get(i);
             tokenType = convertType(token, context);
+
+            boolean afterIdentifier = i > 1 && expression.get(i-1).getType().equals(TokenTypes.IDENTIFIER);
+
+            if (token.getValue().equals("[") && afterIdentifier) {
+                skip = true;
+                continue;
+            }
+
+            if (token.getValue().equals("]")) {
+                skip = false;
+                continue;
+            }
+
+            if (skip) {
+                continue;
+            }
+
             if (!operators.contains(token.getType())) {
                 if (lastType == null) {
                     lastType = tokenType;
@@ -276,7 +313,6 @@ public class SemanticAnalyzer {
         String expressionToken = expression.stream().map(Token::getValue).reduce("", (a, b) -> a + b);
         String expressionType = getExpressionType(expression, context);
 
-
         if (!expressionType.equals(TokenTypes.UNDEFINED)) {
             switch (currentType) {
                 case TokenTypes.STRING:
@@ -290,7 +326,7 @@ public class SemanticAnalyzer {
                     if (!expressionType.equals(TokenTypes.BOOLEAN)) {
                         //System.err.println("Erro: Variável booleana atribuída como " + expressionType);
                         // TODO: exibir warning?
-                        this.errors.add(new SemanticError(line, expressionType, currentType, "Aviso de conversão"));
+                        //this.errors.add(new SemanticError(line, expressionType, currentType, "Aviso de conversão"));
                     }
                     break;
                 case TokenTypes.NUMBER_INT:
@@ -409,7 +445,7 @@ public class SemanticAnalyzer {
         }
     }
 
-    private void checkClass() throws Exception {
+    private void checkClass()  {
         if (eatTerminal("class")) {
             String className, superclassName = null;
 
@@ -429,7 +465,19 @@ public class SemanticAnalyzer {
                 superclassName = null;
             }
 
-            ClassEntry classEntry = this.symbolTable.addClass(className, superclassName);
+            ClassEntry superclass = null;
+            try {
+                superclass = this.symbolTable.getClass(superclassName);
+            } catch (ClassNotFoundException e) {
+                this.errors.add(new SemanticError(line, superclassName, "Classe mãe previamente declarada", "Classe mãe inexistente"));
+            }
+
+            ClassEntry classEntry = null;
+            try {
+                classEntry = this.symbolTable.addClass(className, superclass);
+            } catch (InstanceAlreadyExistsException e) {
+                this.errors.add(new SemanticError(line, className, "Novo nome para classe", "Classe com nome repetido"));
+            }
 
             eatTerminal("{");
 
@@ -517,5 +565,6 @@ public class SemanticAnalyzer {
 
     private void checkMain() {
     }
+
 
 }
