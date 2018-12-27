@@ -42,6 +42,11 @@ public class Compiler {
             }
 
             lexerOutput.close();
+
+            if(lexer.getLexicalErrors().size() > 0){
+                System.out.println("-- Erros Léxicos");
+                return;
+            }
             System.out.println("Léxico OK");
 
 
@@ -54,11 +59,14 @@ public class Compiler {
             for (SyntaxError error : parser.getErrors()) {
                 parserOutput.write(error + "\n");
             }
-            System.out.println("Sintático OK ");
-
-
             parserOutput.close();
 
+            if(parser.getErrors().size() > 0){
+                System.out.println("-- Erros Sintáticos");
+                return;
+            }
+
+            System.out.println("Sintático OK ");
 
             SemanticAnalyzer semantic = new SemanticAnalyzer(lexer.getTokens());
 

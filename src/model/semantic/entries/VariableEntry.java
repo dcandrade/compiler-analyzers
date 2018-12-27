@@ -1,43 +1,51 @@
 package model.semantic.entries;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class VariableEntry {
     private final List<Integer> dimensions;
+    private int line;
     private String name;
     private String type;
-    private boolean constant;
+    private boolean isConstant;
     private String dimensionString;
+    private String value;
 
-
-    public VariableEntry(String name, String type) {
+    public VariableEntry(String name, String type, int line) {
         this.name = name;
         this.type = type;
-        this.constant = false;
+        this.isConstant = false;
         this.dimensions = null;
+        this.line = line;
     }
 
-    public VariableEntry(String name, String type, boolean isConst) {
+    public VariableEntry(String name, String type, boolean isConst, int line) {
         this.name = name;
         this.type = type;
-        this.constant = isConst;
-        this.dimensions = null;
+        this.isConstant = isConst;
+        this.dimensions = Collections.EMPTY_LIST;
+        this.line = line;
     }
 
+    public void setValue(String value) {
+        this.value = value;
+    }
 
-    public VariableEntry(String name, String type, boolean isConst, String dimensions) {
+    public String getValue() {
+        return value;
+    }
+
+    public VariableEntry(String name, String type, boolean isConst, List<Integer> dimensions, int line) {
         this.name = name;
         this.type = type;
-        this.constant = isConst;
-        this.dimensionString = dimensions;
-        this.dimensions =  Arrays.stream(dimensions.replace("[", " ")
-                .replace("]", " ")
-                .split(" "))
-                .filter(s-> !s.isEmpty())
-                .map(Integer::parseInt)
-                .collect(Collectors.toList());
+        this.isConstant = isConst;
+        this.dimensionString = dimensions.toString();
+        this.line = line;
+
+        this.dimensions = dimensions;
     }
 
     public List<Integer> getDimensions() {
@@ -45,15 +53,15 @@ public class VariableEntry {
     }
 
     public boolean isVector(){
-        return this.dimensions != null;
+        return !this.dimensions.isEmpty();
     }
 
     public String getName() {
         return this.name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public int getLine() {
+        return line;
     }
 
     public String getType() {
@@ -65,17 +73,17 @@ public class VariableEntry {
     }
 
     public boolean isConst() {
-        return constant;
+        return isConstant;
     }
 
     public void setConst(boolean constant) {
-        this.constant = constant;
+        this.isConstant = constant;
     }
 
     @Override
     public String toString() {
         String prefix;
-        if (constant) prefix = "const ";
+        if (isConstant) prefix = "const ";
         else prefix = "variable ";
 
         if(this.isVector())

@@ -1,5 +1,8 @@
 package model.token;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class TokenTypes {
     public final static String SPACE = "ESP";
     public final static String RESERVED_WORD = "PRE";
@@ -20,7 +23,25 @@ public class TokenTypes {
     public final static String NUMBER_INT = "NIN";
     public final static String UNDEFINED = "UNDEFINED";
 
+    public final static List<String> nativeTypes = Arrays.asList("int", "float", "string", "bool", "void");
+
+
 
     public static final String[] PRIMITIVE_TYPES =
             {RESERVED_WORD, NUMBER, ARITHMETICAL_OPERATOR, LOGICAL_OPERATOR, RELATIONAL_OPERATOR, DELIMITER};
+
+    public static String convertType(String type) {
+        switch (type) {
+            case "int":
+                return TokenTypes.NUMBER_INT;
+            case "float":
+                return TokenTypes.NUMBER_FLOAT;
+            case "string":
+                return TokenTypes.STRING;
+            case "boolean":
+                return TokenTypes.BOOLEAN;
+            default:
+                return type;
+        }
+    }
 }

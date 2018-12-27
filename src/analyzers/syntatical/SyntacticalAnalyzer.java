@@ -15,7 +15,6 @@ public class SyntacticalAnalyzer {
     private static boolean VERBOSE = false;
     private static String NATIVE_TYPE_SYNC;
 
-    private final List<String> nativeTypes;
     private final List<Token> tokens;
     private int tokenIndex;
     private List<SyntaxError> errors;
@@ -25,9 +24,8 @@ public class SyntacticalAnalyzer {
         this.tokens = tokens;
         this.tokenIndex = 0;
         this.errors = new ArrayList<>();
-        this.nativeTypes = Arrays.asList("int", "float", "string", "bool", "void");//List.of("int", "float", "string", "bool", "void");
 
-        NATIVE_TYPE_SYNC = String.join("", this.nativeTypes);
+        NATIVE_TYPE_SYNC = String.join("", TokenTypes.nativeTypes);
         this.updateToken();
     }
 
@@ -157,7 +155,7 @@ public class SyntacticalAnalyzer {
     }
 
     private void parseConstBody() throws NoSuchElementException {
-        if (this.nativeTypes.contains(this.currentToken.getValue())) {
+        if (TokenTypes.nativeTypes.contains(this.currentToken.getValue())) {
             parseType(false, "Tipo da constante ausente", null);
             parseConstAssignmentList();
             eatTerminal(";", NATIVE_TYPE_SYNC + TokenTypes.IDENTIFIER + "};");
@@ -241,8 +239,8 @@ public class SyntacticalAnalyzer {
     }
 
     private void parseMethods() throws NoSuchElementException {
-        boolean missingOnlyKeyword = (this.checkForType(peekToken(0), TokenTypes.IDENTIFIER) || nativeTypes.contains(this.currentToken.getValue()) && this.checkForType(peekToken(1), TokenTypes.IDENTIFIER));
-        boolean mistypedKeyword = checkForType(TokenTypes.IDENTIFIER) && (this.checkForType(peekToken(1), TokenTypes.IDENTIFIER) || nativeTypes.contains(this.currentToken.getValue()) && this.checkForType(peekToken(2), TokenTypes.IDENTIFIER));
+        boolean missingOnlyKeyword = (this.checkForType(peekToken(0), TokenTypes.IDENTIFIER) || TokenTypes.nativeTypes.contains(this.currentToken.getValue()) && this.checkForType(peekToken(1), TokenTypes.IDENTIFIER));
+        boolean mistypedKeyword = checkForType(TokenTypes.IDENTIFIER) && (this.checkForType(peekToken(1), TokenTypes.IDENTIFIER) || TokenTypes.nativeTypes.contains(this.currentToken.getValue()) && this.checkForType(peekToken(2), TokenTypes.IDENTIFIER));
         boolean hasOnlyName = checkForType(TokenTypes.IDENTIFIER) && checkForTerminal(peekToken(1), "(");
 
 
@@ -682,7 +680,7 @@ public class SyntacticalAnalyzer {
     }
 
     private void parseParams() throws NoSuchElementException {
-        if (this.nativeTypes.contains(this.currentToken.getValue()) || this.checkForType(TokenTypes.IDENTIFIER)) {
+        if (TokenTypes.nativeTypes.contains(this.currentToken.getValue()) || this.checkForType(TokenTypes.IDENTIFIER)) {
             parseType(false, "Formato incorreto de parâmetro", null);
             parseOptVector();
             parseOptParams();
@@ -693,7 +691,7 @@ public class SyntacticalAnalyzer {
 
 
     private void parseOptParams() throws NoSuchElementException {
-        boolean missingComma = this.nativeTypes.contains(this.currentToken.getValue()) || this.checkForType(TokenTypes.IDENTIFIER);
+        boolean missingComma = TokenTypes.nativeTypes.contains(this.currentToken.getValue()) || this.checkForType(TokenTypes.IDENTIFIER);
 
         if (checkForTerminal(",") || missingComma) {
             eatTerminal(",");
@@ -702,7 +700,7 @@ public class SyntacticalAnalyzer {
     }
 
     private void parseType(boolean throwException, String errorMsg, String sync) throws NoSuchElementException {
-        if (this.nativeTypes.contains(currentToken.getValue())) {
+        if (TokenTypes.nativeTypes.contains(currentToken.getValue())) {
             eatTerminal(currentToken.getValue(), throwException, errorMsg, sync);
         } else {
             this.eatType(TokenTypes.IDENTIFIER, throwException, errorMsg, sync);
@@ -710,7 +708,7 @@ public class SyntacticalAnalyzer {
     }
 
     private boolean attemptToParseType() throws NoSuchElementException {
-        if (this.nativeTypes.contains(this.currentToken.getValue())) {
+        if (TokenTypes.nativeTypes.contains(this.currentToken.getValue())) {
             eatTerminal(this.currentToken.getValue());
             return true;
         } else if (this.checkForType(TokenTypes.IDENTIFIER)) {
