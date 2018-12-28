@@ -1,0 +1,21 @@
+main {
+     
+    if (i > j) {    
+    
+    }
+    else {
+		if (a != b) { }
+    
+    }
+    
+    if (i + j) {
+     
+    }  
+    
+    if(true){
+    	
+    }
+    
+    if("true"){
+    }
+}

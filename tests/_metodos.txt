@@ -1,0 +1,51 @@
+const{
+	int max = 10;
+}
+
+class nada{
+}
+
+class teste {
+	variables{
+		int numero;
+	}
+
+	method void imprimir (aluno x[max], int j) { // aluno indefinido
+		j++;
+		j = j+ 10;
+		imprimir();
+		return 0; // tipo de retorno errado
+	}
+
+	method void imprimir () {
+ 
+		return void;
+	}
+	
+	method void imprimir (float a[limite]) {// constante limite indefinida
+ 
+		return a; // retorno errado
+	}
+
+	method float calcula_aumento_bolsa (float bolsa, float juros) {
+		
+		return(result); // variavel indefinida
+	}	
+
+	method float soma (float a[max], float b[max], string msg) { 
+
+		return (b); // retornando vetor ao invés de float
+	}
+	
+	method float max(){ // erro mesmo nome de constante
+		return 0.0;
+	}
+	
+	method float nada(){ // erro mesmo nome de classe
+		return 0.0;
+	}
+	
+	
+}
+
+main { }

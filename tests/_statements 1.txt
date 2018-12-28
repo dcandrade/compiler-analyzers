@@ -1,0 +1,52 @@
+const{
+	float max = 10.0;
+}
+
+class pessoa {
+    variables {
+		string nome, endereco;
+		int idade;
+		float salario, despesa;  
+	}
+	
+	method float saldo() {
+		return salario - despesa - max;
+	}
+
+	method string meuNome() {
+		return nome;
+	}
+	
+}
+
+main {
+	variables {
+		int codigo = 2;
+		string nome = "nome";
+		int creditos;
+		float nota, fator;
+		float soma, vetor[10];
+		string notas[10];
+		float matriz[10][10];
+		int cont;
+		int i, j, k;
+		
+		pessoa p;
+	}
+	max = 2.0; // valor a constante
+	creditos = codigo * 2 + 3 / 45 * ((creditos + 10)*500);
+	nota = nota + 10.0 * 2.0 / (fator);
+	soma = 10.99;
+	soma = max;
+	notas[j] = vetor[i]++; // conversão
+	notas[i][j][k] = matriz[10][max][30]; // conversão
+	cont = cont++;
+	soma++;
+	soma--;
+	
+	write(codigo, p.nome, "oioioi", notas[10]);
+	read(codigo, p.nome, notas[10], prefixo); // prefixo indefinido
+	read(codigo, p.sobrenome, notas[10]); // sobrenome indefinido
+		
+	p.nome = p.meuNome();
+}

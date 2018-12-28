@@ -1,0 +1,59 @@
+const{
+	float max = 10.0;
+}
+
+class veiculo {
+    variables {
+		string marca;
+		int anos;
+		float custo;  
+	}
+	
+	method float vender(string destinatario, float valor){
+		return max;
+	}
+}
+
+class pessoa {
+    variables {
+		string nome, endereco;
+		int idade;
+		float salario, despesa;
+		veiculo carro;
+	}
+}
+
+
+main {
+	variables {
+		int codigo;
+		string nome;
+		int creditos;
+		float nota, fator;
+		float soma, vetor[10];
+		float notas[10];
+		float matriz[10][10];
+		int cont;
+		
+		pessoa p;
+	}
+	
+	
+		creditos = codigo * 2 + 3 / 45 * ((creditos + 10)*500);
+		nota = nota + 10.0 * 2.0 / (fator);
+		soma = 10.99;
+		soma = max;
+		notas[j] = vetor[i]++; // i e j indefinidos
+		notas[i][j][k] = matriz[10][max][30]; // i j k indefinidos, max conversão
+		cont = cont++;
+		nome++;
+		soma--;
+		soma = p.carro.vender("abc", 200.0);
+		p.carro.vender("abc", 200.0);
+		creditos = p.carro.vender("abc", 200.0); // erro de conversão
+		p.nome = 2;
+		p.carro.custo = 10;
+		
+		
+		
+}

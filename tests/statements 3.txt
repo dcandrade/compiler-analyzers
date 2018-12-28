@@ -1,0 +1,48 @@
+const{
+	int max = 10;
+}
+
+class pessoa {
+    variables {
+		string nome, endereco;
+		int idade;
+		float salario, despesa;  
+	}
+
+	method float saldo() {
+		return salario - saldo;
+	}
+}
+
+main {
+	variables {
+		int codigo;
+		string nome;
+		int creditos;
+		float nota, fator;
+		float soma, vetor[10];
+		float notas[10];
+		float matriz[10][10];
+		int cont;
+	}
+	
+	
+	creditos = codigo * 2.0 + 3 / 45 * ((creditos + 10)*500); // erro de conversão
+	nota = nota + 10 * 2 / (fator); // erro de conversão
+	nome = nome * 2; // nao podem ser realizadas operacoes com strings
+	
+	
+	    soma = 10.99;
+	    soma = max; // erro de conversão
+	    max = 10; // erro atribuição de constante
+	    notas[j] = vetor[i]++;
+	    notas[i][j][k] = matriz[10][max][30];
+	    
+	    cont = cont++;
+	    
+	    soma++;
+	    soma--;
+	    
+	   
+	    soma = pessoa.saldo();
+}

@@ -1,0 +1,42 @@
+const{
+	float nota = 10.0;
+}
+
+class disciplina extends disciplina{  // herdando de si mesma
+	variables {
+		int codigo;
+		string nome;
+		int creditos;
+		float nota; // ja declarado como constante
+	}
+}
+
+class pessoa {
+    variables {
+		string nome, endereco;
+		int idade;
+		float salario, despesa;  
+	}
+}
+
+class aluno extends pessoa {
+    variables {
+		string curso;
+		int matricula;
+		float bolsa; 
+		disciplina disciplinas[max]; // max indefinido
+		int idade; // ja declarado na classe mae
+	}
+}
+
+class escola extends instituicao{ // classe instituicao inexistente
+	variables{
+		string nome;
+	}
+}
+
+
+class aluno{ // classe já existe
+}
+
+main { }
