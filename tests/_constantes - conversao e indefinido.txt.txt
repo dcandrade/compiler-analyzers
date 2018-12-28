@@ -1,0 +1,25 @@
+const{
+    int a=1, 
+        b=6,
+        c=200-100,
+        cc = 200.0 + 100, // erro de conversão
+        ce = 100+200.0, // erro de conversão
+        cd = true; // erro de conversão
+    float d=5, // erro de conversão
+        e=6.0; 
+    int f = "vetor"; // erro de conversão
+    string g = x, // erro variável indefinida
+        h = g, 
+        i = "oi" + "blz",
+        j = y; // erro y indefinido
+    int k = 2.0; // erro de conversão 
+    float l = 10.0, m = 2.12141241, n = e, o = 0.6;
+    boolean aa = false, // avisos de conversão
+            ab = true,
+            ac = 1,
+            ad = 2+2,
+            ae = "false";
+            
+}
+
+main{}
