@@ -672,7 +672,6 @@ public class SemanticAnalyzer {
     private void checkStatements(Map<String, VariableEntry> context, Map<String, ClassEntry> classes) {
         int line = currentToken.getLine();
         VariableEntry lvar, rvar;
-
         if (checkForType(TokenTypes.IDENTIFIER)) {
             String opValue = this.tokens.get(tokenIndex).getValue();
 
@@ -738,10 +737,18 @@ public class SemanticAnalyzer {
                 case "if":
                     eatTerminal("if");
                     eatTerminal("(");
+                    bufferize(")");
                     eatTerminal(")");
                     eatTerminal("{");
                     checkStatements(context, classes);
                     eatTerminal("}");
+
+                    if(checkForTerminal("else")){
+                        eatTerminal("else");
+                        eatTerminal("{");
+                        checkStatements(context, classes);
+                        eatTerminal("}");
+                    }
 
                     break;
                 case "while":
