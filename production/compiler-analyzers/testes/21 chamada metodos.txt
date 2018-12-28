@@ -1,0 +1,20 @@
+class teste {
+
+	method void chama () {
+		
+		soma(a,b,c,d);
+	
+		return 0;
+	}
+}
+
+main {
+		
+	obj.imprimir(aluno[MAX][MAX2]);
+	
+	obj.imprimir();
+	
+	obj.calcula_aumento_bolsa(235.00, 10.7);
+	
+	resultado = obj.soma(A,B);
+}

@@ -1,0 +1,12 @@
+main {
+	
+	soma = (5 + a)  ( (10 + 6) / 8 );   // falta operador
+    
+	soma = vetor[10] + matrix[i][j][k] + (((10 + alfa) / 2) * Max);
+	
+	soma = (a + b * max / 2.5 - cont--  vetor[1] / aluno.nota); // falta operador
+	
+	soma = vetor[i] + matriz[10][max][30] * Max / (aluno.nota * 10;  // falta fecha parenteses
+	
+	resultado = 0.5 * (calcular(a,b) + 10.75 * vetor[10].valor)  (5 + max / -2 - -2 + cont++); // falta operador
+}

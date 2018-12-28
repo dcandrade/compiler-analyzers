@@ -1,0 +1,9 @@
+const {
+    int max1 = 10, max2 = 20.0;
+    real pi = 3.1415;
+    string msg = "mensagem teste";
+    bool flag = true;
+    real taxa = 9.8;
+}
+
+main { }

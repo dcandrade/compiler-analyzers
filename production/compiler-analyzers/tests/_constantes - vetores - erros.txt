@@ -1,0 +1,11 @@
+const{
+    int a[2.0]=[1,2], // dimensão inválida, indice invalido
+        b[2][2]=[[1,2],[1,2]],
+        c[1][1] = [[1]],
+        d[2][1] = [[1],[2,3]], // dimensoes erradas
+        e[1][3] = [[1,2,3], [3]]; // dimensoes erradas
+   string k[2] = ["qbc", 2]; // conversão
+   string k[2] = ["qbc", 2, "abc"]; // conversão, dimensões e nome
+}
+
+main{}

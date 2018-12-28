@@ -1,0 +1,10 @@
+main {
+
+	write(soma, cont max);  // falta ','
+	
+	write soma, cont, max); // falta '('
+	
+	write (soma, cont, max)  
+
+}  // esperava ';'
+

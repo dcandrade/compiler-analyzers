@@ -1,0 +1,24 @@
+class teste {
+
+	method void (aluno x[max], int j)    // falta identificador 
+	
+		return 0;   // esperava '{'
+	}
+
+	method void imprimir () {
+ 
+		 0;  // esperva 'return'
+	}
+
+	method float calcula_aumento_bolsa (float bolsa float ) {  // falta ',' e identificador
+		
+		return(result);
+	}	
+
+	method float soma (float a[max], float b[max], string msg) { 
+
+		return ;  // falta expressao
+	}
+}
+
+main { }

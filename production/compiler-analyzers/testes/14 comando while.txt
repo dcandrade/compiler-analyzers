@@ -1,0 +1,11 @@
+main {
+     
+    while i > j) { }  // falta '('
+	
+	while (i > j { }  // falta ')'
+	
+	while (i > j)  	
+	
+	}  // esperava '{'
+  
+}
