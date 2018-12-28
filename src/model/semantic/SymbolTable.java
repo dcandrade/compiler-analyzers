@@ -23,6 +23,7 @@ public class SymbolTable {
     }
 
 
+
     public ClassEntry getClass(String className) throws ClassNotFoundException {
         if (className == null) {
             return null;
@@ -50,6 +51,14 @@ public class SymbolTable {
         this.classes.put(className, classEntry);
 
         return classEntry;
+    }
+
+    public ClassEntry getMain(){
+        try {
+            return addClass("main", null);
+        } catch (InstanceAlreadyExistsException e) {
+            return null;
+        }
     }
 
     public Map<String, VariableEntry> getConstContext() {

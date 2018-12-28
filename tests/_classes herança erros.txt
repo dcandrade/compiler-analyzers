@@ -2,6 +2,13 @@ const{
 	float nota = 10.0;
 }
 
+class nota{ // erro, identificador usado como constante
+    variables {
+		disciplina d; // erro tipo indefinido
+		string aluno;
+	}
+}
+
 class disciplina extends disciplina{  // herdando de si mesma
 	variables {
 		int codigo;
@@ -38,5 +45,7 @@ class escola extends instituicao{ // classe instituicao inexistente
 
 class aluno{ // classe já existe
 }
+
+
 
 main { }

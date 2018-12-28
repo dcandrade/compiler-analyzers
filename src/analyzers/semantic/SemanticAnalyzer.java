@@ -22,7 +22,7 @@ public class SemanticAnalyzer {
     private List<SemanticError> errors;
 
 
-    public SemanticAnalyzer(List<Token> tokens) throws Exception {
+    public SemanticAnalyzer(List<Token> tokens) {
         currentVariableEntry = new VariableEntry(null, null, -1);
 
         symbolTable = new SymbolTable();
@@ -48,7 +48,7 @@ public class SemanticAnalyzer {
         return errors;
     }
 
-    private void analyzer() throws Exception {
+    private void analyzer() {
         checkConst();
         checkClass();
         checkMain();
@@ -547,6 +547,12 @@ public class SemanticAnalyzer {
             String name = this.currentToken.getValue();
             updateToken();
 
+            if(this.symbolTable.getConst(name) != null){
+                this.errors.add(new SemanticError(line, name, "Identificador válido", "Identificador já utilizado para constante"));
+            }else if(this.symbolTable.getClasses().get(name) != null){
+                this.errors.add(new SemanticError(line, name, "Identificador válido", "Identificador já utilizado para classe"));
+            }
+
             eatTerminal("(");
             Map<String, VariableEntry> params = new TreeMap<>(); // Deve ser TreeMap para manter a ordem
             checkDeclaration(false, true, params, true);
@@ -800,8 +806,8 @@ public class SemanticAnalyzer {
 
     }
 
-    private void checkMain() throws Exception {
-        ClassEntry mainClass = this.symbolTable.addClass("main", null);
+    private void checkMain()  {
+        ClassEntry mainClass = this.symbolTable.getMain();
 
         eatTerminal("main");
         eatTerminal("{");
