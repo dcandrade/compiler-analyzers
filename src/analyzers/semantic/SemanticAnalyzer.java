@@ -615,10 +615,18 @@ public class SemanticAnalyzer {
         String next;
         VariableEntry variableEntry = context.get(call.get(0).getValue());
 
+
+        if(variableEntry == null){
+            this.errors.add(new SemanticError(line, call.get(0).getValue(), "Variável declarada", "Variável não declarada"));
+            return new VariableEntry("", TokenTypes.UNDEFINED, line);
+        }
+
         while (true) {
             if (i > call.size() - 2) {
                 return variableEntry;
             }
+
+
             ClassEntry classEntry = classes.get(variableEntry.getType());
             next = call.get(++i).getValue();
 
