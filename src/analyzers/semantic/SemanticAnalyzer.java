@@ -218,25 +218,13 @@ public class SemanticAnalyzer {
         return buffer;
     }
 
-    //TODO: diferenciar retorn de vetor indexado e não indexado
-    private String getExpressionType(List<Token> expression, Map<String, VariableEntry> context) {
-        String operators = TokenTypes.DELIMITER + TokenTypes.ARITHMETICAL_OPERATOR + TokenTypes.RELATIONAL_OPERATOR + TokenTypes.LOGICAL_OPERATOR;
+    private void checkArrayBounds(List<Token> expression, Map<String, VariableEntry> context){
         String lastType = null;
         String tokenType;
-
-        if (expression.size() == 1 && expression.get(0).getValue().equals("void")) {
-            return "void";
-        }
-
-        if (expression.isEmpty()) {
-            return TokenTypes.UNDEFINED;
-        }
-
         int skipStart = -1, skipEnd = -1;
 
         for (int i = 0; i < expression.size(); i++) {
             Token token = expression.get(i);
-            tokenType = convertType(token, context);
 
             if (token.getValue().equals("[")) {
                 skipStart = ++i;
@@ -254,7 +242,28 @@ public class SemanticAnalyzer {
                 }
 
             }
+        }
+    }
 
+    //TODO: diferenciar retorn de vetor indexado e não indexado
+    private String getExpressionType(List<Token> expression, Map<String, VariableEntry> context) {
+        String operators = TokenTypes.DELIMITER + TokenTypes.ARITHMETICAL_OPERATOR + TokenTypes.RELATIONAL_OPERATOR + TokenTypes.LOGICAL_OPERATOR;
+        String lastType = null;
+        String tokenType;
+
+        if (expression.size() == 1 && expression.get(0).getValue().equals("void")) {
+            return "void";
+        }
+
+        if (expression.isEmpty()) {
+            return TokenTypes.UNDEFINED;
+        }
+
+        checkArrayBounds(expression, context);
+
+        for (int i = 0; i < expression.size(); i++) {
+            Token token = expression.get(i);
+            tokenType = convertType(token, context);
 
             if (!operators.contains(token.getType())) {
                 if (lastType == null) {
@@ -523,14 +532,16 @@ public class SemanticAnalyzer {
             MethodEntry method = new MethodEntry(methodSymbol, returnType, params);
             eatTerminal("{");
 
-            checkFunctionBody(); // TODO: implementar
+            Map<String, VariableEntry> context = this.symbolTable.getConstContext();
+            context.putAll(classEntry.getVariables());
+            context.putAll(method.getParams());
+
+            checkStatements(context, this.symbolTable.getClasses());
 
             eatTerminal("return");
             List<Token> returnExpression = bufferize(";");
 
-            Map<String, VariableEntry> context = this.symbolTable.getConstContext();
-            context.putAll(classEntry.getVariables());
-            context.putAll(method.getParams());
+
 
             int returnLine = this.currentToken.getLine();
             String expressionType = getExpressionType(returnExpression, context);
@@ -567,8 +578,6 @@ public class SemanticAnalyzer {
         }
     }
 
-    private void checkFunctionBody() {
-    }
 
     private VariableEntry getChainedExpressionType(int line, List<Token> call, Map<String, VariableEntry> context, Map<String, ClassEntry> classes) {
         int i = 0;
@@ -629,7 +638,7 @@ public class SemanticAnalyzer {
 
     }
 
-    private void checkStatements(Map<String, VariableEntry> context, Map<String, ClassEntry> classes) throws Exception {
+    private void checkStatements(Map<String, VariableEntry> context, Map<String, ClassEntry> classes) {
         int line = currentToken.getLine();
         VariableEntry var;
 
@@ -637,7 +646,6 @@ public class SemanticAnalyzer {
             String opValue  = this.tokens.get(tokenIndex).getValue();
             if(opValue.equals("++") || opValue.equals("--")){
                 var = context.get(currentToken.getValue());
-                System.out.println("---"+var);
 
                 if(var.getType().equals(TokenTypes.BOOLEAN) || var.getType().equals(TokenTypes.STRING) || var.isConst()){
                     this.errors.add(new SemanticError(line, "String ou Booleano", "Número", "Somente variáveis numéricas podem ser incrementados ou decrementados"));
@@ -653,6 +661,7 @@ public class SemanticAnalyzer {
                 String fullIdentifier = leftExp.stream().map(Token::getValue).reduce("", (a, b) -> a + b);
 
                 fullIdentifier = removeBrackets(fullIdentifier);
+                checkArrayBounds(leftExp, context);
 
                 if (fullIdentifier.contains(".")) {
                     var = getChainedExpressionType(line, leftExp, context, classes);
