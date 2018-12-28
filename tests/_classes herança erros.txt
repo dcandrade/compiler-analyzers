@@ -2,7 +2,7 @@ const{
 	float nota = 10.0;
 }
 
-class disciplina extends disciplina{
+class disciplina extends disciplina{  // herdando de si mesma
 	variables {
 		int codigo;
 		string nome;

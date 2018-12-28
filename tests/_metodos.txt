@@ -5,7 +5,9 @@ const{
 class teste {
 
 	method void imprimir (aluno x[max], int j) { // aluno indefinido
-	
+		j++;
+		j = j+ 10;
+		imprimir();
 		return 0; // tipo de retorno errado
 	}
 

@@ -146,7 +146,7 @@ public class SemanticAnalyzer {
             if (var != null) {
                 String msg;
 
-                if (this.symbolTable.getConst(currentVariableEntry.getName()) != null ) { // const existe
+                if (this.symbolTable.getConst(currentVariableEntry.getName()) != null) { // const existe
                     msg = "Identificador já utilizado com constante";
                 } else {
                     msg = "Identificador já foi definido na classe ou na classe mãe";
@@ -175,10 +175,10 @@ public class SemanticAnalyzer {
         //System.out.println(currentToken);
         //Sair da recursão
         if (eatTerminal(";")) {
-            if (eatTerminal("}")) {
-                //System.out.println("Finished");
-            } else {
+            if (!eatTerminal("}")) {
                 checkDeclaration(isConst, true, context, isParam);
+            } else {
+                //System.out.println("Finished");
             }
         } else if (eatTerminal(",")) {
             //verificar se pode haver uma variável seguida de outra na mesma linha
@@ -216,7 +216,7 @@ public class SemanticAnalyzer {
         return buffer;
     }
 
-    private void checkArrayBounds(List<Token> expression, Map<String, VariableEntry> context){
+    private void checkArrayBounds(List<Token> expression, Map<String, VariableEntry> context) {
         int skipStart, skipEnd;
 
         for (int i = 0; i < expression.size(); i++) {
@@ -240,8 +240,7 @@ public class SemanticAnalyzer {
             }
         }
     }
-
-    //TODO: diferenciar retorn de vetor indexado e não indexado
+        //TODO: diferenciar retorn de vetor indexado e não indexado
     private String getExpressionType(List<Token> expression, Map<String, VariableEntry> context) {
         String operators = TokenTypes.DELIMITER + TokenTypes.ARITHMETICAL_OPERATOR + TokenTypes.RELATIONAL_OPERATOR + TokenTypes.LOGICAL_OPERATOR;
         String lastType = null;
@@ -255,13 +254,16 @@ public class SemanticAnalyzer {
             return TokenTypes.UNDEFINED;
         }
 
+        boolean isVector = expression.get(0).getValue().equals("[");
+
 
         for (int i = 0; i < expression.size(); i++) {
             Token token = expression.get(i);
             tokenType = convertType(token, context);
+            //System.out.println(token.getValue());
             int skipStart, skipEnd;
 
-            if (token.getValue().equals("[")) {
+            if (token.getValue().equals("[") && !isVector) {
                 skipStart = ++i;
 
                 while (!expression.get(i).getValue().equals("]")) {
@@ -281,7 +283,11 @@ public class SemanticAnalyzer {
             if (!operators.contains(token.getType())) {
                 if (lastType == null) {
                     lastType = tokenType;
-                } else if (lastType.equals(TokenTypes.STRING)) {
+                } else if (lastType.equals(TokenTypes.STRING) && !isVector) {
+                    this.errors.add(new SemanticError(token.getLine(), "", "", "Não podem ser realizadas operações com strings"));
+
+                    return TokenTypes.UNDEFINED;
+                }else if (lastType.equals(TokenTypes.STRING)) {
                     this.errors.add(new SemanticError(token.getLine(), "", "", "Não podem ser realizadas operações com strings"));
 
                     return TokenTypes.UNDEFINED;
@@ -555,7 +561,6 @@ public class SemanticAnalyzer {
             List<Token> returnExpression = bufferize(";");
 
 
-
             int returnLine = this.currentToken.getLine();
             String expressionType = getExpressionType(returnExpression, context);
 
@@ -566,7 +571,7 @@ public class SemanticAnalyzer {
 
             }
 
-            if (!expressionType.equals(returnType)) {
+            if (!expressionType.equals(returnType) && !expressionType.equals(TokenTypes.UNDEFINED)) {
                 this.errors.add(new SemanticError(returnLine, expressionType, returnType, "Tipo do retorno diferente do declarado"));
 
             }
@@ -590,6 +595,8 @@ public class SemanticAnalyzer {
                 return PRE;
         }
     }
+
+
 
 
     private VariableEntry getChainedExpressionType(int line, List<Token> call, Map<String, VariableEntry> context, Map<String, ClassEntry> classes) {
@@ -653,14 +660,15 @@ public class SemanticAnalyzer {
 
     private void checkStatements(Map<String, VariableEntry> context, Map<String, ClassEntry> classes) {
         int line = currentToken.getLine();
-        VariableEntry var;
+        VariableEntry lvar, rvar;
 
         if (checkForType(TokenTypes.IDENTIFIER)) {
-            String opValue  = this.tokens.get(tokenIndex).getValue();
-            if(opValue.equals("++") || opValue.equals("--")){
-                var = context.get(currentToken.getValue());
+            String opValue = this.tokens.get(tokenIndex).getValue();
 
-                if(var.getType().equals(TokenTypes.BOOLEAN) || var.getType().equals(TokenTypes.STRING) || var.isConst()){
+            if (opValue.equals("++") || opValue.equals("--")) {
+                lvar = context.get(currentToken.getValue());
+
+                if (lvar.getType().equals(TokenTypes.BOOLEAN) || lvar.getType().equals(TokenTypes.STRING) || lvar.isConst()) {
                     this.errors.add(new SemanticError(line, "String ou Booleano", "Número", "Somente variáveis numéricas podem ser incrementados ou decrementados"));
                 }
 
@@ -668,32 +676,45 @@ public class SemanticAnalyzer {
                 updateToken();
                 eatTerminal(";");
                 checkStatements(context, classes);
-            }else {
+            } else {
 
                 List<Token> leftExp = this.bufferize("=;");
                 String fullIdentifier = leftExp.stream().map(Token::getValue).reduce("", (a, b) -> a + b);
 
                 fullIdentifier = removeBrackets(fullIdentifier);
-                checkArrayBounds(leftExp, context);
 
-                if (fullIdentifier.contains(".")) {
-                    var = getChainedExpressionType(line, leftExp, context, classes);
+                boolean isExpression = leftExp.stream().anyMatch(x -> x.getValue().equals("."));
+
+                if (fullIdentifier.contains(".") && isExpression) {
+                    lvar = getChainedExpressionType(line, leftExp, context, classes);
+                    checkArrayBounds(leftExp, context);
                 } else {
-                    var = context.get(fullIdentifier);
+                    lvar = context.get(fullIdentifier);
                 }
 
                 if (checkForTerminal("=")) {
 
                     updateToken();
 
-                    List<Token> expression = bufferize(";");
-                    eatTerminal(";");
-                    String expressionType = getExpressionType(expression, context);
+                    List<Token> rightExp = this.bufferize("=;");
+                    String rightFullIdentifier = rightExp.stream().map(Token::getValue).reduce("", (a, b) -> a + b);
+                    rightFullIdentifier = removeBrackets(rightFullIdentifier);
 
-                    if (var.isConst()) {
-                        this.errors.add(new SemanticError(line, "", "", "Atribuição de novo valor a uma constante (" + var.getName() + ")"));
-                    } else if (!var.getType().equals(expressionType) && !expressionType.equals(TokenTypes.UNDEFINED)) {
-                        this.errors.add(new SemanticError(line, expressionType, var.getType(), "Erro de conversão"));
+                    isExpression = rightExp.stream().anyMatch(x -> x.getValue().equals("."));
+
+                    if (rightFullIdentifier.contains(".") && isExpression) {
+                        rvar = getChainedExpressionType(line, rightExp, context, classes);
+                        checkArrayBounds(rightExp, context);
+                    } else {
+                        String type = getExpressionType(rightExp, context);
+                        rvar = new VariableEntry("", type, -1);
+                    }
+
+
+                    if (lvar.isConst()) {
+                        this.errors.add(new SemanticError(line, "", "", "Atribuição de novo valor a uma constante (" + lvar.getName() + ")"));
+                    } else if (!lvar.getType().equals(rvar.getType()) && !rvar.getType().equals(TokenTypes.UNDEFINED)) {
+                        this.errors.add(new SemanticError(line, rvar.getType(), lvar.getType(), "Erro de conversão"));
                     }
 
                 }
@@ -701,12 +722,11 @@ public class SemanticAnalyzer {
                 eatTerminal(";");
                 checkStatements(context, classes);
             }
-        }else {
+        } else {
             switch (currentToken.getValue()) {
                 case "if":
                     eatTerminal("if");
                     eatTerminal("(");
-                    bufferize(")");
                     eatTerminal(")");
                     eatTerminal("{");
                     checkStatements(context, classes);
@@ -723,12 +743,14 @@ public class SemanticAnalyzer {
                     eatTerminal("}");
                     break;
                 case "write":
-                    //parseWrite();
+                    eatTerminal("write");
+                    checkReadWrite(context, classes);
                     eatTerminal(";");
                     checkStatements(context, classes);
                     break;
                 case "read":
-                    //parseRead();
+                    eatTerminal("read");
+                    checkReadWrite(context, classes);
                     eatTerminal(";");
                     checkStatements(context, classes);
                     break;
@@ -740,11 +762,37 @@ public class SemanticAnalyzer {
     private String removeBrackets(String fullIdentifier) {
         while (fullIdentifier.contains("[")) {
             String prefix = fullIdentifier.substring(0, fullIdentifier.indexOf("["));
-            String post = fullIdentifier.substring(fullIdentifier.indexOf("]") + 1, fullIdentifier.length());
+            String post = fullIdentifier.substring(fullIdentifier.indexOf("]") + 1);
 
             fullIdentifier = prefix + post;
         }
         return fullIdentifier;
+    }
+
+    private void checkReadWrite(Map<String, VariableEntry> context, Map<String, ClassEntry> classes){
+        eatTerminal("(");
+        List<Token> tokens = bufferize(";");
+        int start, end;
+
+        for (int i = 0; i < tokens.size(); i++) {
+            start = i;
+
+            while(!tokens.get(i).getValue().equals(",") && i < tokens.size()-1){
+                i++;
+            }
+            end = i;
+
+            List<Token> arg = tokens.subList(start, end);
+            boolean isChained = arg.stream().anyMatch(s-> s.getValue().equals("."));
+
+            if(isChained){
+                getChainedExpressionType(tokens.get(0).getLine(), arg, context, classes);
+            }else{
+                getExpressionType(arg, context);
+            }
+        }
+
+
     }
 
     private void checkMain() throws Exception {

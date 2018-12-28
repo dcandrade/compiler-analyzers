@@ -43,7 +43,7 @@ public class Compiler {
             lexerOutput.close();
 
             if (lexer.getLexicalErrors().size() > 0) {
-                System.out.println("-- Erros Léxicos");
+                System.err.println("-- Erros Léxicos. Processo de compilação interrompido.");
                 return;
             }
             System.out.println("Léxico OK");
@@ -61,17 +61,22 @@ public class Compiler {
             parserOutput.close();
 
             if (parser.getErrors().size() > 0) {
-                System.out.println("-- Erros Sintáticos");
+                System.err.println("-- Erros Sintáticos. Processo de compilação interrompido.");
                 return;
             }
 
             System.out.println("Sintático OK ");
 
+            Path semanticOutputFile = Paths.get("output", "semantico", file.getFileName().toString());
+            BufferedWriter semanticOutput = Files.newBufferedWriter(semanticOutputFile);
+
             SemanticAnalyzer semantic = new SemanticAnalyzer(lexer.getTokens());
 
             for (SemanticError error : semantic.getErrors()) {
-                System.out.println(error);
+                semanticOutput.write(error + "\n");
             }
+
+            semanticOutput.close();
 
             System.out.println("Semântico OK ");
 

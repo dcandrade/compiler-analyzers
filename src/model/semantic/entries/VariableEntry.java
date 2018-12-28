@@ -18,13 +18,10 @@ public class VariableEntry {
         this.name = name;
         this.type = type;
         this.isConstant = false;
-        this.dimensions = null;
+        this.dimensions = Collections.EMPTY_LIST;
         this.line = line;
     }
 
-    public VariableEntry(String name, String type) {
-        this(name, type, -1);
-    }
 
     public VariableEntry(String name, String type, boolean isConst, int line) {
         this.name = name;
