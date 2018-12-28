@@ -27,7 +27,6 @@ public class TokenTypes {
     public final static List<String> encodedNativeTypes = Arrays.asList(NUMBER_FLOAT, NUMBER_INT, STRING, BOOLEAN, "void");
 
 
-
     public static final String[] PRIMITIVE_TYPES =
             {RESERVED_WORD, NUMBER, ARITHMETICAL_OPERATOR, LOGICAL_OPERATOR, RELATIONAL_OPERATOR, DELIMITER};
 

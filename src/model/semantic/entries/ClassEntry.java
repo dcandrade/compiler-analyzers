@@ -20,7 +20,7 @@ public class ClassEntry {
         this.variables = new HashMap<>();
         this.methods = new HashMap<>();
 
-        if(superclass != null) {
+        if (superclass != null) {
             this.variables.putAll(this.superclass.variables);
             this.methods.putAll(this.superclass.methods);
         }
@@ -31,7 +31,7 @@ public class ClassEntry {
     }
 
     public MethodEntry addMethod(String name, String returnType, Map<String, VariableEntry> params) throws Exception {
-        if(methods.get(name) != null){
+        if (methods.get(name) != null) {
             throw new Exception("repetido");
         }
 
@@ -42,11 +42,21 @@ public class ClassEntry {
 
 
     public void addMethod(MethodEntry method) throws Exception {
-        if(methods.get(method.getName()) != null){
+        if (methods.get(method.getName()) != null) {
             throw new Exception();
         }
 
         this.methods.put(method.getName(), method);
+    }
+
+    public String getMethodType(String method) throws Exception {
+        MethodEntry methodEntry = this.methods.get(method);
+
+        if (methodEntry == null) {
+            throw new Exception("Metodo inexistente");
+        }
+
+        return methodEntry.getReturnType();
     }
 
     private boolean hasSuperclass() {

@@ -29,7 +29,7 @@ public class Token {
         return this.type.equals(TokenTypes.IDENTIFIER);
     }
 
-    public boolean isBolean(){
+    public boolean isBolean() {
         return this.value.equals("true") || this.value.equals("false");
     }
 

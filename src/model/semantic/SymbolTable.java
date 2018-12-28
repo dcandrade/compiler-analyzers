@@ -1,7 +1,6 @@
 package model.semantic;
 
 import model.semantic.entries.ClassEntry;
-import model.semantic.entries.MethodEntry;
 import model.semantic.entries.VariableEntry;
 import model.token.TokenTypes;
 
@@ -19,7 +18,7 @@ public class SymbolTable {
         this.classes = new HashMap<>();
     }
 
-    public VariableEntry getConst(String varName){
+    public VariableEntry getConst(String varName) {
         return this.constants.get(varName);
     }
 
@@ -38,7 +37,7 @@ public class SymbolTable {
         return classEntry;
     }
 
-    public ClassEntry addClass(String className, ClassEntry superClass) throws  InstanceAlreadyExistsException {
+    public ClassEntry addClass(String className, ClassEntry superClass) throws InstanceAlreadyExistsException {
         if (this.classes.get(className) != null) {
             throw new InstanceAlreadyExistsException("Classe já existe");
         }
@@ -49,14 +48,18 @@ public class SymbolTable {
         return classEntry;
     }
 
-    public Map<String, VariableEntry> getConstContext(){
+    public Map<String, VariableEntry> getConstContext() {
         return this.constants;
     }
 
-    public Map<String, VariableEntry> getFullVariablesContext(){
+    public Map<String, ClassEntry> getClasses() {
+        return classes;
+    }
+
+    public Map<String, VariableEntry> getFullVariablesContext() {
         Map<String, VariableEntry> context = new HashMap<>(this.constants);
 
-        for(Map.Entry<String, ClassEntry> ce: classes.entrySet()) {
+        for (Map.Entry<String, ClassEntry> ce : classes.entrySet()) {
             context.putAll(ce.getValue().getVariables());
         }
 
@@ -64,7 +67,7 @@ public class SymbolTable {
     }
 
 
-    public boolean isValidType(String type){
-        return TokenTypes.encodedNativeTypes.contains(type) ||  this.classes.get(type) != null;
+    public boolean isValidType(String type) {
+        return TokenTypes.encodedNativeTypes.contains(type) || this.classes.get(type) != null;
     }
 }

@@ -1,9 +1,9 @@
 package model.semantic.entries;
 
-import java.util.Arrays;
+import model.token.TokenTypes;
+
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class VariableEntry {
     private final List<Integer> dimensions;
@@ -22,7 +22,7 @@ public class VariableEntry {
         this.line = line;
     }
 
-    public VariableEntry(String name, String type){
+    public VariableEntry(String name, String type) {
         this(name, type, -1);
     }
 
@@ -32,14 +32,6 @@ public class VariableEntry {
         this.isConstant = isConst;
         this.dimensions = Collections.EMPTY_LIST;
         this.line = line;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public String getValue() {
-        return value;
     }
 
     public VariableEntry(String name, String type, boolean isConst, List<Integer> dimensions, int line) {
@@ -52,11 +44,19 @@ public class VariableEntry {
         this.dimensions = dimensions;
     }
 
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
     public List<Integer> getDimensions() {
         return dimensions;
     }
 
-    public boolean isVector(){
+    public boolean isVector() {
         return !this.dimensions.isEmpty();
     }
 
@@ -84,13 +84,17 @@ public class VariableEntry {
         this.isConstant = constant;
     }
 
+    public boolean isClassInstance() {
+        return !TokenTypes.encodedNativeTypes.contains(this.type);
+    }
+
     @Override
     public String toString() {
         String prefix;
         if (isConstant) prefix = "const ";
         else prefix = "variable ";
 
-        if(this.isVector())
+        if (this.isVector())
             prefix += "vector " + this.dimensionString + " ";
 
         return String.format("%s: %s, type: %s", prefix, this.getName(), this.getType());

@@ -1,6 +1,7 @@
 package model.semantic.entries;
 
-import java.util.List;
+import model.token.TokenTypes;
+
 import java.util.Map;
 
 public class MethodEntry {
@@ -20,5 +21,11 @@ public class MethodEntry {
 
     public String getName() {
         return name;
+    }
+
+    public String getReturnType() {
+        if (this.returnType == null)
+            return TokenTypes.UNDEFINED;
+        return returnType;
     }
 }

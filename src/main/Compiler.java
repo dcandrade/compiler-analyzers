@@ -9,7 +9,6 @@ import model.error.SyntaxError;
 import model.token.Token;
 
 import java.io.BufferedWriter;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,7 +17,7 @@ import java.util.stream.Collectors;
 
 public class Compiler {
     public static void main(String[] args) throws Exception {
-        List<Path> inputs = Files.list(Paths.get("tests")).filter(x-> !x.getFileName().toString().startsWith("_")).collect(Collectors.toList());
+        List<Path> inputs = Files.list(Paths.get("tests")).filter(x -> !x.getFileName().toString().startsWith("_")).collect(Collectors.toList());
         for (Path file : inputs) {
 
             Files.createDirectories(Paths.get("output", "lexico"));
@@ -43,7 +42,7 @@ public class Compiler {
 
             lexerOutput.close();
 
-            if(lexer.getLexicalErrors().size() > 0){
+            if (lexer.getLexicalErrors().size() > 0) {
                 System.out.println("-- Erros Léxicos");
                 return;
             }
@@ -61,7 +60,7 @@ public class Compiler {
             }
             parserOutput.close();
 
-            if(parser.getErrors().size() > 0){
+            if (parser.getErrors().size() > 0) {
                 System.out.println("-- Erros Sintáticos");
                 return;
             }
