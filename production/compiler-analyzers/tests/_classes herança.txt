@@ -1,0 +1,31 @@
+const {
+	int max = 1000;
+}
+
+class disciplina {
+	variables {
+		int codigo;
+		string nome;
+		int creditos;
+		float nota;
+	}
+}
+
+class pessoa {
+    variables {
+		string nome, endereco;
+		int idade;
+		float salario, despesa;  
+	}
+}
+
+class aluno extends pessoa {
+    variables {
+		string curso;
+		int matricula;
+		float bolsa; 
+		disciplina disciplinas[max];
+	}
+}
+
+main { }

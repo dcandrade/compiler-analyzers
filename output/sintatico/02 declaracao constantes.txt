@@ -1,0 +1,4 @@
+ 2 Token inesperado (recebido: max2, esperado: ,)
+ 4 Expressão Malformada (recebido: ;, esperado: Expressão)
+ 6 Sintaxe de variável ou parâmetro incorreta (recebido: REL, esperado: IDE)
+ 8 Token inesperado (recebido: true, esperado: =)

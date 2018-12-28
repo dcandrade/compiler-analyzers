@@ -1,0 +1,108 @@
+ 1 PRE const
+ 1 DEL {
+ 2 PRE int
+ 2 IDE max1
+ 2 REL =
+ 2 NRO 10
+ 2 DEL ,
+ 2 IDE max2
+ 2 REL =
+ 2 NRO 20
+ 2 DEL ;
+ 3 PRE float
+ 3 IDE pi
+ 3 REL =
+ 3 NRO 3.1415
+ 3 DEL ;
+ 4 PRE string
+ 4 IDE msg
+ 4 REL =
+ 4 CDC "mensagem teste"
+ 4 DEL ;
+ 5 PRE bool
+ 5 IDE flag
+ 5 REL =
+ 5 PRE true
+ 5 DEL ;
+ 6 PRE float
+ 6 IDE taxa
+ 6 REL =
+ 6 NRO 9.8
+ 6 DEL ;
+ 7 DEL }
+ 9 PRE class
+ 9 IDE teste
+ 9 DEL {
+11 PRE variables
+11 DEL {
+12 PRE int
+12 IDE max1
+12 REL =
+12 NRO 10
+12 DEL ,
+12 IDE max2
+12 REL =
+12 NRO 20
+12 DEL ;
+13 PRE float
+13 IDE pi
+13 REL =
+13 NRO 3.1415
+13 DEL ;
+14 PRE string
+14 IDE msg
+14 REL =
+14 CDC "mensagem teste"
+14 DEL ;
+15 PRE bool
+15 IDE flag
+15 REL =
+15 PRE true
+15 DEL ;
+16 PRE float
+16 IDE taxa
+16 DEL ;
+17 DEL }
+19 PRE method
+19 PRE float
+19 IDE soma
+19 DEL (
+19 DEL )
+19 DEL {
+21 PRE variables
+21 DEL {
+22 PRE int
+22 IDE i
+22 DEL ,
+22 IDE j
+22 DEL ,
+22 IDE k
+22 DEL ;
+23 PRE float
+23 IDE resultado
+23 REL =
+23 NRO 0
+23 DEL ;
+24 DEL }
+26 PRE return
+26 IDE resultado
+26 DEL ;
+27 DEL }
+28 DEL }
+30 PRE main
+30 DEL {
+32 IDE resultado
+32 REL =
+32 IDE obj
+32 DEL .
+32 IDE soma
+32 DEL (
+32 IDE A
+32 DEL ,
+32 IDE B
+32 DEL )
+32 DEL ;
+33 DEL }
+-1 EOF $
+
+
