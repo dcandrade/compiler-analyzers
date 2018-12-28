@@ -38,6 +38,10 @@ public class SymbolTable {
     }
 
     public ClassEntry addClass(String className, ClassEntry superClass) throws InstanceAlreadyExistsException {
+        if(className == null){
+            return new ClassEntry("temp", null);
+        }
+
         if (this.classes.get(className) != null) {
             throw new InstanceAlreadyExistsException("Classe já existe");
         }

@@ -497,6 +497,11 @@ public class SemanticAnalyzer {
                 updateToken();
             }
 
+            if(this.symbolTable.getConst(className) != null){
+                this.errors.add(new SemanticError(line, className, "Identificador válido", "Nome da classe já foi definido como constante ("+className+")"));
+                className = null;
+            }
+
             // Não pode herdar de si mesma
             if (superclassName != null && className.equals(superclassName)) {
                 this.errors.add(new SemanticError(line, className, "Classe mãe diferente da classe filha", "Classe herdando de si mesma"));
