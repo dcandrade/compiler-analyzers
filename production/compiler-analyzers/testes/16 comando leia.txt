@@ -1,9 +1,0 @@
-main {
-
-	read(soma, cont max);  // falta ','
-	
-	read soma, cont, max); // falta '('
-	
-	read (soma, cont, max)  
-
-}  // esperava ';'

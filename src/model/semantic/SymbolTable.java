@@ -56,15 +56,6 @@ public class SymbolTable {
         return classes;
     }
 
-    public Map<String, VariableEntry> getFullVariablesContext() {
-        Map<String, VariableEntry> context = new HashMap<>(this.constants);
-
-        for (Map.Entry<String, ClassEntry> ce : classes.entrySet()) {
-            context.putAll(ce.getValue().getVariables());
-        }
-
-        return context;
-    }
 
 
     public boolean isValidType(String type) {

@@ -65,9 +65,7 @@ public class SemanticAnalyzer {
     private void checkVariable(ClassEntry context) {
         if (eatTerminal("variables")) {
             if (eatTerminal("{")) {
-                Map<String, VariableEntry> fullContext = context.getVariables();
-                fullContext.putAll(this.symbolTable.getConstContext());
-                checkDeclaration(false, fullContext);
+                checkDeclaration(false, context.getVariables());
             }
         }
     }
@@ -144,14 +142,14 @@ public class SemanticAnalyzer {
 
             //this.currentVariableEntryList.add(currentVariableEntry);
             VariableEntry var = context.get(currentVariableEntry.getName());
+
             if (var != null) {
                 String msg;
 
-                // TODO: especificar escopo da variável (classe etc)
-                if (var.isConst()) {
+                if (this.symbolTable.getConst(currentVariableEntry.getName()) != null ) { // const existe
                     msg = "Identificador já utilizado com constante";
                 } else {
-                    msg = "Indentificador já foi definido na classe ou na classe mãe";
+                    msg = "Identificador já foi definido na classe ou na classe mãe";
                 }
 
                 this.errors.add(new SemanticError(currentVariableEntry.getLine(), currentVariableEntry.getName(), "Identificador novo", msg));
@@ -219,9 +217,7 @@ public class SemanticAnalyzer {
     }
 
     private void checkArrayBounds(List<Token> expression, Map<String, VariableEntry> context){
-        String lastType = null;
-        String tokenType;
-        int skipStart = -1, skipEnd = -1;
+        int skipStart, skipEnd;
 
         for (int i = 0; i < expression.size(); i++) {
             Token token = expression.get(i);
@@ -259,11 +255,28 @@ public class SemanticAnalyzer {
             return TokenTypes.UNDEFINED;
         }
 
-        checkArrayBounds(expression, context);
 
         for (int i = 0; i < expression.size(); i++) {
             Token token = expression.get(i);
             tokenType = convertType(token, context);
+            int skipStart, skipEnd;
+
+            if (token.getValue().equals("[")) {
+                skipStart = ++i;
+
+                while (!expression.get(i).getValue().equals("]")) {
+                    i++;
+                }
+
+                skipEnd = i;
+
+                String arrayIndexType = this.getExpressionType(expression.subList(skipStart, skipEnd), context);
+
+                if (!arrayIndexType.equals(TokenTypes.NUMBER_INT) && !arrayIndexType.equals(TokenTypes.UNDEFINED)) {
+                    this.errors.add(new SemanticError(token.getLine(), arrayIndexType, "NIN", "Indexador de vetor inválido"));
+                }
+
+            }
 
             if (!operators.contains(token.getType())) {
                 if (lastType == null) {
@@ -675,11 +688,8 @@ public class SemanticAnalyzer {
 
                     List<Token> expression = bufferize(";");
                     eatTerminal(";");
-
                     String expressionType = getExpressionType(expression, context);
-                    String ri = expression.stream().map(Token::getValue).reduce("", (a, b) -> a + b);
 
-                    //System.out.println("Right "+ri);
                     if (var.isConst()) {
                         this.errors.add(new SemanticError(line, "", "", "Atribuição de novo valor a uma constante (" + var.getName() + ")"));
                     } else if (!var.getType().equals(expressionType) && !expressionType.equals(TokenTypes.UNDEFINED)) {
@@ -744,7 +754,8 @@ public class SemanticAnalyzer {
         eatTerminal("{");
         checkVariable(mainClass);
 
-        Map<String, VariableEntry> context = this.symbolTable.getFullVariablesContext();
+        Map<String, VariableEntry> context = this.symbolTable.getConstContext();
+        context.putAll(mainClass.getVariables());
 
         checkStatements(context, this.symbolTable.getClasses());
 
